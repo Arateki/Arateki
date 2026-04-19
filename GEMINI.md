@@ -45,5 +45,5 @@ Any feature or refactoring must be validated by:
    - Run `npm run test:e2e` for UI.
    - Ensure `npm run build` passes before finishing.
 
----
+--- 
 *This document is the source of truth for the project's engineering culture.*
