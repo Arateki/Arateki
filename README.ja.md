@@ -68,4 +68,4 @@ npm run dev
 このプロジェクトは [MIT ライセンス](./LICENSE) の下でライセンスされています。
 
 ---
-<p align="center">Built with 🌿 by Arateki Team</p>
+<p align="center">Built by Arateki</p>

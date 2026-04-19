@@ -68,4 +68,4 @@ Seguimos altos estándares de ingeniería para garantizar la confiabilidad.
 Este proyecto está bajo la [Licencia MIT](./LICENSE).
 
 ---
-<p align="center">Construido con 🌿 por el equipo de Arateki</p>
+<p align="center">Construido por Arateki</p>
