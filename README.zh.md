@@ -65,7 +65,7 @@ npm run dev
 
 ## 🛡 许可证
 
-本项目是开源的。有关具体的许可证详情，请参阅代码库。
+本项目根据 [MIT 许可证](./LICENSE)进行许可。
 
 ---
 <p align="center">Built with 🌿 by Arateki Team</p>

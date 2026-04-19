@@ -65,7 +65,7 @@ Seguimos altos padrões de engenharia para garantir confiabilidade.
 
 ## 🛡 Licença
 
-Este projeto é open-source. Consulte o repositório para detalhes específicos de licença.
+Este projeto está licenciado sob a [Licença MIT](./LICENSE).
 
 ---
 <p align="center">Feito com 🌿 pela equipe Arateki</p>

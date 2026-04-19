@@ -65,7 +65,7 @@ We follow high engineering standards to ensure reliability.
 
 ## 🛡 License
 
-This project is open-source. See the repository for specific licensing details.
+This project is licensed under the [MIT License](./LICENSE).
 
 ---
 <p align="center">Built with 🌿 by Arateki Team</p>

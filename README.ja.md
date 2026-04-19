@@ -65,7 +65,7 @@ npm run dev
 
 ## 🛡 ライセンス
 
-このプロジェクトはオープンソースです。特定のライセンスの詳細については、リポジトリを参照してください。
+このプロジェクトは [MIT ライセンス](./LICENSE) の下でライセンスされています。
 
 ---
 <p align="center">Built with 🌿 by Arateki Team</p>
