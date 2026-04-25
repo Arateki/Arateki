@@ -1,4 +1,5 @@
 import { Moon, Sun, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { HorizontalLogo } from '../common/Logos';
 import type { TranslationType } from '../../types/i18n';
 import type { LangCode } from '../../hooks/useAppConfig';
@@ -20,21 +21,22 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
         
         {/* LOGO - Left Side */}
         <div className="flex-1 flex justify-start">
-          <a href="#" className="flex items-center group cursor-pointer">
+          <Link to="/" className="flex items-center group cursor-pointer">
             <HorizontalLogo 
               theme={theme}
               className="w-32 md:w-44 transition-transform duration-500 group-hover:scale-105" 
             />
-          </a>
+          </Link>
         </div>
         
         {/* LINKS - Perfect Center (Desktop) */}
         <div className="hidden md:flex justify-center space-x-4 lg:space-x-8 text-[10px] lg:text-xs uppercase tracking-widest font-light opacity-90">
-          <a href="#safrasense" className="hover:opacity-60 transition-opacity">{t.nav.product}</a>
-          <a href="#raiznet" className="hover:opacity-60 transition-opacity">{t.nav.network}</a>
-          <a href="#manifesto" className="hover:opacity-60 transition-opacity">{t.nav.manifesto}</a>
-          <a href="#waitlist" className="hover:opacity-60 transition-opacity">{t.nav.waitlist}</a>
-          <a href="#faq" className="hover:opacity-60 transition-opacity">{t.nav.faq}</a>
+          <a href="/#safrasense" className="hover:opacity-60 transition-opacity">{t.nav.product}</a>
+          <a href="/#raiznet" className="hover:opacity-60 transition-opacity">{t.nav.network}</a>
+          <a href="/#manifesto" className="hover:opacity-60 transition-opacity">{t.nav.manifesto}</a>
+          <a href="/#waitlist" className="hover:opacity-60 transition-opacity">{t.nav.waitlist}</a>
+          <a href="/#faq" className="hover:opacity-60 transition-opacity">{t.nav.faq}</a>
+          <Link to="/vendas" className="hover:opacity-60 transition-opacity font-bold">{t.nav.store}</Link>
           <a href="#footer" className="hover:opacity-60 transition-opacity">{t.nav.contact}</a>
         </div>
 
@@ -49,17 +51,24 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
             </svg>
             <select 
               onChange={(e) => {
-                if (e.target.value) window.location.hash = e.target.value;
+                if (e.target.value) {
+                  if (e.target.value.startsWith('/')) {
+                    window.location.href = e.target.value;
+                  } else {
+                    window.location.hash = e.target.value;
+                  }
+                }
               }}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer appearance-none"
               defaultValue=""
             >
               <option value="" disabled>Ir para...</option>
-              <option value="#safrasense">{t.nav.product}</option>
-              <option value="#raiznet">{t.nav.network}</option>
-              <option value="#manifesto">{t.nav.manifesto}</option>
-              <option value="#waitlist">{t.nav.waitlist}</option>
-              <option value="#faq">{t.nav.faq}</option>
+              <option value="/#safrasense">{t.nav.product}</option>
+              <option value="/#raiznet">{t.nav.network}</option>
+              <option value="/#manifesto">{t.nav.manifesto}</option>
+              <option value="/#waitlist">{t.nav.waitlist}</option>
+              <option value="/#faq">{t.nav.faq}</option>
+              <option value="/vendas">{t.nav.store}</option>
               <option value="#footer">{t.nav.contact}</option>
             </select>
           </div>

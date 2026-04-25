@@ -1,7 +1,7 @@
 import React from 'react';
 
 export type TranslationType = {
-  nav: { manifesto: string; product: string; network: string; waitlist: string; faq: string; contact: string };
+  nav: { manifesto: string; product: string; network: string; waitlist: string; faq: string; contact: string; store: string };
   hero: { title: string; subtitle: string; desc: string };
   manifesto: { 
     title: string; 

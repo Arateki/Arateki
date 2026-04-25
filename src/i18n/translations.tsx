@@ -3,7 +3,7 @@ import type { TranslationType } from '../types/i18n';
 
 export const translations: { [key: string]: TranslationType } = {
   pt: {
-    nav: { manifesto: "Manifesto", product: "SafraSense", network: "Raiznet", waitlist: "Espera", faq: "FAQ", contact: "Contato" },
+    nav: { manifesto: "Manifesto", product: "SafraSense", network: "Raiznet", waitlist: "Espera", faq: "FAQ", contact: "Contato", store: "Loja" },
     hero: {
       title: "Soluções Confiáveis.",
       subtitle: "Você define como usar.",
@@ -84,7 +84,7 @@ export const translations: { [key: string]: TranslationType } = {
     }
   },
   en: {
-    nav: { manifesto: "Manifesto", product: "SafraSense", network: "Raiznet", waitlist: "Waitlist", faq: "FAQ", contact: "Contact" },
+    nav: { manifesto: "Manifesto", product: "SafraSense", network: "Raiznet", waitlist: "Waitlist", faq: "FAQ", contact: "Contact", store: "Store" },
     hero: {
       title: "Reliable Solutions.",
       subtitle: "You define how to use them.",
@@ -165,7 +165,7 @@ export const translations: { [key: string]: TranslationType } = {
     }
   },
   es: {
-    nav: { manifesto: "Manifiesto", product: "SafraSense", network: "Raiznet", waitlist: "Espera", faq: "FAQ", contact: "Contacto" },
+    nav: { manifesto: "Manifiesto", product: "SafraSense", network: "Raiznet", waitlist: "Espera", faq: "FAQ", contact: "Contacto", store: "Tienda" },
     hero: {
       title: "Soluciones Confiables.",
       subtitle: "Tú defines cómo usarlas.",
@@ -246,7 +246,7 @@ export const translations: { [key: string]: TranslationType } = {
     }
   },
   zh: {
-    nav: { manifesto: "宣言", product: "SafraSense", network: "Raiznet", waitlist: "等候名单", faq: "常见问题", contact: "联系我们" },
+    nav: { manifesto: "宣言", product: "SafraSense", network: "Raiznet", waitlist: "等候名单", faq: "常见问题", contact: "联系我们", store: "商店" },
     hero: {
       title: "可靠的解决方案。",
       subtitle: "由您定义使用方式。",
@@ -327,7 +327,7 @@ export const translations: { [key: string]: TranslationType } = {
     }
   },
   ja: {
-    nav: { manifesto: "マニフェスト", product: "SafraSense", network: "Raiznet", waitlist: "ウェイティングリスト", faq: "FAQ", contact: "お問い合わせ" },
+    nav: { manifesto: "マニフェスト", product: "SafraSense", network: "Raiznet", waitlist: "ウェイティングリスト", faq: "FAQ", contact: "お問い合わせ", store: "ストア" },
     hero: {
       title: "信頼できるソリューションを。",
       subtitle: "使い方は、あなたが決める。",
