@@ -1,8 +1,9 @@
-import { Moon, Sun, Globe } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Moon, Sun, Globe, ShoppingCart } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { HorizontalLogo } from '../common/Logos';
 import type { TranslationType } from '../../types/i18n';
 import type { LangCode } from '../../hooks/useAppConfig';
+import { useCart } from '../../context/CartContext';
 
 interface NavbarProps {
   theme: 'light' | 'dark';
@@ -13,6 +14,10 @@ interface NavbarProps {
 }
 
 export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) => {
+  const { totalItems, openCart } = useCart();
+  const location = useLocation();
+  const isStorePage = location.pathname === '/vendas';
+
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 border-b-2 ${
       theme === 'light' ? 'border-[#E0E0E0] bg-white/90 backdrop-blur-md' : 'border-[#333333] bg-black/90 backdrop-blur-md'
@@ -102,6 +107,22 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
               <option value="ja" className="bg-white dark:bg-black text-black dark:text-white">JA</option>
             </select>
           </div>
+          {isStorePage && (
+            <button
+              onClick={openCart}
+              className="relative p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+              title="Carrinho"
+            >
+              <ShoppingCart className="w-4 h-4 md:w-5 md:h-5" />
+              {totalItems > 0 && (
+                <span className={`absolute -top-1 -right-1 w-4 h-4 text-[9px] font-black rounded-full flex items-center justify-center ${
+                  theme === 'light' ? 'bg-black text-white' : 'bg-white text-black'
+                }`}>
+                  {totalItems > 9 ? '9+' : totalItems}
+                </span>
+              )}
+            </button>
+          )}
           <button onClick={toggleTheme} className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors" title="Toggle Theme">
             {theme === 'light' ? <Moon className="w-4 h-4 md:w-5 md:h-5" /> : <Sun className="w-4 h-4 md:w-5 md:h-5" />}
           </button>

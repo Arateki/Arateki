@@ -1,14 +1,21 @@
+import { useState } from 'react';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useProducts } from '../hooks/useProducts';
+import { useCart } from '../context/CartContext';
 import { ParticleBackground } from '../components/common/ParticleBackground';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { ProductCard } from '../components/sales/ProductCard';
+import { CartDrawer } from '../components/sales/CartDrawer';
+import { ProductModal } from '../components/sales/ProductModal';
 import { FadeInSection } from '../components/common/FadeInSection';
+import type { Product } from '../types/product';
 
 export default function Sales() {
   const { theme, lang, setLang, t, toggleTheme } = useAppConfig();
   const { products, isLoading, error } = useProducts();
+  const { addToCart } = useCart();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   return (
     <div className={`min-h-screen font-['Montserrat'] transition-colors duration-500 ${theme === 'dark' ? 'dark' : ''} ${
@@ -52,7 +59,12 @@ export default function Sales() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {products.map((product) => (
                 <FadeInSection key={product.id}>
-                  <ProductCard product={product} theme={theme} />
+                  <ProductCard
+                    product={product}
+                    theme={theme}
+                    onAddToCart={addToCart}
+                    onOpenModal={setSelectedProduct}
+                  />
                 </FadeInSection>
               ))}
             </div>
@@ -60,9 +72,18 @@ export default function Sales() {
         </div>
       </main>
 
-      <Footer 
-        t={t} 
-        theme={theme} 
+      <Footer
+        t={t}
+        theme={theme}
+      />
+
+      <CartDrawer theme={theme} />
+
+      <ProductModal
+        product={selectedProduct}
+        theme={theme}
+        onClose={() => setSelectedProduct(null)}
+        onAddToCart={addToCart}
       />
     </div>
   );
