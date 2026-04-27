@@ -1,4 +1,5 @@
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
 interface CartDrawerProps {
@@ -23,7 +24,7 @@ export const CartDrawer = ({ theme }: CartDrawerProps) => {
       {/* Drawer */}
       <div className={`fixed top-0 right-0 h-full w-full max-w-sm z-50 flex flex-col transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
-      } ${isDark ? 'bg-[#0A0A0A] border-l border-[#333333]' : 'bg-white border-l border-[#E0E0E0]'}`}>
+      } ${isDark ? 'bg-[#161616] border-l border-[#2A2A2A]' : 'bg-white border-l border-[#E0E0E0]'}`}>
 
         {/* Header */}
         <div className={`flex items-center justify-between px-6 py-4 border-b ${isDark ? 'border-[#333333]' : 'border-[#E0E0E0]'}`}>
@@ -95,11 +96,15 @@ export const CartDrawer = ({ theme }: CartDrawerProps) => {
                 {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPrice)}
               </span>
             </div>
-            <button className={`w-full py-3 text-[11px] uppercase tracking-[0.25em] font-bold rounded-sm transition-all ${
-              isDark ? 'bg-white text-black hover:bg-white/90' : 'bg-black text-white hover:bg-black/80'
-            }`}>
+            <Link
+              to="/checkout"
+              onClick={closeCart}
+              className={`block w-full py-3 text-center text-[11px] uppercase tracking-[0.25em] font-bold rounded-sm transition-all ${
+                isDark ? 'bg-[#E0E0E0] text-[#181818] hover:bg-[#CACACA]' : 'bg-[#1D1D1D] text-[#F0F0F0] hover:bg-[#2E2E2E]'
+              }`}
+            >
               Finalizar Compra
-            </button>
+            </Link>
             <button
               onClick={clearCart}
               className="w-full text-[10px] uppercase tracking-widest opacity-40 hover:opacity-70 transition-opacity"

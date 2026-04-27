@@ -47,9 +47,9 @@ export default function Home() {
 
   return (
     <div className={`min-h-screen font-['Montserrat'] transition-colors duration-500 ${theme === 'dark' ? 'dark' : ''} ${
-      theme === 'light' 
-        ? 'bg-white text-[#1A1A1A] selection:bg-[#1A1A1A] selection:text-white' 
-        : 'bg-black text-[#FAFAFA] selection:bg-[#FAFAFA] selection:text-black'
+      theme === 'light'
+        ? 'bg-[#F5F5F5] text-[#1A1A1A] selection:bg-[#1D1D1D] selection:text-[#F0F0F0]'
+        : 'bg-[#111111] text-[#E8E8E8] selection:bg-[#E0E0E0] selection:text-[#181818]'
     }`}>
       
       <ParticleBackground theme={theme} />

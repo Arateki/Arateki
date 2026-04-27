@@ -20,7 +20,7 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
 
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 border-b-2 ${
-      theme === 'light' ? 'border-[#E0E0E0] bg-white/90 backdrop-blur-md' : 'border-[#333333] bg-black/90 backdrop-blur-md'
+      theme === 'light' ? 'border-[#E0E0E0] bg-[#F5F5F5]/90 backdrop-blur-md' : 'border-[#2A2A2A] bg-[#111111]/90 backdrop-blur-md'
     }`}>
       <div className="max-w-7xl mx-auto px-6 py-1 flex items-center justify-between">
         
@@ -35,7 +35,7 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
         </div>
         
         {/* LINKS - Perfect Center (Desktop) */}
-        <div className="hidden md:flex justify-center space-x-4 lg:space-x-8 text-[10px] lg:text-xs uppercase tracking-widest font-light opacity-90">
+        <div className="hidden md:flex justify-center space-x-4 lg:space-x-8 text-[10px] lg:text-xs uppercase tracking-widest font-medium opacity-90">
           <a href="/#safrasense" className="hover:opacity-60 transition-opacity">{t.nav.product}</a>
           <a href="/#raiznet" className="hover:opacity-60 transition-opacity">{t.nav.network}</a>
           <a href="/#manifesto" className="hover:opacity-60 transition-opacity">{t.nav.manifesto}</a>
@@ -116,7 +116,7 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
               <ShoppingCart className="w-4 h-4 md:w-5 md:h-5" />
               {totalItems > 0 && (
                 <span className={`absolute -top-1 -right-1 w-4 h-4 text-[9px] font-black rounded-full flex items-center justify-center ${
-                  theme === 'light' ? 'bg-black text-white' : 'bg-white text-black'
+                  theme === 'light' ? 'bg-[#1D1D1D] text-[#F0F0F0]' : 'bg-[#E0E0E0] text-[#181818]'
                 }`}>
                   {totalItems > 9 ? '9+' : totalItems}
                 </span>

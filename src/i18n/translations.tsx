@@ -81,6 +81,15 @@ export const translations: { [key: string]: TranslationType } = {
       contact: "Contato",
       address: "Endereço",
       social: "Redes Sociais"
+    },
+    checkout: {
+      backToStore: 'Voltar à loja',
+      steps: ['Contato', 'Entrega', 'Pagamento'],
+      contact: { title: 'Seus Dados', subtitle: 'Utilizaremos para enviar a confirmação do pedido.', name: 'Nome completo', email: 'E-mail', phone: 'Telefone / WhatsApp', next: 'Continuar' },
+      delivery: { title: 'Entrega', subtitle: 'Informe o endereço de entrega.', cep: 'CEP', street: 'Logradouro', number: 'Número', complement: 'Complemento', neighborhood: 'Bairro', city: 'Cidade', state: 'UF', shippingLabel: 'Modalidade de Frete', next: 'Continuar', back: 'Voltar' },
+      payment: { title: 'Pagamento', subtitle: 'Escolha como deseja pagar.', pix: 'PIX', pixDesc: 'Aprovação imediata', card: 'Cartão de Crédito', cardDesc: 'Redirecionado ao gateway seguro', pixInfo: 'Após confirmar, você receberá as instruções de pagamento PIX por e-mail. O pedido é reservado por 30 minutos.', cardInfo: 'Após confirmar, você será redirecionado ao ambiente seguro do gateway de pagamento para inserir os dados do cartão.', confirm: 'Confirmar Pedido', processing: 'Processando...', back: 'Voltar' },
+      summary: { title: 'Resumo do Pedido', qty: 'Qtd', subtotal: 'Subtotal', shipping: 'Frete', total: 'Total' },
+      confirmation: { title: 'Pedido Realizado!', emailSent: 'Um e-mail de confirmação foi enviado para', orderNumber: 'Número do Pedido', trackingInfo: 'Você receberá atualizações sobre o status da entrega no e-mail informado.', continueShopping: 'Continuar Comprando' }
     }
   },
   en: {
@@ -162,6 +171,15 @@ export const translations: { [key: string]: TranslationType } = {
       contact: "Contact",
       address: "Address",
       social: "Social Media"
+    },
+    checkout: {
+      backToStore: 'Back to store',
+      steps: ['Contact', 'Delivery', 'Payment'],
+      contact: { title: 'Your Details', subtitle: 'We will use this to send your order confirmation.', name: 'Full name', email: 'E-mail', phone: 'Phone / WhatsApp', next: 'Continue' },
+      delivery: { title: 'Delivery', subtitle: 'Enter your delivery address.', cep: 'Postal Code', street: 'Street', number: 'Number', complement: 'Complement', neighborhood: 'Neighborhood', city: 'City', state: 'State', shippingLabel: 'Shipping Method', next: 'Continue', back: 'Back' },
+      payment: { title: 'Payment', subtitle: 'Choose how you want to pay.', pix: 'PIX', pixDesc: 'Instant approval', card: 'Credit Card', cardDesc: 'Redirected to secure gateway', pixInfo: 'After confirming, you will receive PIX payment instructions by e-mail. The order is held for 30 minutes.', cardInfo: 'After confirming, you will be redirected to the secure payment gateway to enter your card details.', confirm: 'Confirm Order', processing: 'Processing...', back: 'Back' },
+      summary: { title: 'Order Summary', qty: 'Qty', subtotal: 'Subtotal', shipping: 'Shipping', total: 'Total' },
+      confirmation: { title: 'Order Placed!', emailSent: 'A confirmation e-mail was sent to', orderNumber: 'Order Number', trackingInfo: 'You will receive delivery status updates at the e-mail you provided.', continueShopping: 'Continue Shopping' }
     }
   },
   es: {
@@ -243,6 +261,15 @@ export const translations: { [key: string]: TranslationType } = {
       contact: "Contacto",
       address: "Dirección",
       social: "Redes Sociais"
+    },
+    checkout: {
+      backToStore: 'Volver a la tienda',
+      steps: ['Contacto', 'Entrega', 'Pago'],
+      contact: { title: 'Tus Datos', subtitle: 'Los usaremos para enviar la confirmación de tu pedido.', name: 'Nombre completo', email: 'Correo electrónico', phone: 'Teléfono / WhatsApp', next: 'Continuar' },
+      delivery: { title: 'Entrega', subtitle: 'Ingresa tu dirección de entrega.', cep: 'Código Postal', street: 'Calle', number: 'Número', complement: 'Complemento', neighborhood: 'Barrio', city: 'Ciudad', state: 'Estado', shippingLabel: 'Modalidad de Envío', next: 'Continuar', back: 'Volver' },
+      payment: { title: 'Pago', subtitle: 'Elige cómo deseas pagar.', pix: 'PIX', pixDesc: 'Aprobación inmediata', card: 'Tarjeta de Crédito', cardDesc: 'Redirigido al gateway seguro', pixInfo: 'Tras confirmar, recibirás las instrucciones de pago PIX por correo. El pedido se reserva por 30 minutos.', cardInfo: 'Tras confirmar, serás redirigido al entorno de pago seguro para ingresar los datos de tu tarjeta.', confirm: 'Confirmar Pedido', processing: 'Procesando...', back: 'Volver' },
+      summary: { title: 'Resumen del Pedido', qty: 'Cant', subtotal: 'Subtotal', shipping: 'Envío', total: 'Total' },
+      confirmation: { title: '¡Pedido Realizado!', emailSent: 'Un correo de confirmación fue enviado a', orderNumber: 'Número de Pedido', trackingInfo: 'Recibirás actualizaciones del estado de entrega en el correo indicado.', continueShopping: 'Seguir Comprando' }
     }
   },
   zh: {
@@ -324,6 +351,15 @@ export const translations: { [key: string]: TranslationType } = {
       contact: "联系我们",
       address: "地址",
       social: "社交媒体"
+    },
+    checkout: {
+      backToStore: '返回商店',
+      steps: ['联系方式', '配送', '付款'],
+      contact: { title: '您的信息', subtitle: '我们将使用此信息发送订单确认。', name: '全名', email: '电子邮件', phone: '电话 / WhatsApp', next: '继续' },
+      delivery: { title: '配送', subtitle: '请填写配送地址。', cep: '邮政编码', street: '街道', number: '门牌号', complement: '补充信息', neighborhood: '街区', city: '城市', state: '州/省', shippingLabel: '配送方式', next: '继续', back: '返回' },
+      payment: { title: '付款', subtitle: '选择您的付款方式。', pix: 'PIX', pixDesc: '即时到账', card: '信用卡', cardDesc: '跳转至安全支付网关', pixInfo: '确认后，您将通过电子邮件收到PIX付款说明。订单将保留30分钟。', cardInfo: '确认后，您将被重定向到安全支付网关以输入您的信用卡信息。', confirm: '确认订单', processing: '处理中...', back: '返回' },
+      summary: { title: '订单摘要', qty: '数量', subtotal: '小计', shipping: '运费', total: '总计' },
+      confirmation: { title: '订单成功！', emailSent: '确认邮件已发送至', orderNumber: '订单号', trackingInfo: '您将在所提供的电子邮件地址收到配送状态更新。', continueShopping: '继续购物' }
     }
   },
   ja: {
@@ -405,6 +441,15 @@ export const translations: { [key: string]: TranslationType } = {
       contact: "お問い合わせ",
       address: "住所",
       social: "ソーシャルメディア"
+    },
+    checkout: {
+      backToStore: 'ストアに戻る',
+      steps: ['連絡先', '配送', 'お支払い'],
+      contact: { title: 'お客様情報', subtitle: 'ご注文の確認メール送付に使用します。', name: 'お名前', email: 'メールアドレス', phone: '電話番号 / WhatsApp', next: '次へ' },
+      delivery: { title: '配送', subtitle: 'お届け先住所を入力してください。', cep: '郵便番号', street: '番地', number: '番号', complement: '建物名・部屋番号', neighborhood: '地区', city: '市区町村', state: '都道府県', shippingLabel: '配送方法', next: '次へ', back: '戻る' },
+      payment: { title: 'お支払い', subtitle: 'お支払い方法を選択してください。', pix: 'PIX', pixDesc: '即時承認', card: 'クレジットカード', cardDesc: 'セキュア決済ゲートウェイへリダイレクト', pixInfo: '確認後、PIX支払い手順をメールでお知らせします。注文は30分間保留されます。', cardInfo: '確認後、カード情報入力のためセキュア決済環境へリダイレクトされます。', confirm: '注文を確定する', processing: '処理中...', back: '戻る' },
+      summary: { title: '注文サマリー', qty: '数量', subtotal: '小計', shipping: '送料', total: '合計' },
+      confirmation: { title: 'ご注文完了！', emailSent: '確認メールを送信しました：', orderNumber: '注文番号', trackingInfo: '配送状況のお知らせはご登録のメールアドレスにお送りします。', continueShopping: 'ショッピングを続ける' }
     }
   }
 };

@@ -14,7 +14,7 @@ export const ProductCard = ({ product, theme, onAddToCart, onOpenModal }: Produc
       className={`group rounded-lg overflow-hidden transition-all duration-300 border cursor-pointer ${
         theme === 'light'
           ? 'bg-white border-[#E0E0E0] hover:border-black/20'
-          : 'bg-[#121212] border-[#333333] hover:border-white/20'
+          : 'bg-[#1C1C1C] border-[#2A2A2A] hover:border-white/20'
       }`}
       onClick={() => onOpenModal(product)}
     >
@@ -41,8 +41,8 @@ export const ProductCard = ({ product, theme, onAddToCart, onOpenModal }: Produc
             onClick={e => { e.stopPropagation(); onAddToCart(product); }}
             className={`flex items-center gap-2 px-4 py-2 rounded-sm text-[10px] uppercase tracking-[0.2em] font-bold transition-all active:scale-95 ${
               theme === 'light'
-                ? 'bg-black text-white hover:bg-black/80'
-                : 'bg-white text-black hover:bg-white/80'
+                ? 'bg-[#1D1D1D] text-[#F0F0F0] hover:bg-[#2E2E2E]'
+                : 'bg-[#E0E0E0] text-[#181818] hover:bg-[#CACACA]'
             }`}
           >
             <ShoppingCart className="w-3 h-3" />
