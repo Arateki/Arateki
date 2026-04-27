@@ -9,7 +9,7 @@ export default function App() {
     <CartProvider>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/vendas" element={<Sales />} />
+        <Route path="/sales" element={<Sales />} />
         <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </CartProvider>

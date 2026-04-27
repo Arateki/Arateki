@@ -17,7 +17,7 @@ interface NavbarProps {
 export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) => {
   const { totalItems, openCart } = useCart();
   const location = useLocation();
-  const isStorePage = location.pathname === '/vendas';
+  const isStorePage = location.pathname === '/sales';
   const [langOpen, setLangOpen] = useState(false);
   const isDark = theme === 'dark';
 
@@ -44,7 +44,7 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
           <a href="/#manifesto" className="hover:opacity-60 transition-opacity">{t.nav.manifesto}</a>
           <a href="/#waitlist" className="hover:opacity-60 transition-opacity">{t.nav.waitlist}</a>
           <a href="/#faq" className="hover:opacity-60 transition-opacity">{t.nav.faq}</a>
-          <Link to="/vendas" className="hover:opacity-60 transition-opacity font-bold">{t.nav.store}</Link>
+          <Link to="/sales" className="hover:opacity-60 transition-opacity font-bold">{t.nav.store}</Link>
           <a href="#footer" className="hover:opacity-60 transition-opacity">{t.nav.contact}</a>
         </div>
 
@@ -76,7 +76,7 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
               <option value="/#manifesto">{t.nav.manifesto}</option>
               <option value="/#waitlist">{t.nav.waitlist}</option>
               <option value="/#faq">{t.nav.faq}</option>
-              <option value="/vendas">{t.nav.store}</option>
+              <option value="/sales">{t.nav.store}</option>
               <option value="#footer">{t.nav.contact}</option>
             </select>
           </div>
@@ -87,6 +87,7 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
           <div className="relative">
             <button
               onClick={() => setLangOpen(open => !open)}
+              aria-label="Select language"
               className={`flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-sm transition-all ${
                 isDark ? 'bg-[#1C1C1C] hover:bg-[#242424]' : 'bg-white hover:bg-[#EFEFEF]'
               }`}

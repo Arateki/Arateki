@@ -34,7 +34,7 @@ export const ConfirmationStep = ({ orderId, email, theme, tCo }: ConfirmationSte
       </p>
 
       <Link
-        to="/vendas"
+        to="/sales"
         className={`px-8 py-3.5 rounded-sm text-[11px] uppercase tracking-[0.25em] font-bold transition-all active:scale-[0.98] ${
           isDark ? 'bg-[#E0E0E0] text-[#181818] hover:bg-[#CACACA]' : 'bg-[#1D1D1D] text-[#F0F0F0] hover:bg-[#2E2E2E]'
         }`}

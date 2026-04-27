@@ -11,7 +11,7 @@ Reference document for Claude (and other AI agents) working on this codebase. Re
 **Products:** SafraSense (hydroponic IoT sensor) and Raiznet (decentralized producer network).
 **Routes:**
 - `/` — Landing page (Hero, SafraSense, Raiznet, Manifesto, Waitlist, FAQ, Footer)
-- `/vendas` — Components store (product grid + cart drawer + product modal)
+- `/sales` — Components store (product grid + cart drawer + product modal)
 - `/checkout` — Multi-step checkout (Contact → Delivery → Payment → Confirmation)
 
 ---
@@ -148,7 +148,7 @@ Browser-rendered `<select>` popups ignore CSS — background color and text colo
 
 ### Cart drawer vs checkout navigation
 - `CartDrawer` has a `Link to="/checkout"` that also calls `closeCart()`.
-- `Checkout.tsx` redirects to `/vendas` via `useEffect` if the cart is empty and no `orderId` exists (prevents empty checkout access).
+- `Checkout.tsx` redirects to `/sales` via `useEffect` if the cart is empty and no `orderId` exists (prevents empty checkout access).
 - After a successful order, `clearCart()` is called and `orderId` is set, which prevents the redirect.
 
 ---

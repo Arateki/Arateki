@@ -37,7 +37,7 @@ export default function Checkout() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    if (items.length === 0 && !orderId) navigate('/vendas');
+    if (items.length === 0 && !orderId) navigate('/sales');
   }, [items, orderId, navigate]);
 
   const selectedShipping = SHIPPING_OPTIONS.find(o => o.id === form.delivery.shippingMethod) ?? null;
@@ -65,7 +65,7 @@ export default function Checkout() {
       } backdrop-blur-md`}>
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
           <Link
-            to="/vendas"
+            to="/sales"
             className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity text-[10px] uppercase tracking-widest font-medium"
           >
             <ArrowLeft className="w-3.5 h-3.5" />

@@ -6,7 +6,7 @@ test.describe('Sales Page', () => {
     
     if (isMobile) {
       // In mobile, use the select menu
-      await page.locator('select').first().selectOption('/vendas');
+      await page.locator('select').first().selectOption('/sales');
     } else {
       // In desktop, click on Store link
       const storeLink = page.getByRole('link', { name: /Loja|Store|Tienda/i });
@@ -14,7 +14,7 @@ test.describe('Sales Page', () => {
     }
     
     // Verify URL
-    await expect(page).toHaveURL(/\/vendas/);
+    await expect(page).toHaveURL(/\/sales/);
     
     // Verify Page Title
     await expect(page.locator('h1')).toContainText(/Loja de Componentes/i);

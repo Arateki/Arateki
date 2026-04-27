@@ -32,8 +32,8 @@ test.describe('Arateki Landing Page', () => {
   test('language switch should update content', async ({ page }) => {
     await page.goto('/');
     
-    const langSelect = page.locator('select').last();
-    await langSelect.selectOption('en');
+    await page.getByRole('button', { name: 'Select language' }).click();
+    await page.getByRole('button', { name: /^en$/ }).click();
     
     await expect(page.locator('h1')).toContainText('Reliable Solutions.');
   });
