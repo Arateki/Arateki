@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useProducts } from '../hooks/useProducts';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../context/useCart';
 import { ParticleBackground } from '../components/common/ParticleBackground';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';

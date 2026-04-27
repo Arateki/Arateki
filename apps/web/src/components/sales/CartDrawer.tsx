@@ -1,6 +1,6 @@
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../context/useCart';
 
 interface CartDrawerProps {
   theme: 'light' | 'dark';

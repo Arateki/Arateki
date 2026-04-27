@@ -1,7 +1,7 @@
 # Arateki
 
 <p align="center">
-  <img src="./public/03_arateki_black.svg" alt="Arateki Logo" width="200" />
+  <img src="./apps/web/public/03_arateki_black.svg" alt="Arateki Logo" width="200" />
 </p>
 
 <p align="center">
@@ -24,16 +24,21 @@ Arateki is a technology company dedicated to developing **open-source**, **priva
 The following technologies were used exclusively to build this web application:
 
 - **Frontend**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool**: [Vite 6](https://vitejs.dev/)
+- **Build Tool**: [Vite 8](https://vitejs.dev/)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **Testing**: [Vitest](https://vitest.dev/) (Unit) & [Playwright](https://playwright.dev/) (E2E & Visual Regression)
 - **Quality**: [ESLint](https://eslint.org/) & [Husky](https://typicode.github.io/husky/) (Git Hooks)
+
+## 📁 Repository Layout
+
+- `apps/web`: current React/Vite frontend.
+- `apps/api`: reserved workspace for the upcoming API.
 
 ## 📦 Getting Started
 
 ### Prerequisites
 - Node.js (Latest LTS recommended)
-- npm or yarn
+- pnpm
 
 ### Installation
 ```bash
@@ -41,25 +46,25 @@ The following technologies were used exclusively to build this web application:
 git clone https://github.com/Arateki/arateki-landing.git
 
 # Install dependencies
-npm install
+pnpm install
 
 # Setup environment variables
-cp .env.example .env # Ensure VITE_GOOGLE_SCRIPT_URL is set
+cp apps/web/.env.example apps/web/.env # Ensure VITE_GOOGLE_SCRIPT_URL is set
 ```
 
 ### Running Development Server
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ## 🧪 Testing & Quality
 
 We follow high engineering standards to ensure reliability.
 
-- **Unit Tests**: `npm test`
-- **E2E & Visual Regression**: `npm run test:e2e`
-- **Coverage Report**: `npm run test:coverage`
-- **Run All**: `npm run test:all`
+- **Unit Tests**: `pnpm test`
+- **E2E & Visual Regression**: `pnpm test:e2e`
+- **Coverage Report**: `pnpm test:coverage`
+- **Run All**: `pnpm test:all`
 
 **Pre-commit Hook**: Husky is configured to automatically run Lint and Unit Tests before every commit to prevent broken code from reaching the repository.
 

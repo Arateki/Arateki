@@ -35,36 +35,39 @@ Reference document for Claude (and other AI agents) working on this codebase. Re
 ## Directory Structure
 
 ```
-src/
-├── assets/fonts/          # Montserrat local fonts (Light, Regular, Medium, Bold, BoldItalic)
-├── components/
-│   ├── checkout/          # CheckoutInput, CheckoutStepper, OrderSummary
-│   │   └── steps/         # ContactStep, DeliveryStep, PaymentStep, ConfirmationStep
-│   ├── common/            # FadeInSection, Logos, ParticleBackground
-│   ├── layout/            # Navbar, Footer
-│   ├── sales/             # ProductCard, ProductModal, CartDrawer
-│   └── sections/          # Hero, SafraSense, Raiznet, Manifesto, Waitlist, FAQ
-├── context/
-│   └── CartContext.tsx     # Global cart state (CartProvider + useCart hook)
-├── hooks/
-│   ├── useAppConfig.ts     # Theme (dark/light) + language — the single source of truth for UI config
-│   └── useProducts.ts      # Fetches product list from productService
-├── i18n/
-│   └── translations.tsx    # ALL UI strings for 5 languages — always update all 5
-├── pages/
-│   ├── Home.tsx
-│   ├── Sales.tsx
-│   └── Checkout.tsx
-├── services/
-│   ├── checkoutService.ts  # Mock POST /orders — replace URL when real API is ready
-│   ├── emailService.ts     # Waitlist email submission
-│   └── productService.ts   # Mock product list — replace with real API
-├── types/
-│   ├── checkout.ts         # CheckoutFormData, DeliveryData, ShippingOption, SHIPPING_OPTIONS
-│   ├── global.d.ts         # Browser API ambient types
-│   ├── i18n.ts             # TranslationType — must mirror translations.tsx exactly
-│   └── product.ts          # Product interface
-└── index.css               # @font-face declarations + animate-fadeIn / animate-scaleIn keyframes
+apps/
+├── api/                    # Future API workspace
+└── web/
+    └── src/
+        ├── assets/fonts/   # Montserrat local fonts (Light, Regular, Medium, Bold, BoldItalic)
+        ├── components/
+        │   ├── checkout/   # CheckoutInput, CheckoutStepper, OrderSummary
+        │   │   └── steps/  # ContactStep, DeliveryStep, PaymentStep, ConfirmationStep
+        │   ├── common/     # FadeInSection, Logos, ParticleBackground
+        │   ├── layout/     # Navbar, Footer
+        │   ├── sales/      # ProductCard, ProductModal, CartDrawer
+        │   └── sections/   # Hero, SafraSense, Raiznet, Manifesto, Waitlist, FAQ
+        ├── context/
+        │   └── CartContext.tsx
+        ├── hooks/
+        │   ├── useAppConfig.ts
+        │   └── useProducts.ts
+        ├── i18n/
+        │   └── translations.tsx
+        ├── pages/
+        │   ├── Home.tsx
+        │   ├── Sales.tsx
+        │   └── Checkout.tsx
+        ├── services/
+        │   ├── checkoutService.ts
+        │   ├── emailService.ts
+        │   └── productService.ts
+        ├── types/
+        │   ├── checkout.ts
+        │   ├── global.d.ts
+        │   ├── i18n.ts
+        │   └── product.ts
+        └── index.css
 ```
 
 ---
@@ -72,10 +75,10 @@ src/
 ## Architecture Rules
 
 ### Single Responsibility
-- **Pages** (`src/pages/`): layout only — compose components, wire state.
-- **Components** (`src/components/`): purely declarative, receive props.
-- **Hooks** (`src/hooks/`): all logic and side effects.
-- **Services** (`src/services/`): all API/network calls. Never call `fetch` inside a component.
+- **Pages** (`apps/web/src/pages/`): layout only — compose components, wire state.
+- **Components** (`apps/web/src/components/`): purely declarative, receive props.
+- **Hooks** (`apps/web/src/hooks/`): all logic and side effects.
+- **Services** (`apps/web/src/services/`): all API/network calls. Never call `fetch` inside a component.
 
 ### State Management
 - **Theme + Language:** `useAppConfig()` — reads/writes localStorage, exposes `{ theme, toggleTheme, lang, setLang, t }`. Every page calls this hook independently; they share state only via localStorage.
@@ -87,7 +90,7 @@ src/
 - **Never hardcode UI text** in components — add it to `translations.tsx` and `i18n.ts` first.
 - Supported languages: `pt | en | es | zh | ja`. All five must be updated simultaneously.
 - Checkout steps receive `tCo: TranslationType['checkout']` as a prop and use `tCo.contact.*`, `tCo.delivery.*`, etc.
-- `TranslationType` in `src/types/i18n.ts` must be kept in sync with `translations.tsx`.
+- `TranslationType` in `apps/web/src/types/i18n.ts` must be kept in sync with `translations.tsx`.
 
 ---
 
@@ -110,7 +113,7 @@ src/
 | Selection | `selection:bg-[#E0E0E0] selection:text-[#181818]` | `selection:bg-[#1D1D1D] selection:text-[#F0F0F0]` |
 
 ### Typography
-- Font: Montserrat (local, `src/assets/fonts/`). Declared with `@font-face` in `index.css`.
+- Font: Montserrat (local, `apps/web/src/assets/fonts/`). Declared with `@font-face` in `index.css`.
 - Small labels (`text-[10px] uppercase tracking-widest`): use `font-semibold opacity-70+` — never `font-light opacity-50` (illegible).
 - Secondary body text: `font-medium opacity-80+` — never `font-light opacity-50`.
 - Placeholders: `/40` opacity minimum (e.g. `placeholder:text-[#E8E8E8]/40`).
@@ -125,13 +128,13 @@ src/
 ## Key Patterns
 
 ### Adding a new translatable string
-1. Add the key to `TranslationType` in `src/types/i18n.ts`.
-2. Add the string for all 5 languages in `src/i18n/translations.tsx`.
+1. Add the key to `TranslationType` in `apps/web/src/types/i18n.ts`.
+2. Add the string for all 5 languages in `apps/web/src/i18n/translations.tsx`.
 3. Use it via `t.yourKey` (from `useAppConfig`) or `tCo.yourKey` (in checkout steps).
 
 ### Adding a new product field
-1. Update `Product` in `src/types/product.ts`.
-2. Update mock data in `src/services/productService.ts`.
+1. Update `Product` in `apps/web/src/types/product.ts`.
+2. Update mock data in `apps/web/src/services/productService.ts`.
 3. Update `ProductCard` and/or `ProductModal` to display it.
 
 ### Native `<select>` elements — avoid for dropdowns
@@ -141,7 +144,7 @@ Browser-rendered `<select>` popups ignore CSS — background color and text colo
 `DeliveryStep.tsx` auto-fills street/neighborhood/city/state by calling `https://viacep.com.br/ws/{cep}/json/` when CEP reaches 8 digits. No API key needed.
 
 ### Checkout mock → real API
-`src/services/checkoutService.ts` has `createOrder(payload)` returning a fake order ID after 1.8s. When the real API is ready, replace the `setTimeout` block with `fetch('/api/orders', { method: 'POST', body: JSON.stringify(payload) })`. The payload shape (`OrderPayload`) is already correct.
+`apps/web/src/services/checkoutService.ts` has `createOrder(payload)` returning a fake order ID after 1.8s. When the real API is ready, replace the `setTimeout` block with `fetch('/api/orders', { method: 'POST', body: JSON.stringify(payload) })`. The payload shape (`OrderPayload`) is already correct.
 
 ### Cart drawer vs checkout navigation
 - `CartDrawer` has a `Link to="/checkout"` that also calls `closeCart()`.
@@ -153,14 +156,14 @@ Browser-rendered `<select>` popups ignore CSS — background color and text colo
 ## Workflow
 
 ```bash
-npm run dev          # Dev server
-npm run build        # TypeScript check + Vite build (run before finishing any task)
-npm test             # Vitest unit tests
-npm run test:e2e     # Playwright E2E
-npm run test:all     # Both
+pnpm dev          # Dev server
+pnpm build        # TypeScript check + Vite build (run before finishing any task)
+pnpm test             # Vitest unit tests
+pnpm test:e2e     # Playwright E2E
+pnpm test:all     # Both
 ```
 
-**Always run `npm run build` before reporting a task as done.** Husky blocks commits on lint/test failure.
+**Always run `pnpm build` before reporting a task as done.** Husky blocks commits on lint/test failure.
 
 ---
 

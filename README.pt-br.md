@@ -1,7 +1,7 @@
 # Arateki
 
 <p align="center">
-  <img src="./public/03_arateki_black.svg" alt="Arateki Logo" width="200" />
+  <img src="./apps/web/public/03_arateki_black.svg" alt="Arateki Logo" width="200" />
 </p>
 
 <p align="center">
@@ -24,16 +24,21 @@ A Arateki é uma empresa de tecnologia dedicada ao desenvolvimento de soluções
 As seguintes tecnologias foram utilizadas exclusivamente para a construção desta aplicação web:
 
 - **Frontend**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Ferramenta de Build**: [Vite 6](https://vitejs.dev/)
+- **Ferramenta de Build**: [Vite 8](https://vitejs.dev/)
 - **Estilização**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **Testes**: [Vitest](https://vitest.dev/) (Unidade) & [Playwright](https://playwright.dev/) (E2E & Regressão Visual)
 - **Qualidade**: [ESLint](https://eslint.org/) & [Husky](https://typicode.github.io/husky/) (Git Hooks)
+
+## 📁 Estrutura do Repositório
+
+- `apps/web`: frontend React/Vite atual.
+- `apps/api`: workspace reservado para a API futura.
 
 ## 📦 Começando
 
 ### Pré-requisitos
 - Node.js (LTS recomendado)
-- npm ou yarn
+- pnpm
 
 ### Instalação
 ```bash
@@ -41,25 +46,25 @@ As seguintes tecnologias foram utilizadas exclusivamente para a construção des
 git clone https://github.com/Arateki/arateki-landing.git
 
 # Instale as dependências
-npm install
+pnpm install
 
 # Configure as variáveis de ambiente
-cp .env.example .env # Garanta que VITE_GOOGLE_SCRIPT_URL esteja preenchido
+cp apps/web/.env.example apps/web/.env # Garanta que VITE_GOOGLE_SCRIPT_URL esteja preenchido
 ```
 
 ### Rodando o Servidor de Desenvolvimento
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ## 🧪 Testes e Qualidade
 
 Seguimos altos padrões de engenharia para garantir confiabilidade.
 
-- **Testes de Unidade**: `npm test`
-- **E2E e Regressão Visual**: `npm run test:e2e`
-- **Relatório de Cobertura**: `npm run test:coverage`
-- **Rodar Todos**: `npm run test:all`
+- **Testes de Unidade**: `pnpm test`
+- **E2E e Regressão Visual**: `pnpm test:e2e`
+- **Relatório de Cobertura**: `pnpm test:coverage`
+- **Rodar Todos**: `pnpm test:all`
 
 **Pre-commit Hook**: O Husky está configurado para rodar automaticamente o Lint e os Testes de Unidade antes de cada commit, impedindo que código quebrado chegue ao repositório.
 

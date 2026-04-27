@@ -1,7 +1,7 @@
 # Arateki
 
 <p align="center">
-  <img src="./public/03_arateki_black.svg" alt="Arateki Logo" width="200" />
+  <img src="./apps/web/public/03_arateki_black.svg" alt="Arateki Logo" width="200" />
 </p>
 
 <p align="center">
@@ -24,7 +24,7 @@ Arateki 是一家致力于开发**开源**、**注重隐私**且**符合伦理**
 以下技术专门用于构建此 Web 应用程序：
 
 - **Frontend**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool**: [Vite 6](https://vitejs.dev/)
+- **Build Tool**: [Vite 8](https://vitejs.dev/)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **Testing**: [Vitest](https://vitest.dev/) (单元测试) & [Playwright](https://playwright.dev/) (端到端测试 & 视觉回归测试)
 - **Quality**: [ESLint](https://eslint.org/) & [Husky](https://typicode.github.io/husky/) (Git Hooks)
@@ -33,7 +33,7 @@ Arateki 是一家致力于开发**开源**、**注重隐私**且**符合伦理**
 
 ### 先决条件
 - Node.js (推荐最新的 LTS 版本)
-- npm 或 yarn
+- pnpm
 
 ### 安装
 ```bash
@@ -41,25 +41,25 @@ Arateki 是一家致力于开发**开源**、**注重隐私**且**符合伦理**
 git clone https://github.com/Arateki/arateki-landing.git
 
 # 安装依赖项
-npm install
+pnpm install
 
 # 设置环境变量
-cp .env.example .env # 确保已设置 VITE_GOOGLE_SCRIPT_URL
+cp apps/web/.env.example apps/web/.env # 确保已设置 VITE_GOOGLE_SCRIPT_URL
 ```
 
 ### 运行开发服务器
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ## 🧪 测试与质量
 
 我们遵循高标准的工程规范以确保可靠性。
 
-- **单元测试**: `npm test`
-- **端到端测试 & 视觉回归测试**: `npm run test:e2e`
-- **覆盖率报告**: `npm run test:coverage`
-- **运行所有测试**: `npm run test:all`
+- **单元测试**: `pnpm test`
+- **端到端测试 & 视觉回归测试**: `pnpm test:e2e`
+- **覆盖率报告**: `pnpm test:coverage`
+- **运行所有测试**: `pnpm test:all`
 
 **Pre-commit Hook**: Husky 已配置为在每次提交前自动运行 Lint 和单元测试，以防止损坏的代码进入代码库。
 

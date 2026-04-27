@@ -1,7 +1,7 @@
 # Arateki
 
 <p align="center">
-  <img src="./public/03_arateki_black.svg" alt="Arateki Logo" width="200" />
+  <img src="./apps/web/public/03_arateki_black.svg" alt="Arateki Logo" width="200" />
 </p>
 
 <p align="center">
@@ -24,7 +24,7 @@ Arateki は、**オープンソース**で**プライバシーを重視**し、*
 このウェブアプリケーションの構築には、以下の技術が独占的に使用されています：
 
 - **フロントエンド**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **ビルドツール**: [Vite 6](https://vitejs.dev/)
+- **ビルドツール**: [Vite 8](https://vitejs.dev/)
 - **スタイリング**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **テスト**: [Vitest](https://vitest.dev/) (ユニット) & [Playwright](https://playwright.dev/) (E2E & ビジュアルリグレッション)
 - **品質**: [ESLint](https://eslint.org/) & [Husky](https://typicode.github.io/husky/) (Git フック)
@@ -33,7 +33,7 @@ Arateki は、**オープンソース**で**プライバシーを重視**し、*
 
 ### 前提条件
 - Node.js (最新の LTS 推奨)
-- npm または yarn
+- pnpm
 
 ### インストール
 ```bash
@@ -41,25 +41,25 @@ Arateki は、**オープンソース**で**プライバシーを重視**し、*
 git clone https://github.com/Arateki/arateki-landing.git
 
 # 依存関係をインストール
-npm install
+pnpm install
 
 # 環境変数の設定
-cp .env.example .env # VITE_GOOGLE_SCRIPT_URL が設定されていることを確認してください
+cp apps/web/.env.example apps/web/.env # VITE_GOOGLE_SCRIPT_URL が設定されていることを確認してください
 ```
 
 ### 開発サーバーの起動
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ## 🧪 テストと品質 Japan
 
 当社は信頼性を確保するために高いエンジニアリング基準に従っています。
 
-- **ユニットテスト**: `npm test`
-- **E2E & ビジュアルリグレッション**: `npm run test:e2e`
-- **カバレッジレポート**: `npm run test:coverage`
-- **すべて実行**: `npm run test:all`
+- **ユニットテスト**: `pnpm test`
+- **E2E & ビジュアルリグレッション**: `pnpm test:e2e`
+- **カバレッジレポート**: `pnpm test:coverage`
+- **すべて実行**: `pnpm test:all`
 
 **Pre-commit Hook**: Husky は、壊れたコードがリポジトリに届かないように、コミット前に Lint とユニットテストを自動的に実行するように設定されています。
 

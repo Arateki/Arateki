@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Globe, Moon, Sun } from 'lucide-react';
 import { useAppConfig } from '../hooks/useAppConfig';
 import type { LangCode } from '../hooks/useAppConfig';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../context/useCart';
 import { checkoutService } from '../services/checkoutService';
 import { SHIPPING_OPTIONS } from '../types/checkout';
 import { CheckoutStepper } from '../components/checkout/CheckoutStepper';
