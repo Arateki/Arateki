@@ -6,7 +6,7 @@ Reference document for Claude (and other AI agents) working on this codebase. Re
 
 ## Project Overview
 
-**Type:** Landing page + e-commerce (components store) + lead capture.
+**Type:** Monorepo with landing page + e-commerce frontend and TypeScript API.
 **Mission:** Open-source, privacy-focused hardware solutions.
 **Products:** SafraSense (hydroponic IoT sensor) and Raiznet (decentralized producer network).
 **Routes:**
@@ -29,6 +29,7 @@ Reference document for Claude (and other AI agents) working on this codebase. Re
 | Unit tests | Vitest + Testing Library | 3 |
 | E2E tests | Playwright | 1.50 |
 | Git hooks | Husky | 9 (blocks commit if lint/tests fail) |
+| API | Fastify + MongoDB + JWT | Fastify 5 |
 
 ---
 
@@ -36,7 +37,7 @@ Reference document for Claude (and other AI agents) working on this codebase. Re
 
 ```
 apps/
-├── api/                    # Future API workspace
+├── api/                    # Fastify API, MongoDB repositories, JWT auth
 └── web/
     └── src/
         ├── assets/fonts/   # Montserrat local fonts (Light, Regular, Medium, Bold, BoldItalic)
@@ -146,6 +147,9 @@ Browser-rendered `<select>` popups ignore CSS — background color and text colo
 ### Checkout mock → real API
 `apps/web/src/services/checkoutService.ts` has `createOrder(payload)` returning a fake order ID after 1.8s. When the real API is ready, replace the `setTimeout` block with `fetch('/api/orders', { method: 'POST', body: JSON.stringify(payload) })`. The payload shape (`OrderPayload`) is already correct.
 
+### API auth
+`apps/api` uses `{ login, password }` for `POST /login`. JWTs carry `sub` (user id), `role`, `tokenVersion`, `jti`, and `exp`. `POST /logout` revokes the current `jti` until expiration, and `PATCH /users/password` changes the current token user's password while incrementing `tokenVersion` to invalidate older tokens.
+
 ### Cart drawer vs checkout navigation
 - `CartDrawer` has a `Link to="/checkout"` that also calls `closeCart()`.
 - `Checkout.tsx` redirects to `/sales` via `useEffect` if the cart is empty and no `orderId` exists (prevents empty checkout access).
@@ -157,6 +161,7 @@ Browser-rendered `<select>` popups ignore CSS — background color and text colo
 
 ```bash
 pnpm dev          # Dev server
+pnpm dev:api      # API dev server
 pnpm build        # TypeScript check + Vite build (run before finishing any task)
 pnpm test             # Vitest unit tests
 pnpm test:e2e     # Playwright E2E

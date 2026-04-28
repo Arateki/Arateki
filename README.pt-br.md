@@ -32,7 +32,7 @@ As seguintes tecnologias foram utilizadas exclusivamente para a construção des
 ## 📁 Estrutura do Repositório
 
 - `apps/web`: frontend React/Vite atual.
-- `apps/api`: workspace reservado para a API futura.
+- `apps/api`: API Fastify com autenticação JWT e persistência em MongoDB.
 
 ## 📦 Começando
 
@@ -55,6 +55,12 @@ cp apps/web/.env.example apps/web/.env # Garanta que VITE_GOOGLE_SCRIPT_URL este
 ### Rodando o Servidor de Desenvolvimento
 ```bash
 pnpm dev
+```
+
+### Rodando a API
+```bash
+docker compose up -d mongodb
+pnpm dev:api
 ```
 
 ## 🧪 Testes e Qualidade

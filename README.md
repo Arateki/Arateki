@@ -32,7 +32,7 @@ The following technologies were used exclusively to build this web application:
 ## 📁 Repository Layout
 
 - `apps/web`: current React/Vite frontend.
-- `apps/api`: reserved workspace for the upcoming API.
+- `apps/api`: Fastify API with JWT authentication and MongoDB persistence.
 
 ## 📦 Getting Started
 
@@ -55,6 +55,12 @@ cp apps/web/.env.example apps/web/.env # Ensure VITE_GOOGLE_SCRIPT_URL is set
 ### Running Development Server
 ```bash
 pnpm dev
+```
+
+### Running API Server
+```bash
+docker compose up -d mongodb
+pnpm dev:api
 ```
 
 ## 🧪 Testing & Quality
