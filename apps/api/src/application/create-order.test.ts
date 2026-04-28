@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
-import type { ClientSession, MongoClient } from 'mongodb';
+import { describe, expect, it } from 'vitest';
+import type { MongoClient } from 'mongodb';
 import { defaultProducts } from '../config/default-products.js';
 import type { Order, OrderRepository } from '../domain/order.js';
 import type { Product, ProductInput, ProductRepository } from '../domain/product.js';
@@ -8,7 +8,7 @@ import { CreateOrderError, CreateOrderUseCase } from './create-order.js';
 class InMemoryOrderRepository implements OrderRepository {
   readonly orders: Order[] = [];
 
-  create(order: Order, _session?: ClientSession): Promise<Order> {
+  create(order: Order): Promise<Order> {
     this.orders.push(order);
     return Promise.resolve(order);
   }
@@ -25,7 +25,7 @@ class InMemoryProductRepository implements ProductRepository {
     return Promise.resolve(this.products.filter(product => product.active));
   }
 
-  findActiveById(id: string, _session?: ClientSession): Promise<Product | null> {
+  findActiveById(id: string): Promise<Product | null> {
     return Promise.resolve(this.products.find(product => product.id === id && product.active) ?? null);
   }
 
@@ -52,7 +52,7 @@ class InMemoryProductRepository implements ProductRepository {
     return Promise.resolve();
   }
 
-  decrementStock(productId: string, variantId: string, quantity: number, _session?: ClientSession): Promise<void> {
+  decrementStock(productId: string, variantId: string, quantity: number): Promise<void> {
     const product = this.products.find(p => p.id === productId);
     if (!product) throw new Error('INSUFFICIENT_STOCK_OR_NOT_FOUND');
     
@@ -66,7 +66,7 @@ class InMemoryProductRepository implements ProductRepository {
 
 const mockMongoClient = {
   startSession: () => ({
-    withTransaction: (callback: () => Promise<any>) => callback(),
+    withTransaction: <T>(callback: () => Promise<T>) => callback(),
     endSession: () => Promise.resolve(),
   }),
 } as unknown as MongoClient;
