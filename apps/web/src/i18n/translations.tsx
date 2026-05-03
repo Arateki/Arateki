@@ -131,6 +131,10 @@ const baseTranslations = {
     store: {
       title: "Loja de produtos e componentes",
       subtitle: "Adquira soluções exclusivas Arateki e componentes eletrônicos essenciais para seus projetos e reparos.",
+      priceLabel: "Preço",
+      buyButton: "Comprar",
+      addToCart: "Adicionar ao Carrinho",
+      outOfStock: "Esgotado",
       notifyMe: {
         title: "Produtos Indisponíveis",
         desc: "Nossa produção é artesanal e em pequena escala. Deixe seu e-mail para ser avisado assim que novos produtos e componentes estiverem em estoque.",
@@ -231,6 +235,10 @@ const baseTranslations = {
     store: {
       title: "Products & Components Store",
       subtitle: "Get exclusive Arateki solutions and essential electronic components for your projects and repairs.",
+      priceLabel: "Price",
+      buyButton: "Buy",
+      addToCart: "Add to Cart",
+      outOfStock: "Out of Stock",
       notifyMe: {
         title: "Products Out of Stock",
         desc: "Our production is handmade and small-scale. Leave your email to be notified as soon as new products and components are back in stock.",
@@ -331,6 +339,10 @@ const baseTranslations = {
     store: {
       title: "Tienda de productos y componentes",
       subtitle: "Adquiera soluciones exclusivas Arateki e componentes electrónicos esenciales para sus proyectos y reparaciones.",
+      priceLabel: "Precio",
+      buyButton: "Comprar",
+      addToCart: "Añadir al carrito",
+      outOfStock: "Agotado",
       notifyMe: {
         title: "Productos no disponibles",
         desc: "Nuestra producción es artesanal y a pequeña escala. Deje su correo para recibir un aviso cuando nuevos productos y componentes vuelvan al inventario.",
@@ -431,6 +443,10 @@ const baseTranslations = {
     store: {
       title: "产品与组件商店",
       subtitle: "获取 Arateki 独家解决方案和项目及维修所需的必备电子组件。",
+      priceLabel: "价格",
+      buyButton: "购买",
+      addToCart: "加入购物车",
+      outOfStock: "售罄",
       notifyMe: {
         title: "产品暂不可用",
         desc: "我们的生产是手工小批量进行的。留下您的邮箱，新产品和组件补货时我们会通知您。",
@@ -531,6 +547,10 @@ const baseTranslations = {
     store: {
       title: "製品＆コンポーネントストア",
       subtitle: "Arateki独自のソリューションと、プロジェクトや修理に欠かせない電子部品を手に入れましょう。",
+      priceLabel: "価格",
+      buyButton: "購入",
+      addToCart: "カートに追加",
+      outOfStock: "在庫切れ",
       notifyMe: {
         title: "在庫切れ",
         desc: "私たちの生産は手作りで小規模です。新しい製品やコンポーネントが入荷次第お知らせしますので、メールアドレスを登録してください。",

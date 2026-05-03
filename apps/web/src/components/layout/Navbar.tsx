@@ -48,20 +48,28 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
           {/* CRYSTALLINE TEXT CTA */}
           <Link
             to="/sales"
-            className="relative px-2 py-2 group flex items-center justify-center transition-transform duration-300 hover:scale-110 active:scale-95"
+            className={isStorePage
+              ? 'px-2 py-2 hover:opacity-60 transition-opacity'
+              : 'relative px-2 py-2 group flex items-center justify-center transition-transform duration-300 hover:scale-110 active:scale-95'
+            }
           >
             {/* Background Aura (Breathing) */}
-            <div className={`absolute inset-0 rounded-full animate-pulse-aura blur-xl ${
-              isDark ? 'bg-white scale-75' : 'bg-zinc-800 scale-100'
-            }`} />
+            {!isStorePage && (
+              <div className={`absolute inset-0 rounded-full animate-pulse-aura blur-xl ${
+                isDark ? 'bg-white scale-75' : 'bg-zinc-800 scale-100'
+              }`} />
+            )}
 
             {/* Text with Shimmer Effect */}
             <span
-              className={`text-[10px] font-black uppercase tracking-[0.3em] relative z-10 antialiased animate-text-shimmer bg-clip-text text-transparent ${
-                isDark
-                  ? 'bg-gradient-to-r from-gray-400 via-white to-gray-400'
-                  : 'bg-gradient-to-r from-gray-600 via-black to-gray-600'
-              }`}
+              className={isStorePage
+                ? 'uppercase'
+                : `text-[10px] font-black uppercase tracking-[0.3em] relative z-10 antialiased animate-text-shimmer bg-clip-text text-transparent ${
+                  isDark
+                    ? 'bg-gradient-to-r from-gray-400 via-white to-gray-400'
+                    : 'bg-gradient-to-r from-gray-600 via-black to-gray-600'
+                }`
+              }
             >
               {t.nav.store}
             </span>

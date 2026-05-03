@@ -7,8 +7,9 @@ interface ApiProduct {
   description: string;
   priceCents: number;
   currency: string;
+  stock?: number;
   imageUrl?: string;
-  variants?: Array<{ id: string }>;
+  variants?: Array<{ id: string; stock?: number }>;
 }
 
 export const productService = {
@@ -21,15 +22,20 @@ export const productService = {
 
     const data = await response.json() as { products: ApiProduct[] };
 
-    return data.products.map((p) => ({
-      id: p.id,
-      name: p.name,
-      description: p.description,
-      price: p.priceCents / 100,
-      currency: p.currency,
-      image: p.imageUrl || 'https://images.unsplash.com/photo-1553406830-ef2513020d76?q=80&w=400&auto=format&fit=crop',
-      category: 'Componentes',
-      variantId: p.variants?.[0]?.id || '',
-    }));
+    return data.products.map((p) => {
+      const selectedVariant = p.variants?.find(variant => (variant.stock ?? 0) > 0) ?? p.variants?.[0];
+
+      return {
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        price: p.priceCents / 100,
+        currency: p.currency,
+        image: p.imageUrl || 'https://images.unsplash.com/photo-1553406830-ef2513020d76?q=80&w=400&auto=format&fit=crop',
+        category: 'Componentes',
+        variantId: selectedVariant?.id || '',
+        stock: selectedVariant?.stock ?? p.stock ?? 0,
+      };
+    });
   }
 };

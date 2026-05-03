@@ -29,7 +29,7 @@ describe('checkoutService', () => {
     payment: { method: 'pix' },
     items: [
       {
-        product: { id: 'p1', variantId: 'v1', name: 'Product', description: 'Description', price: 10, currency: 'BRL', image: '', category: '' },
+        product: { id: 'p1', variantId: 'v1', name: 'Product', description: 'Description', price: 10, currency: 'BRL', image: '', category: '', stock: 5 },
         quantity: 2
       }
     ]

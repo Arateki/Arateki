@@ -188,6 +188,7 @@ export default function Checkout() {
       <ProductModal
         product={selectedProduct}
         theme={theme}
+        t={t.store}
         onClose={() => setSelectedProduct(null)}
         showAddToCart={false}
       />

@@ -27,6 +27,10 @@ export type TranslationType = {
   store: {
     title: string;
     subtitle: string;
+    priceLabel: string;
+    buyButton: string;
+    addToCart: string;
+    outOfStock: string;
     notifyMe: {
       title: string;
       desc: string;

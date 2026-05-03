@@ -10,12 +10,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const addToCart = (product: Product) => {
+    if (product.stock <= 0) return;
+
     setItems(prev => {
       const existing = prev.find(item => item.product.id === product.id);
       if (existing) {
         return prev.map(item =>
           item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: Math.min(item.quantity + 1, product.stock) }
             : item
         );
       }
@@ -35,7 +37,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
     setItems(prev =>
       prev.map(item =>
-        item.product.id === productId ? { ...item, quantity } : item
+        item.product.id === productId ? { ...item, quantity: Math.min(quantity, item.product.stock) } : item
       )
     );
   };

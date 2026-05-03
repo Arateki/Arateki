@@ -38,6 +38,29 @@
 
 :root {
   font-family: var(--font-montserrat);
+  --autofill-bg: #F5F5F5;
+  --autofill-text: #1A1A1A;
+  --autofill-selection: #1D1D1D;
+}
+
+.dark {
+  --autofill-bg: #111111;
+  --autofill-text: #E8E8E8;
+  --autofill-selection: #E0E0E0;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--autofill-text);
+  caret-color: var(--autofill-text);
+  -webkit-box-shadow: 0 0 0 1000px var(--autofill-bg) inset;
+  box-shadow: 0 0 0 1000px var(--autofill-bg) inset;
+  border-color: color-mix(in srgb, var(--autofill-selection) 35%, transparent);
+  transition: background-color 9999s ease-out, color 9999s ease-out;
 }
 
 img[src$=".svg"] {

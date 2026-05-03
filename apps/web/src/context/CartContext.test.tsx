@@ -12,7 +12,8 @@ const mockProduct: Product = {
   currency: 'BRL',
   image: '',
   category: '',
-  variantId: 'v1'
+  variantId: 'v1',
+  stock: 5,
 };
 
 describe('CartContext', () => {
@@ -46,6 +47,33 @@ describe('CartContext', () => {
     expect(result.current.totalPrice).toBe(20);
   });
 
+  it('should not add out-of-stock items', () => {
+    const { result } = renderHook(() => useCart(), {
+      wrapper: CartProvider
+    });
+
+    act(() => {
+      result.current.addToCart({ ...mockProduct, stock: 0 });
+    });
+
+    expect(result.current.items).toHaveLength(0);
+    expect(result.current.isOpen).toBe(false);
+  });
+
+  it('should cap quantity at available stock', () => {
+    const { result } = renderHook(() => useCart(), {
+      wrapper: CartProvider
+    });
+
+    act(() => {
+      result.current.addToCart({ ...mockProduct, stock: 2 });
+      result.current.addToCart({ ...mockProduct, stock: 2 });
+      result.current.addToCart({ ...mockProduct, stock: 2 });
+    });
+
+    expect(result.current.items[0].quantity).toBe(2);
+  });
+
   it('should update quantity', () => {
     const { result } = renderHook(() => useCart(), {
       wrapper: CartProvider
@@ -57,6 +85,19 @@ describe('CartContext', () => {
     });
 
     expect(result.current.items[0].quantity).toBe(5);
+  });
+
+  it('should cap updated quantity at available stock', () => {
+    const { result } = renderHook(() => useCart(), {
+      wrapper: CartProvider
+    });
+
+    act(() => {
+      result.current.addToCart({ ...mockProduct, stock: 3 });
+      result.current.updateQuantity('p1', 5);
+    });
+
+    expect(result.current.items[0].quantity).toBe(3);
   });
 
   it('should remove item if quantity is set to 0', () => {

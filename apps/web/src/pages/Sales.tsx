@@ -123,12 +123,13 @@ export default function Sales() {
               <p>{error}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 md:gap-5">
               {products.map((product) => (
-                <FadeInSection key={product.id}>
+                <FadeInSection key={product.id} className="h-full">
                   <ProductCard
                     product={product}
                     theme={theme}
+                    t={t.store}
                     onAddToCart={addToCart}
                     onOpenModal={setSelectedProduct}
                   />
@@ -149,6 +150,7 @@ export default function Sales() {
       <ProductModal
         product={selectedProduct}
         theme={theme}
+        t={t.store}
         onClose={() => setSelectedProduct(null)}
         onAddToCart={addToCart}
       />

@@ -88,31 +88,46 @@ export const CartDrawer = ({ theme }: CartDrawerProps) => {
         </div>
 
         {/* Footer */}
-        {items.length > 0 && (
-          <div className={`px-6 py-4 border-t ${isDark ? 'border-[#333333]' : 'border-[#E0E0E0]'} space-y-4`}>
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-widest opacity-60">Total</span>
-              <span className="text-lg font-black">
-                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPrice)}
-              </span>
-            </div>
-            <Link
-              to="/checkout"
-              onClick={closeCart}
-              className={`block w-full py-3 text-center text-[11px] uppercase tracking-[0.25em] font-bold rounded-sm transition-all ${
-                isDark ? 'bg-[#E0E0E0] text-[#181818] hover:bg-[#CACACA]' : 'bg-[#1D1D1D] text-[#F0F0F0] hover:bg-[#2E2E2E]'
-              }`}
-            >
-              Finalizar Compra
-            </Link>
+        <div className={`px-6 py-4 border-t ${isDark ? 'border-[#333333]' : 'border-[#E0E0E0]'} space-y-3`}>
+          {items.length > 0 && (
+            <>
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-widest opacity-60">Total</span>
+                <span className="text-lg font-black">
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPrice)}
+                </span>
+              </div>
+              <Link
+                to="/checkout"
+                onClick={closeCart}
+                className={`block w-full py-3 text-center text-[11px] uppercase tracking-[0.25em] font-bold rounded-sm transition-all ${
+                  isDark ? 'bg-[#E0E0E0] text-[#181818] hover:bg-[#CACACA]' : 'bg-[#1D1D1D] text-[#F0F0F0] hover:bg-[#2E2E2E]'
+                }`}
+              >
+                Finalizar Compra
+              </Link>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={closeCart}
+            className={`w-full py-3 text-center text-[11px] uppercase tracking-[0.25em] font-bold rounded-sm border transition-all ${
+              isDark
+                ? 'border-[#333333] hover:border-[#E0E0E0]/40 hover:bg-white/5'
+                : 'border-[#E0E0E0] hover:border-[#1D1D1D]/30 hover:bg-black/5'
+            }`}
+          >
+            Continuar comprando
+          </button>
+          {items.length > 0 && (
             <button
               onClick={clearCart}
               className="w-full text-[10px] uppercase tracking-widest opacity-40 hover:opacity-70 transition-opacity"
             >
               Limpar carrinho
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </>
   );

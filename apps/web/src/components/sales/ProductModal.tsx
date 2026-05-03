@@ -1,16 +1,18 @@
 import { useEffect } from 'react';
 import { X, ShoppingCart } from 'lucide-react';
 import type { Product } from '../../types/product';
+import type { TranslationType } from '../../types/i18n';
 
 interface ProductModalProps {
   product: Product | null;
   theme: 'light' | 'dark';
+  t: TranslationType['store'];
   onClose: () => void;
   onAddToCart?: (product: Product) => void;
   showAddToCart?: boolean;
 }
 
-export const ProductModal = ({ product, theme, onClose, onAddToCart, showAddToCart = true }: ProductModalProps) => {
+export const ProductModal = ({ product, theme, t, onClose, onAddToCart, showAddToCart = true }: ProductModalProps) => {
   const isDark = theme === 'dark';
 
   useEffect(() => {
@@ -25,6 +27,8 @@ export const ProductModal = ({ product, theme, onClose, onAddToCart, showAddToCa
   }, [product, onClose]);
 
   if (!product) return null;
+
+  const isOutOfStock = product.stock <= 0;
 
   return (
     <div
@@ -64,22 +68,43 @@ export const ProductModal = ({ product, theme, onClose, onAddToCart, showAddToCa
 
             <div className={`pt-6 border-t ${isDark ? 'border-[#2A2A2A]' : 'border-[#F0F0F0]'}`}>
               <div className={`flex items-center justify-between ${showAddToCart ? 'mb-5' : ''}`}>
-                <span className="text-[10px] uppercase tracking-widest opacity-50 font-medium">Preço</span>
+                <span className="text-[10px] uppercase tracking-widest opacity-50 font-medium">{t.priceLabel}</span>
                 <span className="text-2xl font-black">
                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: product.currency }).format(product.price)}
                 </span>
               </div>
+              {isOutOfStock && (
+                <div className={`mb-5 rounded-sm border px-4 py-3 text-center text-[11px] uppercase tracking-[0.25em] font-black ${
+                  isDark
+                    ? 'border-red-400/40 bg-red-400/10 text-red-200'
+                    : 'border-red-700/30 bg-red-700/10 text-red-800'
+                }`}>
+                  {t.outOfStock}
+                </div>
+              )}
               {showAddToCart && onAddToCart && (
                 <button
-                  onClick={() => { onAddToCart(product); onClose(); }}
+                  type="button"
+                  disabled={isOutOfStock}
+                  onClick={() => {
+                    if (!isOutOfStock) {
+                      onAddToCart(product);
+                      onClose();
+                    }
+                  }}
                   className={`w-full flex items-center justify-center gap-2.5 py-3.5 rounded-sm text-[11px] uppercase tracking-[0.25em] font-bold transition-all active:scale-[0.98] ${
+                    isOutOfStock
+                      ? isDark
+                        ? 'bg-[#2A2A2A] text-[#E8E8E8]/60 cursor-not-allowed'
+                        : 'bg-[#E0E0E0] text-[#1A1A1A]/60 cursor-not-allowed'
+                      :
                     isDark
                       ? 'bg-[#E0E0E0] text-[#181818] hover:bg-[#CACACA]'
                       : 'bg-[#1D1D1D] text-[#F0F0F0] hover:bg-[#2E2E2E]'
                   }`}
                 >
                   <ShoppingCart className="w-4 h-4" />
-                  Adicionar ao Carrinho
+                  {isOutOfStock ? t.outOfStock : t.addToCart}
                 </button>
               )}
             </div>
