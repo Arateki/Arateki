@@ -1,3 +1,5 @@
+export type OrderStatus = 'pending' | 'paid' | 'processing' | 'shipped' | 'cancelled';
+
 export interface ContactData {
   name: string;
   email: string;

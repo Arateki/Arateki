@@ -1,7 +1,53 @@
 import { Code2, Server, HeartHandshake, Wrench } from 'lucide-react';
 import type { TranslationType } from '../types/i18n';
 
-export const translations: { [key: string]: TranslationType } = {
+type AdminTranslation = TranslationType['admin'];
+type AdminLang = 'pt' | 'en' | 'es' | 'zh' | 'ja';
+
+const adminTranslations: Record<AdminLang, AdminTranslation> = {
+  pt: {
+    common: { brand: 'Arateki Admin', selectLanguage: 'Selecionar idioma', toggleTheme: 'Alternar tema', loading: 'Carregando...', back: 'Voltar', save: 'Salvar', saving: 'Salvando...', edit: 'Editar', active: 'Ativo', inactive: 'Inativo', empty: 'Vazio', error: 'Erro' },
+    layout: { dashboard: 'Dashboard', orders: 'Pedidos', products: 'Produtos', settings: 'Configurações', logout: 'Sair', comingSoon: 'Em breve...' },
+    login: { title: 'Arateki Manage', login: 'Login', password: 'Senha', submit: 'Entrar', submitting: 'Entrando...', error: 'Erro ao realizar login.' },
+    orders: { title: 'Pedidos', loading: 'Carregando pedidos...', loadError: 'Erro ao carregar pedidos.', updateError: 'Erro ao atualizar status.', updated: 'Status atualizado.', empty: 'Nenhum pedido encontrado.', customer: 'Cliente', date: 'Data', status: 'Status', total: 'Total', statuses: { pending: 'Pendente', paid: 'Pago', processing: 'Processando', shipped: 'Enviado', cancelled: 'Cancelado' } },
+    products: { title: 'Produtos', loading: 'Carregando produtos...', loadError: 'Erro ao carregar produtos.', empty: 'Nenhum produto cadastrado.', newProduct: 'Novo Produto', noImage: 'Sem imagem', sku: 'SKU' },
+    productForm: { newTitle: 'Novo Produto', editTitle: 'Editar Produto', loading: 'Carregando formulário...', loadError: 'Erro ao carregar produto.', saveError: 'Erro ao salvar produto.', basicInfo: 'Informações Básicas', name: 'Nome', description: 'Descrição', variants: 'Variantes', addVariant: 'Add Variante', sku: 'SKU', model: 'Modelo', defaultModel: 'Padrão', priceBrl: 'Preço BRL (Centavos)', priceUsd: 'Preço USD (Centavos)', stock: 'Estoque', media: 'Mídia', uploadImage: 'Upload Imagem', fileTooLarge: 'Arquivo muito grande. Limite de 5MB.', imageError: 'Erro ao processar imagem.', imageRecommended: 'Recomendado: 800x800px. Máx: 5MB.', activateProduct: 'Ativar Produto', createProduct: 'Criar Produto', saveChanges: 'Salvar Alterações', previewAlt: 'Preview' },
+  },
+  en: {
+    common: { brand: 'Arateki Admin', selectLanguage: 'Select language', toggleTheme: 'Toggle theme', loading: 'Loading...', back: 'Back', save: 'Save', saving: 'Saving...', edit: 'Edit', active: 'Active', inactive: 'Inactive', empty: 'Empty', error: 'Error' },
+    layout: { dashboard: 'Dashboard', orders: 'Orders', products: 'Products', settings: 'Settings', logout: 'Sign out', comingSoon: 'Coming soon...' },
+    login: { title: 'Arateki Manage', login: 'Login', password: 'Password', submit: 'Sign in', submitting: 'Signing in...', error: 'Unable to sign in.' },
+    orders: { title: 'Orders', loading: 'Loading orders...', loadError: 'Unable to load orders.', updateError: 'Unable to update status.', updated: 'Status updated.', empty: 'No orders found.', customer: 'Customer', date: 'Date', status: 'Status', total: 'Total', statuses: { pending: 'Pending', paid: 'Paid', processing: 'Processing', shipped: 'Shipped', cancelled: 'Cancelled' } },
+    products: { title: 'Products', loading: 'Loading products...', loadError: 'Unable to load products.', empty: 'No products registered.', newProduct: 'New Product', noImage: 'No image', sku: 'SKU' },
+    productForm: { newTitle: 'New Product', editTitle: 'Edit Product', loading: 'Loading form...', loadError: 'Unable to load product.', saveError: 'Unable to save product.', basicInfo: 'Basic Information', name: 'Name', description: 'Description', variants: 'Variants', addVariant: 'Add Variant', sku: 'SKU', model: 'Model', defaultModel: 'Default', priceBrl: 'BRL Price (Cents)', priceUsd: 'USD Price (Cents)', stock: 'Stock', media: 'Media', uploadImage: 'Upload Image', fileTooLarge: 'File is too large. Limit: 5MB.', imageError: 'Unable to process image.', imageRecommended: 'Recommended: 800x800px. Max: 5MB.', activateProduct: 'Activate Product', createProduct: 'Create Product', saveChanges: 'Save Changes', previewAlt: 'Preview' },
+  },
+  es: {
+    common: { brand: 'Arateki Admin', selectLanguage: 'Seleccionar idioma', toggleTheme: 'Cambiar tema', loading: 'Cargando...', back: 'Volver', save: 'Guardar', saving: 'Guardando...', edit: 'Editar', active: 'Activo', inactive: 'Inactivo', empty: 'Vacío', error: 'Error' },
+    layout: { dashboard: 'Panel', orders: 'Pedidos', products: 'Productos', settings: 'Configuración', logout: 'Salir', comingSoon: 'Próximamente...' },
+    login: { title: 'Arateki Manage', login: 'Login', password: 'Contraseña', submit: 'Entrar', submitting: 'Entrando...', error: 'Error al iniciar sesión.' },
+    orders: { title: 'Pedidos', loading: 'Cargando pedidos...', loadError: 'Error al cargar pedidos.', updateError: 'Error al actualizar el estado.', updated: 'Estado actualizado.', empty: 'No se encontraron pedidos.', customer: 'Cliente', date: 'Fecha', status: 'Estado', total: 'Total', statuses: { pending: 'Pendiente', paid: 'Pagado', processing: 'Procesando', shipped: 'Enviado', cancelled: 'Cancelado' } },
+    products: { title: 'Productos', loading: 'Cargando productos...', loadError: 'Error al cargar productos.', empty: 'No hay productos registrados.', newProduct: 'Nuevo Producto', noImage: 'Sin imagen', sku: 'SKU' },
+    productForm: { newTitle: 'Nuevo Producto', editTitle: 'Editar Producto', loading: 'Cargando formulario...', loadError: 'Error al cargar producto.', saveError: 'Error al guardar producto.', basicInfo: 'Información Básica', name: 'Nombre', description: 'Descripción', variants: 'Variantes', addVariant: 'Añadir Variante', sku: 'SKU', model: 'Modelo', defaultModel: 'Predeterminado', priceBrl: 'Precio BRL (Centavos)', priceUsd: 'Precio USD (Centavos)', stock: 'Inventario', media: 'Medios', uploadImage: 'Subir Imagen', fileTooLarge: 'Archivo demasiado grande. Límite de 5MB.', imageError: 'Error al procesar imagen.', imageRecommended: 'Recomendado: 800x800px. Máx: 5MB.', activateProduct: 'Activar Producto', createProduct: 'Crear Producto', saveChanges: 'Guardar Cambios', previewAlt: 'Vista previa' },
+  },
+  zh: {
+    common: { brand: 'Arateki Admin', selectLanguage: '选择语言', toggleTheme: '切换主题', loading: '加载中...', back: '返回', save: '保存', saving: '保存中...', edit: '编辑', active: '启用', inactive: '停用', empty: '空', error: '错误' },
+    layout: { dashboard: '仪表板', orders: '订单', products: '产品', settings: '设置', logout: '退出', comingSoon: '即将推出...' },
+    login: { title: 'Arateki Manage', login: '登录名', password: '密码', submit: '登录', submitting: '登录中...', error: '登录失败。' },
+    orders: { title: '订单', loading: '正在加载订单...', loadError: '无法加载订单。', updateError: '无法更新状态。', updated: '状态已更新。', empty: '未找到订单。', customer: '客户', date: '日期', status: '状态', total: '总计', statuses: { pending: '待处理', paid: '已支付', processing: '处理中', shipped: '已发货', cancelled: '已取消' } },
+    products: { title: '产品', loading: '正在加载产品...', loadError: '无法加载产品。', empty: '没有已注册的产品。', newProduct: '新建产品', noImage: '无图片', sku: 'SKU' },
+    productForm: { newTitle: '新建产品', editTitle: '编辑产品', loading: '正在加载表单...', loadError: '无法加载产品。', saveError: '无法保存产品。', basicInfo: '基本信息', name: '名称', description: '描述', variants: '变体', addVariant: '添加变体', sku: 'SKU', model: '型号', defaultModel: '默认', priceBrl: 'BRL 价格（分）', priceUsd: 'USD 价格（分）', stock: '库存', media: '媒体', uploadImage: '上传图片', fileTooLarge: '文件太大。限制为 5MB。', imageError: '无法处理图片。', imageRecommended: '建议：800x800px。最大：5MB。', activateProduct: '启用产品', createProduct: '创建产品', saveChanges: '保存更改', previewAlt: '预览' },
+  },
+  ja: {
+    common: { brand: 'Arateki Admin', selectLanguage: '言語を選択', toggleTheme: 'テーマを切り替え', loading: '読み込み中...', back: '戻る', save: '保存', saving: '保存中...', edit: '編集', active: '有効', inactive: '無効', empty: '空', error: 'エラー' },
+    layout: { dashboard: 'ダッシュボード', orders: '注文', products: '製品', settings: '設定', logout: 'ログアウト', comingSoon: '近日公開...' },
+    login: { title: 'Arateki Manage', login: 'ログイン', password: 'パスワード', submit: 'ログイン', submitting: 'ログイン中...', error: 'ログインできませんでした。' },
+    orders: { title: '注文', loading: '注文を読み込み中...', loadError: '注文を読み込めませんでした。', updateError: 'ステータスを更新できませんでした。', updated: 'ステータスを更新しました。', empty: '注文が見つかりません。', customer: '顧客', date: '日付', status: 'ステータス', total: '合計', statuses: { pending: '保留中', paid: '支払い済み', processing: '処理中', shipped: '発送済み', cancelled: 'キャンセル済み' } },
+    products: { title: '製品', loading: '製品を読み込み中...', loadError: '製品を読み込めませんでした。', empty: '登録済みの製品はありません。', newProduct: '新規製品', noImage: '画像なし', sku: 'SKU' },
+    productForm: { newTitle: '新規製品', editTitle: '製品を編集', loading: 'フォームを読み込み中...', loadError: '製品を読み込めませんでした。', saveError: '製品を保存できませんでした。', basicInfo: '基本情報', name: '名前', description: '説明', variants: 'バリエーション', addVariant: 'バリエーションを追加', sku: 'SKU', model: 'モデル', defaultModel: '標準', priceBrl: 'BRL価格（セント）', priceUsd: 'USD価格（セント）', stock: '在庫', media: 'メディア', uploadImage: '画像をアップロード', fileTooLarge: 'ファイルが大きすぎます。上限は5MBです。', imageError: '画像を処理できませんでした。', imageRecommended: '推奨: 800x800px。最大: 5MB。', activateProduct: '製品を有効化', createProduct: '製品を作成', saveChanges: '変更を保存', previewAlt: 'プレビュー' },
+  },
+};
+
+const baseTranslations = {
   pt: {
     nav: { manifesto: "Manifesto", product: "SafraSense", network: "Raiznet", waitlist: "Espera", faq: "FAQ", contact: "Contato", store: "Loja" },
     hero: {
@@ -81,6 +127,16 @@ export const translations: { [key: string]: TranslationType } = {
       contact: "Contato",
       address: "Endereço",
       social: "Redes Sociais"
+    },
+    store: {
+      title: "Loja de produtos e componentes",
+      subtitle: "Adquira soluções exclusivas Arateki e componentes eletrônicos essenciais para seus projetos e reparos.",
+      notifyMe: {
+        title: "Produtos Indisponíveis",
+        desc: "Nossa produção é artesanal e em pequena escala. Deixe seu e-mail para ser avisado assim que novos produtos e componentes estiverem em estoque.",
+        success: "E-mail registrado! Avisaremos você em breve.",
+        button: "Me Avise"
+      }
     },
     checkout: {
       backToStore: 'Voltar à loja',
@@ -172,6 +228,16 @@ export const translations: { [key: string]: TranslationType } = {
       address: "Address",
       social: "Social Media"
     },
+    store: {
+      title: "Products & Components Store",
+      subtitle: "Get exclusive Arateki solutions and essential electronic components for your projects and repairs.",
+      notifyMe: {
+        title: "Products Out of Stock",
+        desc: "Our production is handmade and small-scale. Leave your email to be notified as soon as new products and components are back in stock.",
+        success: "Email registered! We'll notify you soon.",
+        button: "Notify Me"
+      }
+    },
     checkout: {
       backToStore: 'Back to store',
       steps: ['Contact', 'Delivery', 'Payment'],
@@ -261,6 +327,16 @@ export const translations: { [key: string]: TranslationType } = {
       contact: "Contacto",
       address: "Dirección",
       social: "Redes Sociais"
+    },
+    store: {
+      title: "Tienda de productos y componentes",
+      subtitle: "Adquiera soluciones exclusivas Arateki e componentes electrónicos esenciales para sus proyectos y reparaciones.",
+      notifyMe: {
+        title: "Productos no disponibles",
+        desc: "Nuestra producción es artesanal y a pequeña escala. Deje su correo para recibir un aviso cuando nuevos productos y componentes vuelvan al inventario.",
+        success: "¡Correo registrado! Le avisaremos pronto.",
+        button: "Avisarme"
+      }
     },
     checkout: {
       backToStore: 'Volver a la tienda',
@@ -352,6 +428,16 @@ export const translations: { [key: string]: TranslationType } = {
       address: "地址",
       social: "社交媒体"
     },
+    store: {
+      title: "产品与组件商店",
+      subtitle: "获取 Arateki 独家解决方案和项目及维修所需的必备电子组件。",
+      notifyMe: {
+        title: "产品暂不可用",
+        desc: "我们的生产是手工小批量进行的。留下您的邮箱，新产品和组件补货时我们会通知您。",
+        success: "邮箱已登记！我们会尽快通知您。",
+        button: "通知我"
+      }
+    },
     checkout: {
       backToStore: '返回商店',
       steps: ['联系方式', '配送', '付款'],
@@ -442,6 +528,16 @@ export const translations: { [key: string]: TranslationType } = {
       address: "住所",
       social: "ソーシャルメディア"
     },
+    store: {
+      title: "製品＆コンポーネントストア",
+      subtitle: "Arateki独自のソリューションと、プロジェクトや修理に欠かせない電子部品を手に入れましょう。",
+      notifyMe: {
+        title: "在庫切れ",
+        desc: "私たちの生産は手作りで小規模です。新しい製品やコンポーネントが入荷次第お知らせしますので、メールアドレスを登録してください。",
+        success: "メールアドレスが登録されました！まもなくお知らせします。",
+        button: "お知らせを受け取る"
+      }
+    },
     checkout: {
       backToStore: 'ストアに戻る',
       steps: ['連絡先', '配送', 'お支払い'],
@@ -452,4 +548,14 @@ export const translations: { [key: string]: TranslationType } = {
       confirmation: { title: 'ご注文完了！', emailSent: '確認メールを送信しました：', orderNumber: '注文番号', trackingInfo: '配送状況のお知らせはご登録のメールアドレスにお送りします。', continueShopping: 'ショッピングを続ける' }
     }
   }
-};
+} satisfies Record<AdminLang, Omit<TranslationType, 'admin'>>;
+
+export const translations = Object.fromEntries(
+  Object.entries(baseTranslations).map(([lang, translation]) => [
+    lang,
+    {
+      ...translation,
+      admin: adminTranslations[lang as AdminLang],
+    },
+  ]),
+) as Record<AdminLang, TranslationType>;

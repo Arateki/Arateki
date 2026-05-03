@@ -20,6 +20,13 @@ export async function registerAuthRoutes(
   app: FastifyInstance,
   dependencies: AuthRoutesDependencies,
 ): Promise<void> {
+  const signAdminToken = (userId: string, tokenVersion: number) => app.jwt.sign({
+    jti: randomUUID(),
+    role: 'admin',
+    sub: userId,
+    tokenVersion,
+  });
+
   app.post('/login', {
     config: {
       rateLimit: {
@@ -41,14 +48,45 @@ export async function registerAuthRoutes(
       return reply.code(401).send({ message: 'Invalid credentials' });
     }
 
-    const token = app.jwt.sign({
-      jti: randomUUID(),
-      role: 'admin',
-      sub: user.id,
-      tokenVersion: user.tokenVersion,
-    });
+    const token = signAdminToken(user.id, user.tokenVersion);
 
     return { token };
+  });
+
+  app.get('/me', async (request, reply) => {
+    const admin = await authenticateAdmin(
+      request,
+      reply,
+      dependencies.users,
+      dependencies.revokedTokens,
+    );
+    if (!admin) return reply;
+
+    return {
+      user: {
+        id: admin.userId,
+        role: admin.role,
+      },
+    };
+  });
+
+  app.post('/refresh', async (request, reply) => {
+    const admin = await authenticateAdmin(
+      request,
+      reply,
+      dependencies.users,
+      dependencies.revokedTokens,
+    );
+    if (!admin) return reply;
+
+    await dependencies.revokeToken.execute({
+      id: admin.tokenId,
+      expiresAt: admin.expiresAt,
+    });
+
+    return {
+      token: signAdminToken(admin.userId, admin.tokenVersion),
+    };
   });
 
   app.post('/logout', async (request, reply) => {

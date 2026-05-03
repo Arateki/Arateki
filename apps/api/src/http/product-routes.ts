@@ -1,6 +1,9 @@
 import type { FastifyInstance } from 'fastify';
 import type { CreateProductUseCase } from '../application/create-product.js';
+import type { GetAdminProductUseCase } from '../application/get-admin-product.js';
 import type { ListProductsUseCase } from '../application/list-products.js';
+import type { ListAdminProductsUseCase } from '../application/list-admin-products.js';
+import { UpdateProductError, type UpdateProductUseCase } from '../application/update-product.js';
 import type { RevokedTokenRepository } from '../domain/revoked-token.js';
 import type { UserRepository } from '../domain/user.js';
 import { authenticateAdmin } from './auth.js';
@@ -8,7 +11,10 @@ import { productBodySchema, productListQuerySchema } from './schemas.js';
 
 interface ProductRoutesDependencies {
   listProducts: ListProductsUseCase;
+  listAdminProducts: ListAdminProductsUseCase;
+  getAdminProduct: GetAdminProductUseCase;
   createProduct: CreateProductUseCase;
+  updateProduct: UpdateProductUseCase;
   users: UserRepository;
   revokedTokens: RevokedTokenRepository;
 }
@@ -33,6 +39,37 @@ export async function registerProductRoutes(
     return { products };
   });
 
+  app.get('/admin/products', async (request, reply) => {
+    const admin = await authenticateAdmin(
+      request,
+      reply,
+      dependencies.users,
+      dependencies.revokedTokens,
+    );
+    if (!admin) return reply;
+
+    const products = await dependencies.listAdminProducts.execute();
+    return { products };
+  });
+
+  app.get('/admin/products/:id', async (request, reply) => {
+    const admin = await authenticateAdmin(
+      request,
+      reply,
+      dependencies.users,
+      dependencies.revokedTokens,
+    );
+    if (!admin) return reply;
+
+    const params = request.params as { id: string };
+    const product = await dependencies.getAdminProduct.execute(params.id);
+    if (!product) {
+      return reply.code(404).send({ message: 'Product not found' });
+    }
+
+    return { product };
+  });
+
   app.post('/products', async (request, reply) => {
     const admin = await authenticateAdmin(
       request,
@@ -50,7 +87,37 @@ export async function registerProductRoutes(
       });
     }
 
-    const product = await dependencies.createProduct.execute(parsedBody.data);
+    const product = await dependencies.createProduct.execute(parsedBody.data, admin.userId);
     return reply.code(201).send({ product });
+  });
+
+  app.put('/products/:id', async (request, reply) => {
+    const admin = await authenticateAdmin(
+      request,
+      reply,
+      dependencies.users,
+      dependencies.revokedTokens,
+    );
+    if (!admin) return reply;
+
+    const params = request.params as { id: string };
+    const parsedBody = productBodySchema.safeParse(request.body);
+
+    if (!parsedBody.success) {
+      return reply.code(400).send({
+        message: 'Invalid product payload',
+        issues: parsedBody.error.flatten().fieldErrors,
+      });
+    }
+
+    try {
+      const product = await dependencies.updateProduct.execute(params.id, parsedBody.data, admin.userId);
+      return reply.code(200).send({ product });
+    } catch (error) {
+      if (error instanceof UpdateProductError) {
+        return reply.code(404).send({ message: 'Product not found' });
+      }
+      throw error;
+    }
   });
 }

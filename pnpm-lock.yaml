@@ -14,6 +14,12 @@ importers:
 
   apps/api:
     dependencies:
+      '@fastify/cors':
+        specifier: ^11.2.0
+        version: 11.2.0
+      '@fastify/helmet':
+        specifier: ^13.0.2
+        version: 13.0.2
       '@fastify/jwt':
         specifier: ^10.0.0
         version: 10.0.0
@@ -461,6 +467,9 @@ packages:
   '@fastify/ajv-compiler@4.0.5':
     resolution: {integrity: sha512-KoWKW+MhvfTRWL4qrhUwAAZoaChluo0m0vbiJlGMt2GXvL4LVPQEjt8kSpHI3IBq5Rez8fg+XeH3cneztq+C7A==}
 
+  '@fastify/cors@11.2.0':
+    resolution: {integrity: sha512-LbLHBuSAdGdSFZYTLVA3+Ch2t+sA6nq3Ejc6XLAKiQ6ViS2qFnvicpj0htsx03FyYeLs04HfRNBsz/a8SvbcUw==}
+
   '@fastify/error@4.2.0':
     resolution: {integrity: sha512-RSo3sVDXfHskiBZKBPRgnQTtIqpi/7zhJOEmAxCiBcM7d0uwdGdxLlsCaLzGs8v8NnxIRlfG0N51p5yFaOentQ==}
 
@@ -469,6 +478,9 @@ packages:
 
   '@fastify/forwarded@3.0.1':
     resolution: {integrity: sha512-JqDochHFqXs3C3Ml3gOY58zM7OqO9ENqPo0UqAjAjH8L01fRZqwX9iLeX34//kiJubF7r2ZQHtBRU36vONbLlw==}
+
+  '@fastify/helmet@13.0.2':
+    resolution: {integrity: sha512-tO1QMkOfNeCt9l4sG/FiWErH4QMm+RjHzbMTrgew1DYOQ2vb/6M1G2iNABBrD7Xq6dUk+HLzWW8u+rmmhQHifA==}
 
   '@fastify/jwt@10.0.0':
     resolution: {integrity: sha512-2Qka3NiyNNcsfejMUvyzot1T4UYIzzcbkFGDdVyrl344fRZ/WkD6VFXOoXhxe2Pzf3LpJNkoSxUM4Ru4DVgkYA==}
@@ -1549,6 +1561,10 @@ packages:
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
     engines: {node: '>=8'}
+
+  helmet@8.1.0:
+    resolution: {integrity: sha512-jOiHyAZsmnr8LqoPGmCjYAaiuWwjAPLgY8ZX2XrmHawt99/u1y6RgrZMTeoPfpUbV96HOalYgz1qzkRbw54Pmg==}
+    engines: {node: '>=18.0.0'}
 
   hermes-estree@0.25.1:
     resolution: {integrity: sha512-0wUoCcLp+5Ev5pDW2OriHC2MJCbwLwuRx+gAqMTOkGKJJiBCLjtrvy4PWUGn6MIVefecRpzoOZ/UV6iGdOr+Cw==}
@@ -2807,6 +2823,11 @@ snapshots:
       ajv-formats: 3.0.1(ajv@8.20.0)
       fast-uri: 3.1.0
 
+  '@fastify/cors@11.2.0':
+    dependencies:
+      fastify-plugin: 5.1.0
+      toad-cache: 3.7.0
+
   '@fastify/error@4.2.0': {}
 
   '@fastify/fast-json-stringify-compiler@5.0.3':
@@ -2814,6 +2835,11 @@ snapshots:
       fast-json-stringify: 6.3.0
 
   '@fastify/forwarded@3.0.1': {}
+
+  '@fastify/helmet@13.0.2':
+    dependencies:
+      fastify-plugin: 5.1.0
+      helmet: 8.1.0
 
   '@fastify/jwt@10.0.0':
     dependencies:
@@ -3854,6 +3880,8 @@ snapshots:
   graceful-fs@4.2.11: {}
 
   has-flag@4.0.0: {}
+
+  helmet@8.1.0: {}
 
   hermes-estree@0.25.1: {}
 

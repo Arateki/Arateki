@@ -19,6 +19,7 @@ export const defaultProducts: Product[] = [
       zh: '用于嵌入式物联网项目的 Wi-Fi 和蓝牙模块。',
       ja: '組み込みIoTプロジェクト向けのWi-FiおよびBluetoothモジュール。',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1553406830-ef2513020d76?q=80&w=400&auto=format&fit=crop',
     variants: [
       {
         id: 'esp32-wroom-32d-default',
@@ -54,6 +55,7 @@ export const defaultProducts: Product[] = [
       zh: '数字温湿度传感器。',
       ja: 'デジタル温湿度センサー。',
     },
+    imageUrl: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?q=80&w=400&auto=format&fit=crop',
     variants: [
       {
         id: 'sensor-dht22-default',

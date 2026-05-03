@@ -5,6 +5,7 @@ import { defaultProducts } from '../config/default-products.js';
 import { createMongoConnection, type MongoConnection } from '../infrastructure/mongo.js';
 import { MongoOrderRepository } from '../infrastructure/mongo-order-repository.js';
 import { MongoProductRepository } from '../infrastructure/mongo-product-repository.js';
+import { MongoAuditLogRepository } from '../infrastructure/mongo-audit-log-repository.js';
 import { MongoRevokedTokenRepository } from '../infrastructure/mongo-revoked-token-repository.js';
 import { MongoUserRepository } from '../infrastructure/mongo-user-repository.js';
 
@@ -25,12 +26,14 @@ export async function createTestApp(): Promise<TestApp> {
   const mongo = await createMongoConnection(mongoServer.getUri());
   const productRepository = new MongoProductRepository(mongo.db);
   const orderRepository = new MongoOrderRepository(mongo.db);
+  const auditLogRepository = new MongoAuditLogRepository(mongo.db);
   const userRepository = new MongoUserRepository(mongo.db);
   const revokedTokenRepository = new MongoRevokedTokenRepository(mongo.db);
   const jwtSecret = 'test-secret';
 
   await productRepository.seedIfEmpty(defaultProducts);
   await orderRepository.ensureIndexes();
+  await auditLogRepository.ensureIndexes();
   await userRepository.ensureIndexes();
   await revokedTokenRepository.ensureIndexes();
 
@@ -42,6 +45,7 @@ export async function createTestApp(): Promise<TestApp> {
   const app = await buildApp({
     productRepository,
     orderRepository,
+    auditLogRepository,
     userRepository,
     revokedTokenRepository,
     mongoClient: mongo.client,

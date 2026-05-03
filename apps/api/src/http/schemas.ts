@@ -22,6 +22,7 @@ const productPricesSchema = z.object({
 });
 
 const productVariantSchema = z.object({
+  id: z.string().trim().optional(),
   sku: z.string().trim().min(1).max(120),
   attributes: z.record(z.string().trim().min(1).max(80), z.string().trim().min(1).max(180)),
   prices: productPricesSchema,
@@ -37,6 +38,7 @@ export const loginBodySchema = z.object({
 export const productBodySchema = z.object({
   name: localizedTextSchema,
   description: localizedDescriptionSchema,
+  imageUrl: z.string().trim().min(1).max(7_500_000).optional(),
   variants: z.array(productVariantSchema).min(1).max(100),
   active: z.boolean().optional(),
 });
@@ -73,6 +75,10 @@ export const orderBodySchema = z.object({
   lang: z.enum(['pt', 'en', 'es', 'zh', 'ja']).optional(),
 });
 
+export const orderStatusUpdateSchema = z.object({
+  status: z.enum(['pending', 'paid', 'processing', 'shipped', 'cancelled']),
+});
+
 export const changePasswordBodySchema = z.object({
   currentPassword: z.string().min(1).max(200),
   newPassword: z.string().min(12).max(200),
@@ -82,4 +88,5 @@ export type LoginBody = z.infer<typeof loginBodySchema>;
 export type ProductBody = z.infer<typeof productBodySchema>;
 export type ProductListQuery = z.infer<typeof productListQuerySchema>;
 export type OrderBody = z.infer<typeof orderBodySchema>;
+export type OrderStatusUpdateBody = z.infer<typeof orderStatusUpdateSchema>;
 export type ChangePasswordBody = z.infer<typeof changePasswordBodySchema>;

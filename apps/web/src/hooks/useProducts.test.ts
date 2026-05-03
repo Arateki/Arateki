@@ -6,7 +6,7 @@ import { productService } from '../services/productService';
 describe('useProducts', () => {
   it('should start with loading state and then return products', async () => {
     const mockProducts = [
-      { id: '1', name: 'Test Product', description: 'Desc', price: 10, currency: 'BRL', image: '', category: 'Cat' }
+      { id: '1', name: 'Test Product', description: 'Desc', price: 10, currency: 'BRL', image: '', category: 'Cat', variantId: 'v1' }
     ];
     
     // Mock the service

@@ -56,5 +56,30 @@ img[src$=".svg"] {
   to   { opacity: 1; transform: scale(1)    translateY(0);   }
 }
 
+@keyframes pulse-aura {
+  0%, 100% { opacity: 0.15; transform: scale(1); filter: blur(12px); }
+  50% { opacity: 0.4; transform: scale(1.1); filter: blur(18px); }
+}
+
+@keyframes shimmer-loop {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(150%) skewX(-20deg); }
+}
+
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes text-shimmer {
+  0% { background-position: -150% center; }
+  100% { background-position: 150% center; }
+}
+
+.animate-pulse-aura { animation: pulse-aura 4s ease-in-out infinite; }
+.animate-shimmer-loop { animation: shimmer-loop 3s ease-in-out infinite; }
+.animate-gradient-x { background-size: 200% 200%; animation: gradient-x 6s linear infinite; }
+.animate-text-shimmer { background-size: 200% auto; animation: text-shimmer 4s linear infinite; }
+
 .animate-fadeIn  { animation: fadeIn  0.2s ease-out both; }
 .animate-scaleIn { animation: scaleIn 0.2s ease-out both; }

@@ -13,8 +13,35 @@ export class MongoOrderRepository implements OrderRepository {
   }
 
   async create(order: Order, session?: ClientSession): Promise<Order> {
-    await this.collection.insertOne(toDocument(order), { session });
+    await this.collection.insertOne(toDocument(order), session ? { session } : undefined);
     return order;
+  }
+
+  async findById(id: string): Promise<Order | null> {
+    const document = await this.collection.findOne({ _id: id });
+    return document ? toOrder(document) : null;
+  }
+
+  async listAll(): Promise<Order[]> {
+    const documents = await this.collection
+      .find()
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return documents.map(toOrder);
+  }
+
+  async updateStatus(id: string, status: import('../domain/order.js').OrderStatus): Promise<boolean> {
+    const result = await this.collection.updateOne(
+      { _id: id },
+      {
+        $set: {
+          status,
+          updatedAt: new Date(),
+        }
+      }
+    );
+    return result.modifiedCount > 0;
   }
 
   async ensureIndexes(): Promise<void> {
@@ -26,4 +53,9 @@ export class MongoOrderRepository implements OrderRepository {
 function toDocument(order: Order): OrderDocument {
   const { id, ...rest } = order;
   return { _id: id, ...rest };
+}
+
+function toOrder(document: OrderDocument): Order {
+  const { _id, ...rest } = document;
+  return { id: _id, ...rest };
 }

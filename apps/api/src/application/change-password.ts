@@ -1,4 +1,5 @@
 import type { User, UserRepository } from '../domain/user.js';
+import type { AuditLogRepository } from '../domain/audit-log.js';
 import { PasswordHasher } from '../infrastructure/password-hasher.js';
 
 export interface ChangePasswordInput {
@@ -11,6 +12,7 @@ export class ChangePasswordUseCase {
   constructor(
     private readonly users: UserRepository,
     private readonly passwordHasher = new PasswordHasher(),
+    private readonly auditLogs?: AuditLogRepository,
   ) {}
 
   async execute(input: ChangePasswordInput): Promise<User | null> {
@@ -25,10 +27,27 @@ export class ChangePasswordUseCase {
     );
     if (!validCurrentPassword) return null;
 
-    return this.users.updatePassword(
+    const updatedUser = await this.users.updatePassword(
       input.userId,
       await this.passwordHasher.hash(input.newPassword),
     );
+
+    if (updatedUser && this.auditLogs) {
+      await this.auditLogs.record({
+        userId: input.userId,
+        action: 'user.password.change',
+        entityType: 'user',
+        entityId: input.userId,
+        before: {
+          tokenVersion: user.tokenVersion,
+        },
+        after: {
+          tokenVersion: updatedUser.tokenVersion,
+        },
+      });
+    }
+
+    return updatedUser;
   }
 }
 

@@ -1,7 +1,7 @@
 import type { ClientSession } from 'mongodb';
 import type { Currency, ProductLocale } from './product.js';
 
-export type OrderStatus = 'pending';
+export type OrderStatus = 'pending' | 'paid' | 'processing' | 'shipped' | 'cancelled';
 
 export interface OrderContact {
   name: string;
@@ -55,5 +55,8 @@ export interface Order {
 
 export interface OrderRepository {
   create(order: Order, session?: ClientSession): Promise<Order>;
+  findById(id: string): Promise<Order | null>;
+  listAll(): Promise<Order[]>;
+  updateStatus(id: string, status: OrderStatus): Promise<boolean>;
   ensureIndexes(): Promise<void>;
 }

@@ -50,7 +50,12 @@ pnpm install
 
 # Setup environment variables
 cp apps/web/.env.example apps/web/.env # Ensure VITE_GOOGLE_SCRIPT_URL is set
+cp .env.example .env # Fill JWT_SECRET and ADMIN_PASSWORD before using Docker Compose
 ```
+
+### Local Configuration
+
+`docker-compose.yml` reads API secrets from the root `.env`. Copy `.env.example` to `.env`, set a strong `JWT_SECRET`, and set an `ADMIN_PASSWORD` with at least 12 characters. `CORS_ORIGIN` can stay empty for same-origin deployments or contain comma-separated frontend origins.
 
 ### Running Development Server
 ```bash

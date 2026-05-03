@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import type { Product } from '../domain/product.js';
 import type { TestApp } from '../test/test-app.js';
 import { createTestApp } from '../test/test-app.js';
 
@@ -223,6 +224,54 @@ describe('api routes', () => {
     expect(response.statusCode).toBe(401);
   });
 
+  it('returns current admin and refreshes the bearer token', async () => {
+    const token = signAdminToken();
+
+    const meResponse = await testApp.app.inject({
+      method: 'GET',
+      url: '/me',
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+    expect(meResponse.statusCode).toBe(200);
+    expect(meResponse.json()).toMatchObject({
+      user: {
+        id: testApp.adminUserId,
+        role: 'admin',
+      },
+    });
+
+    const refreshResponse = await testApp.app.inject({
+      method: 'POST',
+      url: '/refresh',
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+    expect(refreshResponse.statusCode).toBe(200);
+    const { token: refreshedToken } = refreshResponse.json<{ token: string }>();
+    expect(refreshedToken).toEqual(expect.any(String));
+
+    const oldTokenResponse = await testApp.app.inject({
+      method: 'GET',
+      url: '/me',
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+    expect(oldTokenResponse.statusCode).toBe(401);
+
+    const refreshedTokenResponse = await testApp.app.inject({
+      method: 'GET',
+      url: '/me',
+      headers: {
+        authorization: `Bearer ${refreshedToken}`,
+      },
+    });
+    expect(refreshedTokenResponse.statusCode).toBe(200);
+  });
+
   it('changes current user password and invalidates the previous token', async () => {
     const token = signAdminToken();
 
@@ -261,6 +310,17 @@ describe('api routes', () => {
     });
 
     expect(loginResponse.statusCode).toBe(200);
+
+    const auditLog = await testApp.mongo.db.collection('audit_logs').findOne({
+      action: 'user.password.change',
+      entityId: testApp.adminUserId,
+    });
+    expect(auditLog).toMatchObject({
+      userId: testApp.adminUserId,
+      action: 'user.password.change',
+      entityType: 'user',
+      entityId: testApp.adminUserId,
+    });
   });
 
   it('rejects non-admin jwt', async () => {
@@ -276,6 +336,194 @@ describe('api routes', () => {
     });
 
     expect(response.statusCode).toBe(401);
+  });
+
+  it('allows admin to manage orders', async () => {
+    const login = await testApp.app.inject({
+      method: 'POST',
+      url: '/login',
+      payload: { login: 'admin', password: 'new-admin-password' },
+    });
+    const { token } = login.json<{ token: string }>();
+
+    const createResponse = await testApp.app.inject({
+      method: 'POST',
+      url: '/orders',
+      payload: newOrderPayload(),
+    });
+    const { order } = createResponse.json<{ order: { id: string } }>();
+
+    const listResponse = await testApp.app.inject({
+      method: 'GET',
+      url: '/orders',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(listResponse.statusCode).toBe(200);
+    expect(listResponse.json()).toMatchObject({
+      orders: expect.arrayContaining([
+        expect.objectContaining({ id: order.id, status: 'pending' })
+      ]),
+    });
+
+    const getResponse = await testApp.app.inject({
+      method: 'GET',
+      url: `/orders/${order.id}`,
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(getResponse.statusCode).toBe(200);
+    expect(getResponse.json()).toMatchObject({
+      order: expect.objectContaining({ id: order.id, status: 'pending' }),
+    });
+
+    const patchResponse = await testApp.app.inject({
+      method: 'PATCH',
+      url: `/orders/${order.id}/status`,
+      headers: { authorization: `Bearer ${token}` },
+      payload: { status: 'paid' },
+    });
+    expect(patchResponse.statusCode).toBe(204);
+
+    const verifyResponse = await testApp.app.inject({
+      method: 'GET',
+      url: `/orders/${order.id}`,
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(verifyResponse.json()).toMatchObject({
+      order: expect.objectContaining({ status: 'paid' }),
+    });
+
+    const auditLog = await testApp.mongo.db.collection('audit_logs').findOne({
+      action: 'order.status.update',
+      entityId: order.id,
+    });
+    expect(auditLog).toMatchObject({
+      userId: testApp.adminUserId,
+      action: 'order.status.update',
+      entityType: 'order',
+      entityId: order.id,
+      before: expect.objectContaining({ status: 'pending' }),
+      after: expect.objectContaining({ status: 'paid' }),
+    });
+  });
+
+  it('allows admin to manage products', async () => {
+    const login = await testApp.app.inject({
+      method: 'POST',
+      url: '/login',
+      payload: { login: 'admin', password: 'new-admin-password' },
+    });
+    const { token } = login.json<{ token: string }>();
+
+    // List admin products (should see everything)
+    const listResponse = await testApp.app.inject({
+      method: 'GET',
+      url: '/admin/products',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(listResponse.statusCode).toBe(200);
+    const { products } = listResponse.json<{ products: Product[] }>();
+    expect(products.length).toBeGreaterThan(0);
+
+    const targetProduct = products[0];
+    if (!targetProduct) throw new Error('Expected seeded product');
+
+    const getProductResponse = await testApp.app.inject({
+      method: 'GET',
+      url: `/admin/products/${targetProduct.id}`,
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(getProductResponse.statusCode).toBe(200);
+    expect(getProductResponse.json()).toMatchObject({
+      product: expect.objectContaining({ id: targetProduct.id }),
+    });
+
+    const missingProductResponse = await testApp.app.inject({
+      method: 'GET',
+      url: '/admin/products/non-existent-id',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(missingProductResponse.statusCode).toBe(404);
+
+    const unauthenticatedGetProductResponse = await testApp.app.inject({
+      method: 'GET',
+      url: `/admin/products/${targetProduct.id}`,
+    });
+    expect(unauthenticatedGetProductResponse.statusCode).toBe(401);
+
+    const updatePayload = {
+      name: { ...targetProduct.name, pt: 'NOME ATUALIZADO' },
+      description: targetProduct.description,
+      variants: targetProduct.variants.map((v) => ({
+        id: v.id,
+        sku: v.sku,
+        attributes: v.attributes,
+        prices: { ...v.prices, usdCents: 9999 },
+        stock: v.stock,
+        active: v.active,
+      })),
+    };
+
+    // Update product
+    const updateResponse = await testApp.app.inject({
+      method: 'PUT',
+      url: `/products/${targetProduct.id}`,
+      headers: { authorization: `Bearer ${token}` },
+      payload: updatePayload,
+    });
+    expect(updateResponse.statusCode).toBe(200);
+    expect(updateResponse.json().product.name.pt).toBe('NOME ATUALIZADO');
+
+    const auditLog = await testApp.mongo.db.collection('audit_logs').findOne({
+      action: 'product.update',
+      entityId: targetProduct.id,
+    });
+    expect(auditLog).toMatchObject({
+      userId: testApp.adminUserId,
+      action: 'product.update',
+      entityType: 'product',
+      entityId: targetProduct.id,
+      before: expect.objectContaining({ id: targetProduct.id }),
+      after: expect.objectContaining({ id: targetProduct.id }),
+    });
+
+    // Verify public view changed (default is USD if no country provided)
+    const publicResponse = await testApp.app.inject({
+      method: 'GET',
+      url: `/products?lang=pt`,
+    });
+    const updatedPublic = publicResponse.json<{ products: Array<{ id: string; name: string; priceCents: number }> }>().products.find(p => p.id === targetProduct.id);
+    if (!updatedPublic) throw new Error('Expected updated public product');
+    expect(updatedPublic.name).toBe('NOME ATUALIZADO');
+    expect(updatedPublic.priceCents).toBe(9999);
+  });
+
+  it('returns 404 when updating non-existent product or order', async () => {
+    // After password change, tokenVersion increments to 1
+    const token = signAdminToken(1);
+
+    const productResponse = await testApp.app.inject({
+      method: 'PUT',
+      url: '/products/non-existent-id',
+      headers: { authorization: `Bearer ${token}` },
+      payload: newProductPayload(),
+    });
+    expect(productResponse.statusCode).toBe(404);
+
+    const orderResponse = await testApp.app.inject({
+      method: 'PATCH',
+      url: '/orders/non-existent-id/status',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { status: 'paid' },
+    });
+    expect(orderResponse.statusCode).toBe(404);
+  });
+
+  it('rejects order management without admin jwt', async () => {
+    const listResponse = await testApp.app.inject({
+      method: 'GET',
+      url: '/orders',
+    });
+    expect(listResponse.statusCode).toBe(401);
   });
 
   function signAdminToken(tokenVersion = 0): string {

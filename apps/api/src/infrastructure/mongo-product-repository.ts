@@ -22,8 +22,22 @@ export class MongoProductRepository implements ProductRepository {
     return documents.map(toProduct);
   }
 
+  async listAll(): Promise<Product[]> {
+    const documents = await this.collection
+      .find()
+      .sort({ 'name.en': 1 })
+      .toArray();
+
+    return documents.map(toProduct);
+  }
+
   async findActiveById(id: string, session?: ClientSession): Promise<Product | null> {
-    const document = await this.collection.findOne({ _id: id, active: true }, { session });
+    const document = await this.collection.findOne({ _id: id, active: true }, session ? { session } : undefined);
+    return document ? toProduct(document) : null;
+  }
+
+  async findById(id: string, session?: ClientSession): Promise<Product | null> {
+    const document = await this.collection.findOne({ _id: id }, session ? { session } : undefined);
     return document ? toProduct(document) : null;
   }
 
@@ -33,8 +47,11 @@ export class MongoProductRepository implements ProductRepository {
       id: randomUUID(),
       ...input,
       variants: input.variants.map(variant => ({
-        id: randomUUID(),
-        ...variant,
+        id: variant.id || randomUUID(),
+        sku: variant.sku,
+        attributes: variant.attributes,
+        prices: variant.prices,
+        stock: variant.stock,
         active: variant.active ?? true,
       })),
       active: input.active ?? true,
@@ -43,6 +60,32 @@ export class MongoProductRepository implements ProductRepository {
     };
 
     await this.collection.insertOne(toDocument(product));
+    return product;
+  }
+
+  async update(id: string, input: ProductInput): Promise<Product | null> {
+    const existing = await this.findById(id);
+    if (!existing) return null;
+
+    const now = new Date();
+    const product: Product = {
+      ...existing,
+      name: input.name,
+      description: input.description,
+      imageUrl: input.imageUrl,
+      variants: input.variants.map(variant => ({
+        id: variant.id ?? randomUUID(),
+        sku: variant.sku,
+        attributes: variant.attributes,
+        prices: variant.prices,
+        stock: variant.stock,
+        active: variant.active ?? true,
+      })),
+      active: input.active ?? existing.active,
+      updatedAt: now,
+    };
+
+    await this.collection.replaceOne({ _id: id }, toDocument(product));
     return product;
   }
 
@@ -64,7 +107,7 @@ export class MongoProductRepository implements ProductRepository {
         $inc: { 'variants.$.stock': -quantity },
         $set: { updatedAt: new Date() },
       },
-      { session },
+      session ? { session } : {},
     );
 
     if (!result) {

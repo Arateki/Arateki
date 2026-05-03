@@ -26,6 +26,7 @@ export interface ProductVariant {
 }
 
 export interface ProductVariantInput {
+  id?: string | undefined;
   sku: string;
   attributes: Record<string, string>;
   prices: ProductPrices;
@@ -37,6 +38,7 @@ export interface Product {
   id: string;
   name: LocalizedText;
   description: LocalizedText;
+  imageUrl?: string | undefined;
   variants: ProductVariant[];
   active: boolean;
   createdAt: Date;
@@ -46,6 +48,7 @@ export interface Product {
 export interface ProductInput {
   name: LocalizedText;
   description: LocalizedText;
+  imageUrl?: string | undefined;
   variants: ProductVariantInput[];
   active?: boolean | undefined;
 }
@@ -59,6 +62,7 @@ export interface ProductView {
   id: string;
   name: string;
   description: string;
+  imageUrl?: string | undefined;
   priceCents: number;
   currency: Currency;
   stock: number;
@@ -80,8 +84,11 @@ export interface ProductVariantView {
 
 export interface ProductRepository {
   listActive(): Promise<Product[]>;
+  listAll(): Promise<Product[]>;
   findActiveById(id: string, session?: ClientSession): Promise<Product | null>;
+  findById(id: string, session?: ClientSession): Promise<Product | null>;
   create(input: ProductInput): Promise<Product>;
+  update(id: string, input: ProductInput): Promise<Product | null>;
   seedIfEmpty(products: Product[]): Promise<void>;
   decrementStock(productId: string, variantId: string, quantity: number, session?: ClientSession): Promise<void>;
 }
@@ -96,6 +103,7 @@ export function toProductView(product: Product, options: ProductListOptions): Pr
     id: product.id,
     name: product.name[options.locale] || product.name.en,
     description: product.description[options.locale] || product.description.en,
+    imageUrl: product.imageUrl,
     priceCents: prices.length > 0 ? Math.min(...prices) : 0,
     currency: options.currency,
     stock: variants.reduce((sum, variant) => sum + variant.stock, 0),

@@ -23,28 +23,50 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
 
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 border-b-2 ${
-      theme === 'light' ? 'border-[#E0E0E0] bg-[#F5F5F5]/90 backdrop-blur-md' : 'border-[#2A2A2A] bg-[#111111]/90 backdrop-blur-md'
+      theme === 'light' ? 'border-[#E0E0E0] bg-[#F5F5F5]/60 backdrop-blur-md' : 'border-[#2A2A2A] bg-[#111111]/60 backdrop-blur-md'
     }`}>
       <div className="max-w-7xl mx-auto px-6 py-1 flex items-center justify-between">
-        
+
         {/* LOGO - Left Side */}
         <div className="flex-1 flex justify-start">
           <Link to="/" className="flex items-center group cursor-pointer">
-            <HorizontalLogo 
+            <HorizontalLogo
               theme={theme}
-              className="w-32 md:w-44 transition-transform duration-500 group-hover:scale-105" 
+              className="w-32 md:w-44 transition-transform duration-500 group-hover:scale-105"
             />
           </Link>
         </div>
-        
+
         {/* LINKS - Perfect Center (Desktop) */}
-        <div className="hidden md:flex justify-center space-x-4 lg:space-x-8 text-[10px] lg:text-xs uppercase tracking-widest font-medium opacity-90">
+        <div className="hidden md:flex justify-center items-center space-x-4 lg:space-x-8 text-[10px] lg:text-xs uppercase tracking-widest font-medium opacity-90">
           <a href="/#safrasense" className="hover:opacity-60 transition-opacity">{t.nav.product}</a>
           <a href="/#raiznet" className="hover:opacity-60 transition-opacity">{t.nav.network}</a>
           <a href="/#manifesto" className="hover:opacity-60 transition-opacity">{t.nav.manifesto}</a>
           <a href="/#waitlist" className="hover:opacity-60 transition-opacity">{t.nav.waitlist}</a>
           <a href="/#faq" className="hover:opacity-60 transition-opacity">{t.nav.faq}</a>
-          <Link to="/sales" className="hover:opacity-60 transition-opacity font-bold">{t.nav.store}</Link>
+
+          {/* CRYSTALLINE TEXT CTA */}
+          <Link
+            to="/sales"
+            className="relative px-2 py-2 group flex items-center justify-center transition-transform duration-300 hover:scale-110 active:scale-95"
+          >
+            {/* Background Aura (Breathing) */}
+            <div className={`absolute inset-0 rounded-full animate-pulse-aura blur-xl ${
+              isDark ? 'bg-white scale-75' : 'bg-zinc-800 scale-100'
+            }`} />
+
+            {/* Text with Shimmer Effect */}
+            <span
+              className={`text-[10px] font-black uppercase tracking-[0.3em] relative z-10 antialiased animate-text-shimmer bg-clip-text text-transparent ${
+                isDark
+                  ? 'bg-gradient-to-r from-gray-400 via-white to-gray-400'
+                  : 'bg-gradient-to-r from-gray-600 via-black to-gray-600'
+              }`}
+            >
+              {t.nav.store}
+            </span>
+          </Link>
+
           <a href="#footer" className="hover:opacity-60 transition-opacity">{t.nav.contact}</a>
         </div>
 
@@ -57,7 +79,7 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
             <svg className="w-2 h-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
             </svg>
-            <select 
+            <select
               onChange={(e) => {
                 if (e.target.value) {
                   if (e.target.value.startsWith('/')) {

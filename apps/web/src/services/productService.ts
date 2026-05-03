@@ -1,51 +1,35 @@
 import type { Product } from '../types/product';
 
-const MOCK_PRODUCTS: Product[] = [
-  {
-    id: '1',
-    name: 'ESP32-WROOM-32D',
-    description: 'Módulo microcontrolador potente com Wi-Fi e Bluetooth integrados. Ideal para projetos IoT.',
-    price: 45.90,
-    currency: 'BRL',
-    image: 'https://images.unsplash.com/photo-1553406830-ef2513020d76?q=80&w=400&auto=format&fit=crop',
-    category: 'Microcontroladores'
-  },
-  {
-    id: '2',
-    name: 'Sensor DHT22',
-    description: 'Sensor de alta precisão para medição de temperatura e umidade relativa do ar.',
-    price: 32.50,
-    currency: 'BRL',
-    image: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?q=80&w=400&auto=format&fit=crop',
-    category: 'Sensores'
-  },
-  {
-    id: '3',
-    name: 'Módulo Painel Solar 6V 1W',
-    description: 'Painel solar compacto e eficiente para alimentar pequenos dispositivos e carregar baterias.',
-    price: 18.00,
-    currency: 'BRL',
-    image: 'https://images.unsplash.com/photo-1508514177221-188b171f267a?q=80&w=400&auto=format&fit=crop',
-    category: 'Energia'
-  },
-  {
-    id: '4',
-    name: 'Sensor de Umidade de Solo Capacitivo',
-    description: 'Sensor resistente à corrosão para medir com precisão a umidade do solo em vasos e hortas.',
-    price: 15.20,
-    currency: 'BRL',
-    image: 'https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?q=80&w=400&auto=format&fit=crop',
-    category: 'Sensores'
-  }
-];
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+interface ApiProduct {
+  id: string;
+  name: string;
+  description: string;
+  priceCents: number;
+  currency: string;
+  imageUrl?: string;
+  variants?: Array<{ id: string }>;
+}
 
 export const productService = {
-  async getProducts(): Promise<Product[]> {
-    // Simulando atraso de rede
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(MOCK_PRODUCTS);
-      }, 800);
-    });
+  async getProducts(lang: string = 'pt', country: string = 'BR'): Promise<Product[]> {
+    const response = await fetch(`${API_URL}/products?lang=${lang}&country=${country}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch products');
+    }
+
+    const data = await response.json() as { products: ApiProduct[] };
+
+    return data.products.map((p) => ({
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      price: p.priceCents / 100,
+      currency: p.currency,
+      image: p.imageUrl || 'https://images.unsplash.com/photo-1553406830-ef2513020d76?q=80&w=400&auto=format&fit=crop',
+      category: 'Componentes',
+      variantId: p.variants?.[0]?.id || '',
+    }));
   }
 };

@@ -7,6 +7,7 @@ export interface Env {
   adminLogin?: string | undefined;
   adminPassword?: string | undefined;
   jwtExpiresIn: string;
+  corsOrigin: string[];
 }
 
 function readEnv(name: string, fallback?: string): string {
@@ -28,5 +29,6 @@ export function loadEnv(): Env {
     adminLogin: process.env.ADMIN_LOGIN ?? (nodeEnv === 'production' ? undefined : 'admin'),
     adminPassword: process.env.ADMIN_PASSWORD ?? (nodeEnv === 'production' ? undefined : 'admin-password'),
     jwtExpiresIn: readEnv('JWT_EXPIRES_IN', '1h'),
+    corsOrigin: process.env.CORS_ORIGIN?.split(',').map(origin => origin.trim()).filter(Boolean) ?? [],
   };
 }

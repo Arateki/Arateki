@@ -6,4 +6,5 @@ export interface Product {
   currency: string;
   image: string;
   category: string;
+  variantId: string;
 }
