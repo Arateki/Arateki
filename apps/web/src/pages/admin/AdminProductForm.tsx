@@ -29,6 +29,7 @@ export default function AdminProductForm() {
   const { token } = useAuth();
   const { theme, t } = useAppConfig();
   const isDark = theme === 'dark';
+  const loadErrorMessage = t.admin.productForm.loadError;
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
@@ -73,14 +74,14 @@ export default function AdminProductForm() {
             }))
           });
         } catch {
-          setError(t.admin.productForm.loadError);
+          setError(loadErrorMessage);
         } finally {
           setIsLoading(false);
         }
       };
       loadProduct();
     }
-  }, [id, isEdit, token]);
+  }, [id, isEdit, token, loadErrorMessage]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

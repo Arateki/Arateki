@@ -36,8 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (expiresAt <= Date.now()) {
       authService.removeToken();
-      setToken(null);
-      return;
+      const timeout = window.setTimeout(() => setToken(null), 0);
+      return () => window.clearTimeout(timeout);
     }
 
     if (timeUntilRenewal <= 0) {

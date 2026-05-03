@@ -9,21 +9,23 @@ describe('imageUtils', () => {
   it('should resize an image and return base64', async () => {
     // Mock FileReader
     class MockFileReader {
-      onload: any;
+      onload: ((event: ProgressEvent<FileReader>) => void) | null = null;
       readAsDataURL() {
-        setTimeout(() => this.onload({ target: { result: 'data:image/png;base64,mock' } }), 0);
+        setTimeout(() => {
+          this.onload?.({ target: { result: 'data:image/png;base64,mock' } } as ProgressEvent<FileReader>);
+        }, 0);
       }
     }
     vi.stubGlobal('FileReader', MockFileReader);
 
     // Mock Image
     class MockImage {
-      onload: any;
-      onerror: any;
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
       width = 1000;
       height = 500;
       set src(_val: string) {
-        setTimeout(() => this.onload(), 0);
+        setTimeout(() => this.onload?.(), 0);
       }
     }
     vi.stubGlobal('Image', MockImage);
@@ -37,13 +39,11 @@ describe('imageUtils', () => {
       width: 0,
       height: 0,
     };
-    vi.stubGlobal('document', {
-      ...global.document,
-      createElement: vi.fn((tag) => {
-        if (tag === 'canvas') return mockCanvas;
-        return document.createElement(tag);
-      }),
-    });
+    const createElement = document.createElement.bind(document);
+    vi.spyOn(document, 'createElement').mockImplementation(((tagName: string) => {
+      if (tagName === 'canvas') return mockCanvas as unknown as HTMLCanvasElement;
+      return createElement(tagName);
+    }) as typeof document.createElement);
 
     const file = new File([''], 'test.png', { type: 'image/png' });
     const result = await resizeImage(file, 800, 800);
@@ -55,19 +55,21 @@ describe('imageUtils', () => {
 
   it('should handle portrait images correctly', async () => {
     class MockImage {
-      onload: any;
+      onload: (() => void) | null = null;
       width = 500;
       height = 1000;
       set src(_val: string) {
-        setTimeout(() => this.onload(), 0);
+        setTimeout(() => this.onload?.(), 0);
       }
     }
     vi.stubGlobal('Image', MockImage);
     
     class MockFileReader {
-      onload: any;
+      onload: ((event: ProgressEvent<FileReader>) => void) | null = null;
       readAsDataURL() {
-        setTimeout(() => this.onload({ target: { result: 'data:image/png;base64,mock' } }), 0);
+        setTimeout(() => {
+          this.onload?.({ target: { result: 'data:image/png;base64,mock' } } as ProgressEvent<FileReader>);
+        }, 0);
       }
     }
     vi.stubGlobal('FileReader', MockFileReader);
@@ -78,10 +80,7 @@ describe('imageUtils', () => {
       width: 0,
       height: 0,
     };
-    vi.stubGlobal('document', {
-      ...global.document,
-      createElement: vi.fn(() => mockCanvas),
-    });
+    vi.spyOn(document, 'createElement').mockReturnValue(mockCanvas as unknown as HTMLCanvasElement);
 
     const file = new File([''], 'test.png', { type: 'image/png' });
     await resizeImage(file, 800, 800);

@@ -25,6 +25,7 @@ export default function AdminOrders() {
   const { token } = useAuth();
   const { theme, lang, t } = useAppConfig();
   const isDark = theme === 'dark';
+  const loadErrorMessage = t.admin.orders.loadError;
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -40,14 +41,14 @@ export default function AdminOrders() {
         setOrders(data);
         setError('');
       } catch {
-        setError(t.admin.orders.loadError);
+        setError(loadErrorMessage);
       } finally {
         setIsLoading(false);
       }
     };
 
     void fetchOrders();
-  }, [token]);
+  }, [token, loadErrorMessage]);
 
   useEffect(() => {
     if (!feedback) return;

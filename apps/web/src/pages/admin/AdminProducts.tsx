@@ -9,6 +9,7 @@ export default function AdminProducts() {
   const { token } = useAuth();
   const { theme, lang, t } = useAppConfig();
   const isDark = theme === 'dark';
+  const loadErrorMessage = t.admin.products.loadError;
   const [products, setProducts] = useState<RawProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -22,14 +23,14 @@ export default function AdminProducts() {
         setProducts(data);
         setError('');
       } catch {
-        setError(t.admin.products.loadError);
+        setError(loadErrorMessage);
       } finally {
         setIsLoading(false);
       }
     };
 
     void fetchProducts();
-  }, [token]);
+  }, [token, loadErrorMessage]);
 
   if (isLoading) {
     return <div className="text-center py-20">{t.admin.products.loading}</div>;
