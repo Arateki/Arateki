@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     runs-on: self-hosted
-    
+    environment: production
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
@@ -26,3 +26,13 @@ jobs:
 
     - name: Build project
       run: pnpm build
+
+    - name: Deploy API and Database
+      run: |
+        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
+        echo "JWT_EXPIRES_IN=12h" >> .env
+        echo "ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }}" >> .env
+        echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+        echo "CORS_ORIGIN=https://arateki.com" >> .env
+        docker compose up -d --build mongodb api
+        docker image prune -f
