@@ -24,6 +24,11 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
 
+    - name: Clean previous build files
+      run: |
+        mkdir -p apps/web/dist
+        rm -rf apps/web/dist/*
+
     - name: Build project
       run: pnpm build
 
