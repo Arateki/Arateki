@@ -32,10 +32,10 @@ export const FAQ = ({ t, theme, openFaq, setOpenFaq }: FAQProps) => {
                 </button>
                 <div 
                   className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                    openFaq === idx ? 'max-h-64 opacity-100 pb-8' : 'max-h-0 opacity-0'
+                    openFaq === idx ? 'max-h-96 opacity-100 pb-8' : 'max-h-0 opacity-0'
                   }`}
                 >
-                  <p className="font-light leading-relaxed opacity-80">{faq.a}</p>
+                  <div className="font-light leading-relaxed opacity-80">{faq.a}</div>
                 </div>
               </div>
             </FadeInSection>

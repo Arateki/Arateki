@@ -4,6 +4,35 @@ import type { TranslationType } from '../types/i18n';
 type AdminTranslation = TranslationType['admin'];
 type AdminLang = 'pt' | 'en' | 'es' | 'zh' | 'ja';
 
+const repositoryLinks = (
+  <span className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+    <a
+      href="https://github.com/Arateki/Arateki"
+      target="_blank"
+      rel="noreferrer"
+      className="font-medium underline underline-offset-4 hover:opacity-70"
+    >
+      Arateki
+    </a>
+    <a
+      href="https://github.com/Arateki/Raiznet"
+      target="_blank"
+      rel="noreferrer"
+      className="font-medium underline underline-offset-4 hover:opacity-70"
+    >
+      Raiznet
+    </a>
+    <a
+      href="https://github.com/Arateki/Safrasense"
+      target="_blank"
+      rel="noreferrer"
+      className="font-medium underline underline-offset-4 hover:opacity-70"
+    >
+      Safrasense
+    </a>
+  </span>
+);
+
 const adminTranslations: Record<AdminLang, AdminTranslation> = {
   pt: {
     common: { brand: 'Arateki Admin', selectLanguage: 'Selecionar idioma', toggleTheme: 'Alternar tema', loading: 'Carregando...', back: 'Voltar', save: 'Salvar', saving: 'Salvando...', edit: 'Editar', active: 'Ativo', inactive: 'Inativo', empty: 'Vazio', error: 'Erro' },
@@ -119,7 +148,15 @@ const baseTranslations = {
         { q: "Quando o SafraSense estará disponível?", a: "A previsão de envio do primeiro lote é para o final deste semestre. Produzimos em pequena escala focando inteiramente na precisão do hardware." },
         { q: "O dispositivo precisa de internet o tempo todo?", a: "Não. O SafraSense pode operar de forma 100% offline, registrando os dados internamente e sincronizando apenas quando uma rede confiável for detectada." },
         { q: "Serve para plantio em terra/solo?", a: "Esta versão inicial (Aqua) foi projetada especificamente para reservatórios de hidroponia e aquaponia. Sensores de solo estão no nosso roadmap futuro." },
-        { q: "Como acesso o código e os esquemáticos?", a: "Tudo será publicado no nosso repositório público sob uma licença open-source permissiva no dia do lançamento oficial. O poder é seu." }
+        {
+          q: "Como acesso o código e os esquemáticos?",
+          a: (
+            <>
+              <span>Nosso código, documentação técnica e esquemáticos ficam nos repositórios públicos abaixo. Use o Arateki para o site e materiais gerais, Raiznet para a rede/servidor, e Safrasense para o hardware e firmware do dispositivo.</span>
+              {repositoryLinks}
+            </>
+          )
+        }
       ]
     },
     footer: {
@@ -223,7 +260,15 @@ const baseTranslations = {
         { q: "When will SafraSense be available?", a: "We expect to ship the first batch by the end of this semester. We manufacture in small batches focusing entirely on hardware precision." },
         { q: "Does the device need constant internet access?", a: "No. SafraSense can operate 100% offline, logging data internally and syncing only when a trusted network is detected." },
         { q: "Does it work for soil-based planting?", a: "This initial version (Aqua) is specifically designed for hydroponic and aquaponic reservoirs. Soil sensors are on our future roadmap." },
-        { q: "How do I access the code and schematics?", a: "Everything will be published in our public repository under a permissive open-source license on the official launch day. The power is yours." }
+        {
+          q: "How do I access the code and schematics?",
+          a: (
+            <>
+              <span>Our code, technical documentation, and schematics are available in the public repositories below. Use Arateki for the site and general materials, Raiznet for the network/server, and Safrasense for the device hardware and firmware.</span>
+              {repositoryLinks}
+            </>
+          )
+        }
       ]
     },
     footer: {
@@ -327,7 +372,15 @@ const baseTranslations = {
         { q: "¿Cuándo estará disponible SafraSense?", a: "La previsión de envío del primer lote é para finales de este semestre. Producimos a pequeña escala centrándonos exclusivamente en la precisión del hardware." },
         { q: "¿El dispositivo necesita internet todo el tempo?", a: "No. SafraSense puede funcionar de forma 100% offline, registrando los datos internamente y sincronizándose solo cuando se detecta una red de confianza." },
         { q: "¿Sirve para plantar en tierra/suelo?", a: "Esta versión inicial (Aqua) fue diseñada específicamente para depósitos de hidroponía y acuaponía. Los sensores de suelo están en nuestra hoja de ruta futura." },
-        { q: "¿Cómo accedo al código y los esquemas?", a: "Todo se publicará en nuestro repositorio público bajo una licencia de código abierto permisiva el día del lanzamiento oficial. El poder es suyo." }
+        {
+          q: "¿Cómo accedo al código y los esquemas?",
+          a: (
+            <>
+              <span>Nuestro código, documentación técnica y esquemas están disponibles en los repositorios públicos de abajo. Use Arateki para el sitio y materiales generales, Raiznet para la red/servidor, y Safrasense para el hardware y firmware del dispositivo.</span>
+              {repositoryLinks}
+            </>
+          )
+        }
       ]
     },
     footer: {
@@ -431,7 +484,15 @@ const baseTranslations = {
         { q: "SafraSense 何时上市？", a: "预计第一批将在本半年末发货。我们小批量生产，完全专注于硬件精度。" },
         { q: "设备需要一直联网吗？", a: "不。SafraSense 可以 100% 离线运行，在内部记录数据，仅在检测到信任网络时才进行同步。" },
         { q: "适用于土培吗？", a: "初始版本 (Aqua) 专为水培和鱼菜共生储水箱设计。土壤传感器在我们的未来路线图中。" },
-        { q: "如何获取代码和图纸？", a: "所有内容将在正式发布当天在我们的公共仓库中根据许可的开源协议发布。力量掌握在您手中。" }
+        {
+          q: "如何获取代码和图纸？",
+          a: (
+            <>
+              <span>我们的代码、技术文档和图纸可在以下公共仓库中获取。Arateki 用于网站和通用资料，Raiznet 用于网络/服务器，Safrasense 用于设备硬件和固件。</span>
+              {repositoryLinks}
+            </>
+          )
+        }
       ]
     },
     footer: {
@@ -535,7 +596,15 @@ const baseTranslations = {
         { q: "SafraSenseはいつ利用可能になりますか？", a: "第一弾の発送は今期末を予定しています. ハードウェアの精度に完全に焦点を当て、小規模で生産しています。" },
         { q: "デバイスは常にインターネットに接続している必要がありますか？", a: "いいえ. SafraSenseは100%オフラインで動作し、データを内部に記録. 信頼できるネットワークが検出されたときにのみ同期します。" },
         { q: "土耕栽培でも使えますか？", a: "この初期バージョン（Aqua）は、水耕栽培およびアクアポニックスの貯水槽専用に設計されています. 土壌センサーは今後のロードマップに含まれています。" },
-        { q: "コードや設計図にはどうすればアクセスできますか？", a: "すべては、正式リリースの日に寛容なオープンソースライセンスの下で公開リポジトリに公開されます. 力はあなたの手にあります。" }
+        {
+          q: "コードや設計図にはどうすればアクセスできますか？",
+          a: (
+            <>
+              <span>コード、技術ドキュメント、設計図は以下の公開リポジトリで確認できます。Arateki はサイトと一般資料、Raiznet はネットワーク/サーバー、Safrasense はデバイスのハードウェアとファームウェア用です。</span>
+              {repositoryLinks}
+            </>
+          )
+        }
       ]
     },
     footer: {

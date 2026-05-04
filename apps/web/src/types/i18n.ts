@@ -22,7 +22,7 @@ export type TranslationType = {
     nodes: { title: string; desc: string }[]
   };
   waitlist: { title: string; desc: string; placeholder: string; button: string; registering: string; successMessage: string };
-  faq: { title: string; items: { q: string; a: string }[] };
+  faq: { title: string; items: { q: string; a: React.ReactNode }[] };
   footer: { rights: string; contact: string; address: string; social: string };
   store: {
     title: string;
