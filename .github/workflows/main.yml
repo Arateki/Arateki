@@ -24,13 +24,13 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
 
-    - name: Clean previous build files
-      run: |
-        mkdir -p apps/web/dist
-        rm -rf apps/web/dist/*
-
     - name: Build project
       run: pnpm build
+
+    - name: Deploy Frontend
+      run: |
+        mkdir -p /opt/home-server/websites/arateki/dist-front
+        rsync -a --delete apps/web/dist/ /opt/home-server/websites/arateki/dist-front/
 
     - name: Deploy API and Database
       run: |
