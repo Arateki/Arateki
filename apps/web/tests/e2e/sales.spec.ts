@@ -35,8 +35,9 @@ test.describe('Sales Page', () => {
     await page.goto('/');
     
     if (isMobile) {
-      // In mobile, use the select menu
-      await page.locator('select').first().selectOption('/sales');
+      // In mobile, use the custom themed menu
+      await page.getByRole('button', { name: 'Menu' }).click();
+      await page.getByRole('link', { name: /Loja|Store|Tienda/i }).click();
     } else {
       // In desktop, click on Store link
       const storeLink = page.getByRole('link', { name: /Loja|Store|Tienda/i });
@@ -57,5 +58,56 @@ test.describe('Sales Page', () => {
     const names = await productCards.allInnerTexts();
     expect(names).toContain('ESP32-WROOM-32D');
     expect(names).toContain('SENSOR DHT22');
+  });
+
+  test('should scroll to home sections from the store menu', async ({ page, isMobile }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('arateki-lang', 'pt');
+      window.localStorage.setItem('arateki-theme', 'dark');
+    });
+
+    await page.route('**/api/products*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ products: [] }),
+      });
+    });
+
+    await page.goto('/sales');
+
+    if (isMobile) {
+      await page.getByRole('button', { name: 'Menu' }).click();
+    }
+
+    await page.getByRole('link', { name: 'SafraSense' }).click();
+
+    await expect(page).toHaveURL(/\/#safrasense$/);
+    await expect.poll(async () => page.evaluate(() => {
+      const target = document.getElementById('safrasense');
+      const headerHeight = document.querySelector('nav')?.getBoundingClientRect().height ?? 0;
+      if (!target) return Number.MAX_SAFE_INTEGER;
+      return Math.abs(target.getBoundingClientRect().top - headerHeight);
+    })).toBeLessThan(32);
+  });
+
+  test('should mark contact active at the footer', async ({ page, isMobile }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('arateki-lang', 'pt');
+      window.localStorage.setItem('arateki-theme', 'dark');
+    });
+
+    await page.goto('/');
+
+    if (isMobile) {
+      await page.getByRole('button', { name: 'Menu' }).click();
+      await page.getByRole('link', { name: 'Contato', exact: true }).click();
+      await page.getByRole('button', { name: 'Menu' }).click();
+      await expect(page.getByRole('link', { name: 'Contato', exact: true })).toHaveClass(/bg-\[/);
+    } else {
+      const contactLink = page.getByRole('link', { name: 'Contato', exact: true });
+      await contactLink.click();
+      await expect(contactLink).toHaveClass(/font-bold/);
+    }
   });
 });
