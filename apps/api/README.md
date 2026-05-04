@@ -15,13 +15,16 @@ On startup, the API creates the first admin user when no admin exists in MongoDB
 
 ## Routes
 
-- `GET /health`: public health check.
-- `GET /products`: public product listing. Use `?country=BR` for BRL prices; other country values return USD prices. Use `?lang=pt|en|es|zh|ja` for localized product copy.
-- `POST /login`: public admin login with `{ "login": "...", "password": "..." }`. Returns a JWT when the credentials match the stored admin.
-- `POST /logout`: private token revocation for the current JWT.
-- `PATCH /users/password`: private password change for the current JWT user with `{ "currentPassword": "...", "newPassword": "..." }`.
-- `POST /products`: private product creation. Requires a JWT signed with `JWT_SECRET` and payload `{ "role": "admin" }`.
-- `POST /orders`: public order creation. Receives contact, address, and items with `productId`, `variantId`, and `quantity`; the API infers currency, product snapshots, prices, totals, and creates the order as `pending`.
+All API routes are served under `/api`. This matches the production reverse
+proxy and the frontend's default `VITE_API_URL`.
+
+- `GET /api/health`: public health check.
+- `GET /api/products`: public product listing. Use `?country=BR` for BRL prices; other country values return USD prices. Use `?lang=pt|en|es|zh|ja` for localized product copy.
+- `POST /api/login`: public admin login with `{ "login": "...", "password": "..." }`. Returns a JWT when the credentials match the stored admin.
+- `POST /api/logout`: private token revocation for the current JWT.
+- `PATCH /api/users/password`: private password change for the current JWT user with `{ "currentPassword": "...", "newPassword": "..." }`.
+- `POST /api/products`: private product creation. Requires a JWT signed with `JWT_SECRET` and payload `{ "role": "admin" }`.
+- `POST /api/orders`: public order creation. Receives contact, address, and items with `productId`, `variantId`, and `quantity`; the API infers currency, product snapshots, prices, totals, and creates the order as `pending`.
 
 JWTs include `sub` (user id), `role`, `tokenVersion`, `jti`, and `exp`. Logout stores the `jti` in `revokedTokens` until expiration. Password changes increment `users.tokenVersion`, which invalidates previous tokens for that user.
 

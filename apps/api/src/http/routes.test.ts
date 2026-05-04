@@ -15,10 +15,28 @@ describe('api routes', () => {
     await testApp?.close();
   });
 
+  it('does not expose unprefixed API routes', async () => {
+    const productsResponse = await testApp.app.inject({
+      method: 'GET',
+      url: '/products',
+    });
+    const loginResponse = await testApp.app.inject({
+      method: 'POST',
+      url: '/login',
+      payload: {
+        login: 'admin',
+        password: 'admin-password',
+      },
+    });
+
+    expect(productsResponse.statusCode).toBe(404);
+    expect(loginResponse.statusCode).toBe(404);
+  });
+
   it('lists products publicly', async () => {
     const response = await testApp.app.inject({
       method: 'GET',
-      url: '/products',
+      url: apiUrl('/products'),
     });
 
     expect(response.statusCode).toBe(200);
@@ -30,14 +48,34 @@ describe('api routes', () => {
     });
   });
 
+  it('serves routes under the /api prefix used by the frontend', async () => {
+    const healthResponse = await testApp.app.inject({
+      method: 'GET',
+      url: apiUrl('/health'),
+    });
+    const productsResponse = await testApp.app.inject({
+      method: 'GET',
+      url: apiUrl('/products?country=BR&lang=pt'),
+    });
+
+    expect(healthResponse.statusCode).toBe(200);
+    expect(productsResponse.statusCode).toBe(200);
+    expect(productsResponse.json()).toMatchObject({
+      products: [
+        { id: 'sensor-dht22', currency: 'BRL' },
+        { id: 'esp32-wroom-32d', currency: 'BRL' },
+      ],
+    });
+  });
+
   it('lists products in BRL for Brazil, USD otherwise, and selected language', async () => {
     const brResponse = await testApp.app.inject({
       method: 'GET',
-      url: '/products?country=BR&lang=pt',
+      url: apiUrl('/products?country=BR&lang=pt'),
     });
     const usResponse = await testApp.app.inject({
       method: 'GET',
-      url: '/products?country=US',
+      url: apiUrl('/products?country=US'),
     });
 
     expect(brResponse.statusCode).toBe(200);
@@ -72,7 +110,7 @@ describe('api routes', () => {
   it('returns an admin token on login', async () => {
     const response = await testApp.app.inject({
       method: 'POST',
-      url: '/login',
+      url: apiUrl('/login'),
       payload: {
         login: 'admin',
         password: 'admin-password',
@@ -93,7 +131,7 @@ describe('api routes', () => {
   it('rejects invalid login credentials', async () => {
     const response = await testApp.app.inject({
       method: 'POST',
-      url: '/login',
+      url: apiUrl('/login'),
       payload: {
         login: 'admin',
         password: 'wrong-password',
@@ -106,7 +144,7 @@ describe('api routes', () => {
   it('rejects product creation without admin jwt', async () => {
     const response = await testApp.app.inject({
       method: 'POST',
-      url: '/products',
+      url: apiUrl('/products'),
       payload: newProductPayload(),
     });
 
@@ -116,7 +154,7 @@ describe('api routes', () => {
   it('creates a pending order publicly', async () => {
     const response = await testApp.app.inject({
       method: 'POST',
-      url: '/orders',
+      url: apiUrl('/orders'),
       payload: newOrderPayload(),
     });
 
@@ -149,7 +187,7 @@ describe('api routes', () => {
   it('rejects order creation with invalid items', async () => {
     const response = await testApp.app.inject({
       method: 'POST',
-      url: '/orders',
+      url: apiUrl('/orders'),
       payload: {
         ...newOrderPayload(),
         items: [{ productId: 'esp32-wroom-32d', variantId: 'missing', quantity: 1 }],
@@ -167,7 +205,7 @@ describe('api routes', () => {
 
     const response = await testApp.app.inject({
       method: 'POST',
-      url: '/products',
+      url: apiUrl('/products'),
       headers: {
         authorization: `Bearer ${token}`,
       },
@@ -204,7 +242,7 @@ describe('api routes', () => {
 
     const logoutResponse = await testApp.app.inject({
       method: 'POST',
-      url: '/logout',
+      url: apiUrl('/logout'),
       headers: {
         authorization: `Bearer ${token}`,
       },
@@ -214,7 +252,7 @@ describe('api routes', () => {
 
     const response = await testApp.app.inject({
       method: 'POST',
-      url: '/products',
+      url: apiUrl('/products'),
       headers: {
         authorization: `Bearer ${token}`,
       },
@@ -229,7 +267,7 @@ describe('api routes', () => {
 
     const meResponse = await testApp.app.inject({
       method: 'GET',
-      url: '/me',
+      url: apiUrl('/me'),
       headers: {
         authorization: `Bearer ${token}`,
       },
@@ -244,7 +282,7 @@ describe('api routes', () => {
 
     const refreshResponse = await testApp.app.inject({
       method: 'POST',
-      url: '/refresh',
+      url: apiUrl('/refresh'),
       headers: {
         authorization: `Bearer ${token}`,
       },
@@ -255,7 +293,7 @@ describe('api routes', () => {
 
     const oldTokenResponse = await testApp.app.inject({
       method: 'GET',
-      url: '/me',
+      url: apiUrl('/me'),
       headers: {
         authorization: `Bearer ${token}`,
       },
@@ -264,7 +302,7 @@ describe('api routes', () => {
 
     const refreshedTokenResponse = await testApp.app.inject({
       method: 'GET',
-      url: '/me',
+      url: apiUrl('/me'),
       headers: {
         authorization: `Bearer ${refreshedToken}`,
       },
@@ -277,7 +315,7 @@ describe('api routes', () => {
 
     const changePasswordResponse = await testApp.app.inject({
       method: 'PATCH',
-      url: '/users/password',
+      url: apiUrl('/users/password'),
       headers: {
         authorization: `Bearer ${token}`,
       },
@@ -291,7 +329,7 @@ describe('api routes', () => {
 
     const oldTokenResponse = await testApp.app.inject({
       method: 'POST',
-      url: '/products',
+      url: apiUrl('/products'),
       headers: {
         authorization: `Bearer ${token}`,
       },
@@ -302,7 +340,7 @@ describe('api routes', () => {
 
     const loginResponse = await testApp.app.inject({
       method: 'POST',
-      url: '/login',
+      url: apiUrl('/login'),
       payload: {
         login: 'admin',
         password: 'new-admin-password',
@@ -328,7 +366,7 @@ describe('api routes', () => {
 
     const response = await testApp.app.inject({
       method: 'POST',
-      url: '/products',
+      url: apiUrl('/products'),
       headers: {
         authorization: `Bearer ${token}`,
       },
@@ -341,21 +379,21 @@ describe('api routes', () => {
   it('allows admin to manage orders', async () => {
     const login = await testApp.app.inject({
       method: 'POST',
-      url: '/login',
+      url: apiUrl('/login'),
       payload: { login: 'admin', password: 'new-admin-password' },
     });
     const { token } = login.json<{ token: string }>();
 
     const createResponse = await testApp.app.inject({
       method: 'POST',
-      url: '/orders',
+      url: apiUrl('/orders'),
       payload: newOrderPayload(),
     });
     const { order } = createResponse.json<{ order: { id: string } }>();
 
     const listResponse = await testApp.app.inject({
       method: 'GET',
-      url: '/orders',
+      url: apiUrl('/orders'),
       headers: { authorization: `Bearer ${token}` },
     });
     expect(listResponse.statusCode).toBe(200);
@@ -367,7 +405,7 @@ describe('api routes', () => {
 
     const getResponse = await testApp.app.inject({
       method: 'GET',
-      url: `/orders/${order.id}`,
+      url: apiUrl(`/orders/${order.id}`),
       headers: { authorization: `Bearer ${token}` },
     });
     expect(getResponse.statusCode).toBe(200);
@@ -377,7 +415,7 @@ describe('api routes', () => {
 
     const patchResponse = await testApp.app.inject({
       method: 'PATCH',
-      url: `/orders/${order.id}/status`,
+      url: apiUrl(`/orders/${order.id}/status`),
       headers: { authorization: `Bearer ${token}` },
       payload: { status: 'paid' },
     });
@@ -385,7 +423,7 @@ describe('api routes', () => {
 
     const verifyResponse = await testApp.app.inject({
       method: 'GET',
-      url: `/orders/${order.id}`,
+      url: apiUrl(`/orders/${order.id}`),
       headers: { authorization: `Bearer ${token}` },
     });
     expect(verifyResponse.json()).toMatchObject({
@@ -409,7 +447,7 @@ describe('api routes', () => {
   it('allows admin to manage products', async () => {
     const login = await testApp.app.inject({
       method: 'POST',
-      url: '/login',
+      url: apiUrl('/login'),
       payload: { login: 'admin', password: 'new-admin-password' },
     });
     const { token } = login.json<{ token: string }>();
@@ -417,7 +455,7 @@ describe('api routes', () => {
     // List admin products (should see everything)
     const listResponse = await testApp.app.inject({
       method: 'GET',
-      url: '/admin/products',
+      url: apiUrl('/admin/products'),
       headers: { authorization: `Bearer ${token}` },
     });
     expect(listResponse.statusCode).toBe(200);
@@ -429,7 +467,7 @@ describe('api routes', () => {
 
     const getProductResponse = await testApp.app.inject({
       method: 'GET',
-      url: `/admin/products/${targetProduct.id}`,
+      url: apiUrl(`/admin/products/${targetProduct.id}`),
       headers: { authorization: `Bearer ${token}` },
     });
     expect(getProductResponse.statusCode).toBe(200);
@@ -439,14 +477,14 @@ describe('api routes', () => {
 
     const missingProductResponse = await testApp.app.inject({
       method: 'GET',
-      url: '/admin/products/non-existent-id',
+      url: apiUrl('/admin/products/non-existent-id'),
       headers: { authorization: `Bearer ${token}` },
     });
     expect(missingProductResponse.statusCode).toBe(404);
 
     const unauthenticatedGetProductResponse = await testApp.app.inject({
       method: 'GET',
-      url: `/admin/products/${targetProduct.id}`,
+      url: apiUrl(`/admin/products/${targetProduct.id}`),
     });
     expect(unauthenticatedGetProductResponse.statusCode).toBe(401);
 
@@ -466,7 +504,7 @@ describe('api routes', () => {
     // Update product
     const updateResponse = await testApp.app.inject({
       method: 'PUT',
-      url: `/products/${targetProduct.id}`,
+      url: apiUrl(`/products/${targetProduct.id}`),
       headers: { authorization: `Bearer ${token}` },
       payload: updatePayload,
     });
@@ -489,7 +527,7 @@ describe('api routes', () => {
     // Verify public view changed (default is USD if no country provided)
     const publicResponse = await testApp.app.inject({
       method: 'GET',
-      url: `/products?lang=pt`,
+      url: apiUrl('/products?lang=pt'),
     });
     const updatedPublic = publicResponse.json<{ products: Array<{ id: string; name: string; priceCents: number }> }>().products.find(p => p.id === targetProduct.id);
     if (!updatedPublic) throw new Error('Expected updated public product');
@@ -503,7 +541,7 @@ describe('api routes', () => {
 
     const productResponse = await testApp.app.inject({
       method: 'PUT',
-      url: '/products/non-existent-id',
+      url: apiUrl('/products/non-existent-id'),
       headers: { authorization: `Bearer ${token}` },
       payload: newProductPayload(),
     });
@@ -511,7 +549,7 @@ describe('api routes', () => {
 
     const orderResponse = await testApp.app.inject({
       method: 'PATCH',
-      url: '/orders/non-existent-id/status',
+      url: apiUrl('/orders/non-existent-id/status'),
       headers: { authorization: `Bearer ${token}` },
       payload: { status: 'paid' },
     });
@@ -521,7 +559,7 @@ describe('api routes', () => {
   it('rejects order management without admin jwt', async () => {
     const listResponse = await testApp.app.inject({
       method: 'GET',
-      url: '/orders',
+      url: apiUrl('/orders'),
     });
     expect(listResponse.statusCode).toBe(401);
   });
@@ -535,6 +573,10 @@ describe('api routes', () => {
     });
   }
 });
+
+function apiUrl(path: string): string {
+  return `/api${path}`;
+}
 
 function newProductPayload() {
   return {

@@ -62,51 +62,55 @@ export async function buildApp(dependencies: AppDependencies): Promise<FastifyIn
     credentials: true,
   });
 
-  app.get('/health', async () => ({ status: 'ok' }));
+  const registerHttpSurface = async (routeApp: FastifyInstance): Promise<void> => {
+    routeApp.get('/health', async () => ({ status: 'ok' }));
 
-  await registerAuthRoutes(app, {
-    login: new LoginUseCase(dependencies.userRepository),
-    changePassword: new ChangePasswordUseCase(
-      dependencies.userRepository,
-      undefined,
-      dependencies.auditLogRepository,
-    ),
-    revokeToken: new RevokeTokenUseCase(dependencies.revokedTokenRepository),
-    users: dependencies.userRepository,
-    revokedTokens: dependencies.revokedTokenRepository,
-  });
+    await registerAuthRoutes(routeApp, {
+      login: new LoginUseCase(dependencies.userRepository),
+      changePassword: new ChangePasswordUseCase(
+        dependencies.userRepository,
+        undefined,
+        dependencies.auditLogRepository,
+      ),
+      revokeToken: new RevokeTokenUseCase(dependencies.revokedTokenRepository),
+      users: dependencies.userRepository,
+      revokedTokens: dependencies.revokedTokenRepository,
+    });
 
-  await registerProductRoutes(app, {
-    listProducts: new ListProductsUseCase(dependencies.productRepository),
-    listAdminProducts: new ListAdminProductsUseCase(dependencies.productRepository),
-    getAdminProduct: new GetAdminProductUseCase(dependencies.productRepository),
-    createProduct: new CreateProductUseCase(
-      dependencies.productRepository,
-      dependencies.auditLogRepository,
-    ),
-    updateProduct: new UpdateProductUseCase(
-      dependencies.productRepository,
-      dependencies.auditLogRepository,
-    ),
-    users: dependencies.userRepository,
-    revokedTokens: dependencies.revokedTokenRepository,
-  });
+    await registerProductRoutes(routeApp, {
+      listProducts: new ListProductsUseCase(dependencies.productRepository),
+      listAdminProducts: new ListAdminProductsUseCase(dependencies.productRepository),
+      getAdminProduct: new GetAdminProductUseCase(dependencies.productRepository),
+      createProduct: new CreateProductUseCase(
+        dependencies.productRepository,
+        dependencies.auditLogRepository,
+      ),
+      updateProduct: new UpdateProductUseCase(
+        dependencies.productRepository,
+        dependencies.auditLogRepository,
+      ),
+      users: dependencies.userRepository,
+      revokedTokens: dependencies.revokedTokenRepository,
+    });
 
-  await registerOrderRoutes(app, {
-    createOrder: new CreateOrderUseCase(
-      dependencies.orderRepository,
-      dependencies.productRepository,
-      dependencies.mongoClient,
-    ),
-    listOrders: new ListOrdersUseCase(dependencies.orderRepository),
-    getOrder: new GetOrderUseCase(dependencies.orderRepository),
-    updateOrderStatus: new UpdateOrderStatusUseCase(
-      dependencies.orderRepository,
-      dependencies.auditLogRepository,
-    ),
-    users: dependencies.userRepository,
-    revokedTokens: dependencies.revokedTokenRepository,
-  });
+    await registerOrderRoutes(routeApp, {
+      createOrder: new CreateOrderUseCase(
+        dependencies.orderRepository,
+        dependencies.productRepository,
+        dependencies.mongoClient,
+      ),
+      listOrders: new ListOrdersUseCase(dependencies.orderRepository),
+      getOrder: new GetOrderUseCase(dependencies.orderRepository),
+      updateOrderStatus: new UpdateOrderStatusUseCase(
+        dependencies.orderRepository,
+        dependencies.auditLogRepository,
+      ),
+      users: dependencies.userRepository,
+      revokedTokens: dependencies.revokedTokenRepository,
+    });
+  };
+
+  await app.register(registerHttpSurface, { prefix: '/api' });
 
   app.setErrorHandler((error, _request, reply) => {
     app.log.error(error);
