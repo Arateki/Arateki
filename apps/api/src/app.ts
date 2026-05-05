@@ -35,6 +35,7 @@ export interface AppDependencies {
   jwtSecret: string;
   jwtExpiresIn: string;
   corsOrigin?: string[] | undefined;
+  publicSiteUrl?: string | undefined;
 }
 
 export async function buildApp(dependencies: AppDependencies): Promise<FastifyInstance> {
@@ -91,6 +92,7 @@ export async function buildApp(dependencies: AppDependencies): Promise<FastifyIn
       ),
       users: dependencies.userRepository,
       revokedTokens: dependencies.revokedTokenRepository,
+      publicSiteUrl: dependencies.publicSiteUrl,
     });
 
     await registerOrderRoutes(routeApp, {

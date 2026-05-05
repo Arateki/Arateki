@@ -38,6 +38,7 @@ const app = await buildApp({
   jwtSecret: env.jwtSecret,
   jwtExpiresIn: env.jwtExpiresIn,
   corsOrigin: env.corsOrigin,
+  publicSiteUrl: env.publicSiteUrl,
 });
 
 const shutdown = async () => {

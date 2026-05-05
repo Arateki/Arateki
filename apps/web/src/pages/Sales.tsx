@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useProducts } from '../hooks/useProducts';
 import { useCart } from '../context/useCart';
@@ -15,12 +16,22 @@ import type { Product } from '../types/product';
 
 export default function Sales() {
   const { theme, lang, setLang, t, toggleTheme } = useAppConfig();
+  const location = useLocation();
   const { products, isLoading, error } = useProducts();
   const { addToCart } = useCart();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [dismissedCatalogProductId, setDismissedCatalogProductId] = useState<string | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const catalogProductId = useMemo(() => new URLSearchParams(location.search).get('product'), [location.search]);
+  const catalogProduct = useMemo(
+    () => products.find(item => item.id === catalogProductId) ?? null,
+    [catalogProductId, products],
+  );
+  const visibleProduct = selectedProduct ?? (
+    catalogProductId !== dismissedCatalogProductId ? catalogProduct : null
+  );
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,7 +142,10 @@ export default function Sales() {
                     theme={theme}
                     t={t.store}
                     onAddToCart={addToCart}
-                    onOpenModal={setSelectedProduct}
+                    onOpenModal={(item) => {
+                      setDismissedCatalogProductId(null);
+                      setSelectedProduct(item);
+                    }}
                   />
                 </FadeInSection>
               ))}
@@ -148,10 +162,15 @@ export default function Sales() {
       <CartDrawer theme={theme} />
 
       <ProductModal
-        product={selectedProduct}
+        product={visibleProduct}
         theme={theme}
         t={t.store}
-        onClose={() => setSelectedProduct(null)}
+        onClose={() => {
+          if (!selectedProduct && catalogProductId) {
+            setDismissedCatalogProductId(catalogProductId);
+          }
+          setSelectedProduct(null);
+        }}
         onAddToCart={addToCart}
       />
     </div>

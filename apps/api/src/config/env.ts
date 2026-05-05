@@ -8,6 +8,7 @@ export interface Env {
   adminPassword?: string | undefined;
   jwtExpiresIn: string;
   corsOrigin: string[];
+  publicSiteUrl?: string | undefined;
 }
 
 function readEnv(name: string, fallback?: string): string {
@@ -30,5 +31,6 @@ export function loadEnv(): Env {
     adminPassword: process.env.ADMIN_PASSWORD ?? (nodeEnv === 'production' ? undefined : 'admin-password'),
     jwtExpiresIn: readEnv('JWT_EXPIRES_IN', '1h'),
     corsOrigin: process.env.CORS_ORIGIN?.split(',').map(origin => origin.trim()).filter(Boolean) ?? [],
+    publicSiteUrl: process.env.PUBLIC_SITE_URL?.trim() || undefined,
   };
 }

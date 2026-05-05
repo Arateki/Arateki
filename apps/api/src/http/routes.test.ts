@@ -107,6 +107,45 @@ describe('api routes', () => {
     });
   });
 
+  it('serves a Google Merchant Center compatible RSS product feed', async () => {
+    const response = await testApp.app.inject({
+      method: 'GET',
+      url: apiUrl('/feeds/google-shopping.xml?country=BR&lang=pt'),
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['content-type']).toContain('application/rss+xml');
+    expect(response.body).toContain('<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">');
+    expect(response.body).toContain('<g:id>sensor-dht22</g:id>');
+    expect(response.body).toContain('<title>SENSOR DHT22</title>');
+    expect(response.body).toContain('<g:price>32.90 BRL</g:price>');
+    expect(response.body).toContain('<g:availability>in stock</g:availability>');
+    expect(response.body).toContain('<g:brand>Arateki</g:brand>');
+    expect(response.body).toContain('<g:mpn>SENSOR-DHT22</g:mpn>');
+    expect(response.body).toContain('<link>https://arateki.test/sales?product=sensor-dht22</link>');
+  });
+
+  it('serves spreadsheet feeds for Meta, Google and Microsoft catalog imports', async () => {
+    const tsvResponse = await testApp.app.inject({
+      method: 'GET',
+      url: apiUrl('/feeds/products.tsv?country=US&lang=en'),
+    });
+    const csvResponse = await testApp.app.inject({
+      method: 'GET',
+      url: apiUrl('/feeds/meta-catalog.csv?country=US&lang=en'),
+    });
+
+    expect(tsvResponse.statusCode).toBe(200);
+    expect(tsvResponse.headers['content-type']).toContain('text/tab-separated-values');
+    expect(tsvResponse.body.split('\n')[0]).toBe('id\ttitle\tdescription\tavailability\tcondition\tprice\tlink\timage_link\tbrand\tmpn\tgoogle_product_category\tproduct_type');
+    expect(tsvResponse.body).toContain('sensor-dht22\tDHT22 SENSOR\tDigital temperature and humidity sensor.\tin stock\tnew\t6.49 USD\thttps://arateki.test/sales?product=sensor-dht22');
+
+    expect(csvResponse.statusCode).toBe(200);
+    expect(csvResponse.headers['content-type']).toContain('text/csv');
+    expect(csvResponse.body.split('\n')[0]).toBe('id,title,description,availability,condition,price,link,image_link,brand,mpn,google_product_category,product_type');
+    expect(csvResponse.body).toContain('"sensor-dht22","DHT22 SENSOR","Digital temperature and humidity sensor.","in stock","new","6.49 USD","https://arateki.test/sales?product=sensor-dht22"');
+  });
+
   it('returns an admin token on login', async () => {
     const response = await testApp.app.inject({
       method: 'POST',

@@ -7,6 +7,7 @@ import { UpdateProductError, type UpdateProductUseCase } from '../application/up
 import type { RevokedTokenRepository } from '../domain/revoked-token.js';
 import type { UserRepository } from '../domain/user.js';
 import { authenticateAdmin } from './auth.js';
+import { buildGoogleShoppingXml, buildMetaCatalogCsv, buildProductsTsv, getCatalogSiteUrl } from './catalog-feed.js';
 import { productBodySchema, productListQuerySchema } from './schemas.js';
 
 interface ProductRoutesDependencies {
@@ -17,6 +18,7 @@ interface ProductRoutesDependencies {
   updateProduct: UpdateProductUseCase;
   users: UserRepository;
   revokedTokens: RevokedTokenRepository;
+  publicSiteUrl?: string | undefined;
 }
 
 export async function registerProductRoutes(
@@ -37,6 +39,66 @@ export async function registerProductRoutes(
       locale: parsedQuery.data.lang ?? 'en',
     });
     return { products };
+  });
+
+  app.get('/feeds/google-shopping.xml', async (request, reply) => {
+    const parsedQuery = productListQuerySchema.safeParse(request.query);
+    if (!parsedQuery.success) {
+      return reply.code(400).send({
+        message: 'Invalid product feed query',
+        issues: parsedQuery.error.flatten().fieldErrors,
+      });
+    }
+
+    const products = await dependencies.listProducts.execute({
+      currency: parsedQuery.data.country?.toUpperCase() === 'BR' ? 'BRL' : 'USD',
+      locale: parsedQuery.data.lang ?? 'pt',
+    });
+    const siteUrl = getCatalogSiteUrl(request, dependencies.publicSiteUrl);
+
+    return reply
+      .type('application/rss+xml; charset=utf-8')
+      .send(buildGoogleShoppingXml(products, siteUrl));
+  });
+
+  app.get('/feeds/products.tsv', async (request, reply) => {
+    const parsedQuery = productListQuerySchema.safeParse(request.query);
+    if (!parsedQuery.success) {
+      return reply.code(400).send({
+        message: 'Invalid product feed query',
+        issues: parsedQuery.error.flatten().fieldErrors,
+      });
+    }
+
+    const products = await dependencies.listProducts.execute({
+      currency: parsedQuery.data.country?.toUpperCase() === 'BR' ? 'BRL' : 'USD',
+      locale: parsedQuery.data.lang ?? 'pt',
+    });
+    const siteUrl = getCatalogSiteUrl(request, dependencies.publicSiteUrl);
+
+    return reply
+      .type('text/tab-separated-values; charset=utf-8')
+      .send(buildProductsTsv(products, siteUrl));
+  });
+
+  app.get('/feeds/meta-catalog.csv', async (request, reply) => {
+    const parsedQuery = productListQuerySchema.safeParse(request.query);
+    if (!parsedQuery.success) {
+      return reply.code(400).send({
+        message: 'Invalid product feed query',
+        issues: parsedQuery.error.flatten().fieldErrors,
+      });
+    }
+
+    const products = await dependencies.listProducts.execute({
+      currency: parsedQuery.data.country?.toUpperCase() === 'BR' ? 'BRL' : 'USD',
+      locale: parsedQuery.data.lang ?? 'pt',
+    });
+    const siteUrl = getCatalogSiteUrl(request, dependencies.publicSiteUrl);
+
+    return reply
+      .type('text/csv; charset=utf-8')
+      .send(buildMetaCatalogCsv(products, siteUrl));
   });
 
   app.get('/admin/products', async (request, reply) => {

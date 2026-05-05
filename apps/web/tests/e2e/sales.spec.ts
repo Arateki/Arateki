@@ -60,6 +60,32 @@ test.describe('Sales Page', () => {
     expect(names).toContain('SENSOR DHT22');
   });
 
+  test('should open product details from a catalog product link', async ({ page }) => {
+    await page.route('**/api/products*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          products: [
+            {
+              id: 'sensor-dht22',
+              name: 'SENSOR DHT22',
+              description: 'Mock desc',
+              priceCents: 3250,
+              currency: 'BRL',
+              imageUrl: '',
+              variants: [{ id: 'v2' }],
+            }
+          ],
+        }),
+      });
+    });
+
+    await page.goto('/sales?product=sensor-dht22');
+
+    await expect(page.getByRole('heading', { level: 2, name: 'SENSOR DHT22' })).toBeVisible();
+  });
+
   test('should scroll to home sections from the store menu', async ({ page, isMobile }) => {
     await page.addInitScript(() => {
       window.localStorage.setItem('arateki-lang', 'pt');

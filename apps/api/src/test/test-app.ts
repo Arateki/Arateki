@@ -51,6 +51,7 @@ export async function createTestApp(): Promise<TestApp> {
     mongoClient: mongo.client,
     jwtSecret,
     jwtExpiresIn: '1h',
+    publicSiteUrl: 'https://arateki.test',
   });
 
   await app.ready();
