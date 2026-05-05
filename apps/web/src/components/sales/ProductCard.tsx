@@ -42,7 +42,7 @@ export const ProductCard = ({ product, theme, t, onAddToCart, onOpenModal }: Pro
         <span className="text-[7px] md:text-[9px] uppercase tracking-widest opacity-50 mb-1 block truncate">
           {product.category}
         </span>
-        <h3 className="text-[11px] md:text-base font-bold mb-1 uppercase tracking-tight leading-tight line-clamp-2">{product.name}</h3>
+        <h3 className="text-[11px] md:text-base font-bold mb-1 uppercase tracking-tight leading-tight line-clamp-2 min-h-7 md:min-h-10">{product.name}</h3>
         <p className="hidden sm:block text-[11px] md:text-xs opacity-70 mb-3 line-clamp-2 min-h-8 md:min-h-10">
           {product.description}
         </p>
