@@ -3,7 +3,7 @@ import { Moon, Sun, Globe, ShoppingCart } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { HorizontalLogo } from '../common/Logos';
 import type { TranslationType } from '../../types/i18n';
-import type { LangCode } from '../../hooks/useAppConfig';
+import { langPath, stripLangFromPath, type LangCode } from '../../lib/seo';
 import { useCart } from '../../context/useCart';
 
 interface NavbarProps {
@@ -17,28 +17,31 @@ interface NavbarProps {
 export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) => {
   const { totalItems, openCart } = useCart();
   const location = useLocation();
-  const isStorePage = location.pathname === '/sales';
+  const localPath = stripLangFromPath(location.pathname);
+  const isStorePage = localPath === '/sales' || localPath.startsWith('/sales/');
+  const isHomePage = localPath === '/';
+  const homePath = langPath(lang, '/');
   const [langOpen, setLangOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSectionKey, setActiveSectionKey] = useState<string | null>(null);
   const isDark = theme === 'dark';
   const navItems = useMemo(() => [
-    { key: 'safrasense', href: '/#safrasense', label: t.nav.product, sectionId: 'safrasense' },
-    { key: 'raiznet', href: '/#raiznet', label: t.nav.network, sectionId: 'raiznet' },
-    { key: 'manifesto', href: '/#manifesto', label: t.nav.manifesto, sectionId: 'manifesto' },
-    { key: 'waitlist', href: '/#waitlist', label: t.nav.waitlist, sectionId: 'waitlist' },
-    { key: 'faq', href: '/#faq', label: t.nav.faq, sectionId: 'faq' },
-    { key: 'store', href: '/sales', label: t.nav.store },
+    { key: 'safrasense', href: `${homePath}/#safrasense`, label: t.nav.product, sectionId: 'safrasense' },
+    { key: 'raiznet', href: `${homePath}/#raiznet`, label: t.nav.network, sectionId: 'raiznet' },
+    { key: 'manifesto', href: `${homePath}/#manifesto`, label: t.nav.manifesto, sectionId: 'manifesto' },
+    { key: 'waitlist', href: `${homePath}/#waitlist`, label: t.nav.waitlist, sectionId: 'waitlist' },
+    { key: 'faq', href: `${homePath}/#faq`, label: t.nav.faq, sectionId: 'faq' },
+    { key: 'store', href: langPath(lang, '/sales'), label: t.nav.store },
     { key: 'contact', href: '#footer', label: t.nav.contact, sectionId: 'footer' },
-  ], [t.nav.contact, t.nav.faq, t.nav.manifesto, t.nav.network, t.nav.product, t.nav.store, t.nav.waitlist]);
+  ], [homePath, lang, t.nav.contact, t.nav.faq, t.nav.manifesto, t.nav.network, t.nav.product, t.nav.store, t.nav.waitlist]);
   const activeTextClass = isDark ? 'text-[#F0F0F0] opacity-100 font-bold' : 'text-[#181818] opacity-100 font-bold';
   const inactiveTextClass = 'opacity-70 hover:opacity-100';
   const activeItemBgClass = isDark ? 'bg-[#E0E0E0]/10' : 'bg-[#1D1D1D]/8';
   const inactiveItemBgClass = isDark ? 'hover:bg-[#E0E0E0]/5' : 'hover:bg-[#1D1D1D]/5';
-  const activeNavKey = isStorePage ? 'store' : location.pathname === '/' ? activeSectionKey : null;
+  const activeNavKey = isStorePage ? 'store' : isHomePage ? activeSectionKey : null;
 
   useEffect(() => {
-    if (location.pathname !== '/') {
+    if (!isHomePage) {
       return;
     }
 
@@ -72,7 +75,7 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
       window.removeEventListener('scroll', updateActiveSection);
       window.removeEventListener('resize', updateActiveSection);
     };
-  }, [location.pathname, location.hash, navItems]);
+  }, [isHomePage, location.hash, navItems]);
 
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 border-b-2 ${
@@ -82,7 +85,7 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
 
         {/* LOGO - Left Side */}
         <div className="flex-1 flex justify-start">
-          <Link to="/" className="flex items-center group cursor-pointer">
+          <Link to={homePath} className="flex items-center group cursor-pointer">
             <HorizontalLogo
               theme={theme}
               className="w-32 md:w-44 transition-transform duration-500 group-hover:scale-105"
@@ -104,7 +107,7 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
 
           {/* CRYSTALLINE TEXT CTA */}
           <Link
-            to="/sales"
+            to={langPath(lang, '/sales')}
             className={isStorePage
               ? `px-2 py-2 transition-opacity ${activeNavKey === 'store' ? activeTextClass : inactiveTextClass}`
               : 'relative px-2 py-2 group flex items-center justify-center transition-transform duration-300 hover:scale-110 active:scale-95'
@@ -167,7 +170,7 @@ export const Navbar = ({ theme, toggleTheme, lang, setLang, t }: NavbarProps) =>
                   isDark ? 'bg-[#1C1C1C] border-[#2A2A2A]' : 'bg-white border-[#E0E0E0]'
                 }`}>
                   {navItems.map(item => {
-                    const isStoreItem = item.href === '/sales';
+                    const isStoreItem = item.key === 'store';
                     const showStoreEffect = isStoreItem && !isStorePage;
                     const isActiveItem = activeNavKey === item.key;
 

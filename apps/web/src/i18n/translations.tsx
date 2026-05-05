@@ -78,6 +78,20 @@ const adminTranslations: Record<AdminLang, AdminTranslation> = {
 
 const baseTranslations = {
   pt: {
+    seo: {
+      home: {
+        title: "Arateki — Hardware open-source com foco em privacidade",
+        desc: "Soluções confiáveis e abertas. Acesse esquemas elétricos, código-fonte e peças de reposição. Hardware com privacidade, segurança e direito ao reparo."
+      },
+      sales: {
+        title: "Loja Arateki — Componentes eletrônicos e produtos exclusivos",
+        desc: "Componentes eletrônicos para projetos IoT, hidroponia e produtos exclusivos Arateki. Sensores, placas, módulos Wi-Fi e mais."
+      },
+      checkout: {
+        title: "Checkout — Arateki",
+        desc: "Finalize sua compra com segurança na loja Arateki."
+      }
+    },
     nav: { manifesto: "Manifesto", product: "SafraSense", network: "Raiznet", waitlist: "Espera", faq: "FAQ", contact: "Contato", store: "Loja" },
     hero: {
       title: "Soluções Confiáveis.",
@@ -190,6 +204,20 @@ const baseTranslations = {
     }
   },
   en: {
+    seo: {
+      home: {
+        title: "Arateki — Open-source hardware focused on privacy",
+        desc: "Reliable, open solutions. Access circuit schematics, source code, and replacement parts. Hardware focused on privacy, security, and the right to repair."
+      },
+      sales: {
+        title: "Arateki Store — Electronic components and exclusive products",
+        desc: "Electronic components for IoT and hydroponic projects. Sensors, boards, Wi-Fi modules and Arateki exclusive products."
+      },
+      checkout: {
+        title: "Checkout — Arateki",
+        desc: "Complete your purchase securely on the Arateki store."
+      }
+    },
     nav: { manifesto: "Manifesto", product: "SafraSense", network: "Raiznet", waitlist: "Waitlist", faq: "FAQ", contact: "Contact", store: "Store" },
     hero: {
       title: "Reliable Solutions.",
@@ -302,6 +330,20 @@ const baseTranslations = {
     }
   },
   es: {
+    seo: {
+      home: {
+        title: "Arateki — Hardware de código abierto centrado en la privacidad",
+        desc: "Soluciones confiables y abiertas. Accede a esquemas eléctricos, código fuente y repuestos. Hardware enfocado en privacidad, seguridad y derecho a reparar."
+      },
+      sales: {
+        title: "Tienda Arateki — Componentes electrónicos y productos exclusivos",
+        desc: "Componentes electrónicos para proyectos IoT e hidroponía. Sensores, placas, módulos Wi-Fi y productos exclusivos Arateki."
+      },
+      checkout: {
+        title: "Checkout — Arateki",
+        desc: "Finaliza tu compra de forma segura en la tienda Arateki."
+      }
+    },
     nav: { manifesto: "Manifiesto", product: "SafraSense", network: "Raiznet", waitlist: "Espera", faq: "FAQ", contact: "Contacto", store: "Tienda" },
     hero: {
       title: "Soluciones Confiables.",
@@ -414,6 +456,20 @@ const baseTranslations = {
     }
   },
   zh: {
+    seo: {
+      home: {
+        title: "Arateki — 注重隐私的开源硬件",
+        desc: "可靠的开放解决方案。获取电路图、源代码和备件。专注于隐私、安全和维修权的硬件。"
+      },
+      sales: {
+        title: "Arateki 商店 — 电子元件与专属产品",
+        desc: "用于物联网和水培项目的电子元件。传感器、电路板、Wi-Fi 模块及 Arateki 独家产品。"
+      },
+      checkout: {
+        title: "结账 — Arateki",
+        desc: "在 Arateki 商店安全完成购买。"
+      }
+    },
     nav: { manifesto: "宣言", product: "SafraSense", network: "Raiznet", waitlist: "等候名单", faq: "常见问题", contact: "联系我们", store: "商店" },
     hero: {
       title: "可靠的解决方案。",
@@ -526,6 +582,20 @@ const baseTranslations = {
     }
   },
   ja: {
+    seo: {
+      home: {
+        title: "Arateki — プライバシー重視のオープンソースハードウェア",
+        desc: "信頼できるオープンソリューション。回路図、ソースコード、交換部品にアクセス。プライバシー、セキュリティ、修理する権利を重視したハードウェア。"
+      },
+      sales: {
+        title: "Arateki ストア — 電子部品と限定商品",
+        desc: "IoTおよび水耕プロジェクト向け電子部品。センサー、基板、Wi-Fiモジュール、Aratekiの限定商品。"
+      },
+      checkout: {
+        title: "チェックアウト — Arateki",
+        desc: "Aratekiストアで安全にお買い物を完了。"
+      }
+    },
     nav: { manifesto: "マニフェスト", product: "SafraSense", network: "Raiznet", waitlist: "ウェイティングリスト", faq: "FAQ", contact: "お問い合わせ", store: "ストア" },
     hero: {
       title: "信頼できるソリューションを。",

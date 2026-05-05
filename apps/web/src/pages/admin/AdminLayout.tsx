@@ -3,6 +3,7 @@ import { LogOut, Package, Settings, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
 import { useAppConfig } from '../../hooks/useAppConfig';
 import { AdminHeaderControls } from '../../components/admin/AdminHeaderControls';
+import { Seo } from '../../components/common/Seo';
 
 export default function AdminLayout() {
   const { logout } = useAuth();
@@ -25,6 +26,13 @@ export default function AdminLayout() {
 
   return (
     <div className={`min-h-screen font-['Montserrat'] flex ${isDark ? 'dark bg-[#111111] text-[#E8E8E8]' : 'bg-[#F5F5F5] text-[#1A1A1A]'}`}>
+      <Seo
+        title={`${t.admin.common.brand} — ${t.admin.layout.dashboard}`}
+        description="Arateki admin panel."
+        path={location.pathname}
+        lang={lang}
+        noindex
+      />
       {/* Sidebar */}
       <aside className={`w-64 border-r flex-col hidden md:flex ${isDark ? 'bg-[#1C1C1C] border-[#2A2A2A]' : 'bg-white border-[#E0E0E0]'}`}>
         <div className={`p-6 border-b ${isDark ? 'border-[#2A2A2A]' : 'border-[#E0E0E0]'}`}>

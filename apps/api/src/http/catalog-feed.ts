@@ -1,5 +1,5 @@
 import type { FastifyRequest } from 'fastify';
-import type { ProductView } from '../domain/product.js';
+import type { ProductLocale, ProductView } from '../domain/product.js';
 
 const BRAND = 'Arateki';
 const FEED_TITLE = 'Arateki Product Catalog';
@@ -33,8 +33,8 @@ export function getCatalogSiteUrl(request: FastifyRequest, configuredSiteUrl?: s
   return trimTrailingSlash(`${proto}://${host}`);
 }
 
-export function buildGoogleShoppingXml(products: ProductView[], siteUrl: string): string {
-  const offers = buildCatalogOffers(products, siteUrl);
+export function buildGoogleShoppingXml(products: ProductView[], siteUrl: string, locale: ProductLocale): string {
+  const offers = buildCatalogOffers(products, siteUrl, locale);
   const items = offers.map(offer => [
     '    <item>',
     `      <title>${escapeXml(offer.title)}</title>`,
@@ -66,16 +66,16 @@ export function buildGoogleShoppingXml(products: ProductView[], siteUrl: string)
   ].join('\n');
 }
 
-export function buildProductsTsv(products: ProductView[], siteUrl: string): string {
-  const offers = buildCatalogOffers(products, siteUrl);
+export function buildProductsTsv(products: ProductView[], siteUrl: string, locale: ProductLocale): string {
+  const offers = buildCatalogOffers(products, siteUrl, locale);
   const header = catalogColumns().join('\t');
   const rows = offers.map(offer => catalogColumns().map(column => sanitizeCell(columnValue(offer, column))).join('\t'));
 
   return [header, ...rows, ''].join('\n');
 }
 
-export function buildMetaCatalogCsv(products: ProductView[], siteUrl: string): string {
-  const offers = buildCatalogOffers(products, siteUrl);
+export function buildMetaCatalogCsv(products: ProductView[], siteUrl: string, locale: ProductLocale): string {
+  const offers = buildCatalogOffers(products, siteUrl, locale);
   const columns = catalogColumns();
   const header = columns.join(',');
   const rows = offers.map(offer => columns.map(column => csvCell(columnValue(offer, column))).join(','));
@@ -83,7 +83,7 @@ export function buildMetaCatalogCsv(products: ProductView[], siteUrl: string): s
   return [header, ...rows, ''].join('\n');
 }
 
-function buildCatalogOffers(products: ProductView[], siteUrl: string): CatalogOffer[] {
+function buildCatalogOffers(products: ProductView[], siteUrl: string, locale: ProductLocale): CatalogOffer[] {
   return products.flatMap(product => {
     const variant = product.variants.find(item => item.active && item.stock > 0) ?? product.variants.find(item => item.active);
     const imageLink = product.imageUrl ? absoluteUrl(product.imageUrl, siteUrl) : null;
@@ -97,7 +97,7 @@ function buildCatalogOffers(products: ProductView[], siteUrl: string): CatalogOf
       availability: product.stock > 0 ? 'in stock' : 'out of stock',
       condition: 'new',
       price: formatMoney(product.priceCents, product.currency),
-      link: `${siteUrl}/sales?product=${encodeURIComponent(product.id)}`,
+      link: `${siteUrl}/${locale}/sales/${encodeURIComponent(product.id)}`,
       imageLink,
       brand: BRAND,
       mpn: variant.sku,

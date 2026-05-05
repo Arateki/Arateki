@@ -1,15 +1,17 @@
 import { CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { TranslationType } from '../../../types/i18n';
+import { langPath, type LangCode } from '../../../lib/seo';
 
 interface ConfirmationStepProps {
   orderId: string;
   email: string;
   theme: 'light' | 'dark';
   tCo: TranslationType['checkout'];
+  lang: LangCode;
 }
 
-export const ConfirmationStep = ({ orderId, email, theme, tCo }: ConfirmationStepProps) => {
+export const ConfirmationStep = ({ orderId, email, theme, tCo, lang }: ConfirmationStepProps) => {
   const isDark = theme === 'dark';
   const tc = tCo.confirmation;
 
@@ -34,7 +36,7 @@ export const ConfirmationStep = ({ orderId, email, theme, tCo }: ConfirmationSte
       </p>
 
       <Link
-        to="/sales"
+        to={langPath(lang, '/sales')}
         className={`px-8 py-3.5 rounded-sm text-[11px] uppercase tracking-[0.25em] font-bold transition-all active:scale-[0.98] ${
           isDark ? 'bg-[#E0E0E0] text-[#181818] hover:bg-[#CACACA]' : 'bg-[#1D1D1D] text-[#F0F0F0] hover:bg-[#2E2E2E]'
         }`}

@@ -8,6 +8,7 @@ import type { RevokedTokenRepository } from '../domain/revoked-token.js';
 import type { UserRepository } from '../domain/user.js';
 import { authenticateAdmin } from './auth.js';
 import { buildGoogleShoppingXml, buildMetaCatalogCsv, buildProductsTsv, getCatalogSiteUrl } from './catalog-feed.js';
+import { buildSitemapXml } from './sitemap-feed.js';
 import { productBodySchema, productListQuerySchema } from './schemas.js';
 
 interface ProductRoutesDependencies {
@@ -50,15 +51,16 @@ export async function registerProductRoutes(
       });
     }
 
+    const locale = parsedQuery.data.lang ?? 'pt';
     const products = await dependencies.listProducts.execute({
       currency: parsedQuery.data.country?.toUpperCase() === 'BR' ? 'BRL' : 'USD',
-      locale: parsedQuery.data.lang ?? 'pt',
+      locale,
     });
     const siteUrl = getCatalogSiteUrl(request, dependencies.publicSiteUrl);
 
     return reply
       .type('application/rss+xml; charset=utf-8')
-      .send(buildGoogleShoppingXml(products, siteUrl));
+      .send(buildGoogleShoppingXml(products, siteUrl, locale));
   });
 
   app.get('/feeds/products.tsv', async (request, reply) => {
@@ -70,15 +72,16 @@ export async function registerProductRoutes(
       });
     }
 
+    const locale = parsedQuery.data.lang ?? 'pt';
     const products = await dependencies.listProducts.execute({
       currency: parsedQuery.data.country?.toUpperCase() === 'BR' ? 'BRL' : 'USD',
-      locale: parsedQuery.data.lang ?? 'pt',
+      locale,
     });
     const siteUrl = getCatalogSiteUrl(request, dependencies.publicSiteUrl);
 
     return reply
       .type('text/tab-separated-values; charset=utf-8')
-      .send(buildProductsTsv(products, siteUrl));
+      .send(buildProductsTsv(products, siteUrl, locale));
   });
 
   app.get('/feeds/meta-catalog.csv', async (request, reply) => {
@@ -90,15 +93,29 @@ export async function registerProductRoutes(
       });
     }
 
+    const locale = parsedQuery.data.lang ?? 'pt';
     const products = await dependencies.listProducts.execute({
       currency: parsedQuery.data.country?.toUpperCase() === 'BR' ? 'BRL' : 'USD',
-      locale: parsedQuery.data.lang ?? 'pt',
+      locale,
     });
     const siteUrl = getCatalogSiteUrl(request, dependencies.publicSiteUrl);
 
     return reply
       .type('text/csv; charset=utf-8')
-      .send(buildMetaCatalogCsv(products, siteUrl));
+      .send(buildMetaCatalogCsv(products, siteUrl, locale));
+  });
+
+  app.get('/sitemap.xml', async (request, reply) => {
+    const products = await dependencies.listProducts.execute({
+      currency: 'USD',
+      locale: 'en',
+    });
+    const siteUrl = getCatalogSiteUrl(request, dependencies.publicSiteUrl);
+
+    return reply
+      .type('application/xml; charset=utf-8')
+      .header('cache-control', 'public, max-age=3600')
+      .send(buildSitemapXml(products, siteUrl));
   });
 
   app.get('/admin/products', async (request, reply) => {

@@ -1,0 +1,14 @@
+# https://arateki.com/robots.txt
+User-agent: *
+Allow: /
+Disallow: /manage
+Disallow: /manage/
+Disallow: /checkout
+Disallow: /api/
+Disallow: /api
+
+# Allow product feed indexing for shopping crawlers
+Allow: /api/feeds/
+
+Sitemap: https://arateki.com/sitemap.xml
+Sitemap: https://arateki.com/api/sitemap.xml

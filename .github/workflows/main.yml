@@ -24,13 +24,11 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
 
-    - name: Build project
-      run: pnpm build
+    - name: Ensure Playwright browser for prerender
+      run: pnpm --filter @arateki/web exec playwright install chromium
 
-    - name: Deploy Frontend
-      run: |
-        mkdir -p /opt/home-server/websites/arateki/dist-front
-        rsync -a --delete apps/web/dist/ /opt/home-server/websites/arateki/dist-front/
+    - name: Build API
+      run: pnpm --filter @arateki/api build
 
     - name: Deploy API and Database
       run: |
@@ -39,5 +37,66 @@ jobs:
         echo "ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }}" >> .env
         echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
         echo "CORS_ORIGIN=https://arateki.com" >> .env
+        echo "PUBLIC_SITE_URL=https://arateki.com" >> .env
         docker compose up -d --build mongodb api
+
+    - name: Wait for API
+      run: |
+        for i in {1..30}; do
+          if curl -fsS http://127.0.0.1:3333/api/health >/dev/null; then
+            exit 0
+          fi
+          sleep 2
+        done
+        echo "API did not become healthy in time"
+        exit 1
+
+    - name: Build frontend with prerender
+      run: PRERENDER_API_BASE=http://127.0.0.1:3333 pnpm --filter @arateki/web build
+
+    - name: Validate frontend prerender output
+      run: |
+        test -f apps/web/dist/index.html
+        test -f apps/web/dist/pt/index.html
+        test -f apps/web/dist/pt/sales/index.html
+        test -f apps/web/dist/en/index.html
+        test -f apps/web/dist/en/sales/index.html
+        test -f apps/web/dist/ja/sales/index.html
+        test -f apps/web/dist/og-image.png
+        test -f apps/web/dist/robots.txt
+        test -f apps/web/dist/sitemap.xml
+        test "$(grep -o '<title>' apps/web/dist/index.html | wc -l)" -eq 1
+        test "$(grep -o 'name="description"' apps/web/dist/index.html | wc -l)" -eq 1
+        test "$(grep -o '<title>' apps/web/dist/ja/sales/index.html | wc -l)" -eq 1
+        test "$(grep -o 'name="description"' apps/web/dist/ja/sales/index.html | wc -l)" -eq 1
+        node --input-type=module <<'NODE'
+        import { access } from 'node:fs/promises';
+
+        const langs = ['pt', 'en', 'es', 'zh', 'ja'];
+        const response = await fetch('http://127.0.0.1:3333/api/products?lang=pt&country=BR');
+        if (!response.ok) {
+          throw new Error(`Products API returned ${response.status}`);
+        }
+
+        const { products } = await response.json();
+        if (!Array.isArray(products) || products.length === 0) {
+          throw new Error('Products API returned no products; product prerender cannot be validated');
+        }
+
+        for (const product of products) {
+          if (!product.id) throw new Error('Product without id returned by API');
+
+          for (const lang of langs) {
+            await access(`apps/web/dist/${lang}/sales/${encodeURIComponent(product.id)}/index.html`);
+          }
+        }
+        NODE
+
+    - name: Deploy Frontend
+      run: |
+        mkdir -p /opt/home-server/websites/arateki/dist-front
+        rsync -a --delete apps/web/dist/ /opt/home-server/websites/arateki/dist-front/
+
+    - name: Cleanup Docker images
+      run: |
         docker image prune -f

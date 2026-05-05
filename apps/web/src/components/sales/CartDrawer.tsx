@@ -1,6 +1,8 @@
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/useCart';
+import { useAppConfig } from '../../hooks/useAppConfig';
+import { langPath } from '../../lib/seo';
 
 interface CartDrawerProps {
   theme: 'light' | 'dark';
@@ -8,6 +10,7 @@ interface CartDrawerProps {
 
 export const CartDrawer = ({ theme }: CartDrawerProps) => {
   const { items, isOpen, closeCart, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
+  const { lang } = useAppConfig();
 
   const isDark = theme === 'dark';
 
@@ -98,7 +101,7 @@ export const CartDrawer = ({ theme }: CartDrawerProps) => {
                 </span>
               </div>
               <Link
-                to="/checkout"
+                to={langPath(lang, '/checkout')}
                 onClick={closeCart}
                 className={`block w-full py-3 text-center text-[11px] uppercase tracking-[0.25em] font-bold rounded-sm transition-all ${
                   isDark ? 'bg-[#E0E0E0] text-[#181818] hover:bg-[#CACACA]' : 'bg-[#1D1D1D] text-[#F0F0F0] hover:bg-[#2E2E2E]'

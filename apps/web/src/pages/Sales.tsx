@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAppConfig } from '../hooks/useAppConfig';
 import { useProducts } from '../hooks/useProducts';
 import { useCart } from '../context/useCart';
@@ -11,27 +11,74 @@ import { ProductCard } from '../components/sales/ProductCard';
 import { CartDrawer } from '../components/sales/CartDrawer';
 import { ProductModal } from '../components/sales/ProductModal';
 import { FadeInSection } from '../components/common/FadeInSection';
+import { Seo } from '../components/common/Seo';
+import { JsonLd } from '../components/common/JsonLd';
+import { breadcrumbLd, itemListLd, productLd } from '../lib/structuredData';
+import { langPath } from '../lib/seo';
 import { emailService } from '../services/emailService';
 import type { Product } from '../types/product';
 
 export default function Sales() {
   const { theme, lang, setLang, t, toggleTheme } = useAppConfig();
+  const { productId } = useParams<{ productId: string }>();
+  const navigate = useNavigate();
   const location = useLocation();
   const { products, isLoading, error } = useProducts();
   const { addToCart } = useCart();
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [dismissedCatalogProductId, setDismissedCatalogProductId] = useState<string | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const catalogProductId = useMemo(() => new URLSearchParams(location.search).get('product'), [location.search]);
-  const catalogProduct = useMemo(
-    () => products.find(item => item.id === catalogProductId) ?? null,
-    [catalogProductId, products],
+
+  // Backwards-compat redirect: ?product=<id> → /<lang>/sales/<id>
+  useEffect(() => {
+    if (productId) return;
+    const legacyId = new URLSearchParams(location.search).get('product');
+    if (legacyId) {
+      navigate(langPath(lang, `/sales/${encodeURIComponent(legacyId)}`), { replace: true });
+    }
+  }, [lang, location.search, productId, navigate]);
+
+  const visibleProduct = useMemo<Product | null>(
+    () => (productId ? products.find(item => item.id === productId) ?? null : null),
+    [productId, products],
   );
-  const visibleProduct = selectedProduct ?? (
-    catalogProductId !== dismissedCatalogProductId ? catalogProduct : null
+
+  const seoTitle = visibleProduct ? `${visibleProduct.name} — Arateki` : t.seo.sales.title;
+  const seoDescription = visibleProduct ? visibleProduct.description : t.seo.sales.desc;
+  const seoPath = visibleProduct
+    ? langPath(lang, `/sales/${encodeURIComponent(visibleProduct.id)}`)
+    : langPath(lang, '/sales');
+  const seoOgImage = visibleProduct?.image || undefined;
+  const seoOgType: 'website' | 'product' = visibleProduct ? 'product' : 'website';
+
+  const productLdNodes = useMemo(() => products.map(p => productLd(p, lang)), [products, lang]);
+  const breadcrumbsLd = useMemo(
+    () => {
+      const crumbs = [
+        { name: 'Arateki', path: langPath(lang, '/') },
+        { name: t.nav.store, path: langPath(lang, '/sales') },
+      ];
+      if (visibleProduct) {
+        crumbs.push({
+          name: visibleProduct.name,
+          path: langPath(lang, `/sales/${encodeURIComponent(visibleProduct.id)}`),
+        });
+      }
+      return breadcrumbLd(crumbs);
+    },
+    [lang, t.nav.store, visibleProduct],
   );
+  const listLd = useMemo(() => itemListLd(products, lang), [products, lang]);
+
+  const handleCardClick = (product: Product) => {
+    navigate(langPath(lang, `/sales/${encodeURIComponent(product.id)}`));
+  };
+
+  const handleModalClose = () => {
+    if (productId) {
+      navigate(langPath(lang, '/sales'), { replace: true });
+    }
+  };
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +103,17 @@ export default function Sales() {
         ? 'bg-[#F5F5F5] text-[#1A1A1A] selection:bg-[#1D1D1D] selection:text-[#F0F0F0]'
         : 'bg-[#111111] text-[#E8E8E8] selection:bg-[#E0E0E0] selection:text-[#181818]'
     }`}>
+      <Seo
+        title={seoTitle}
+        description={seoDescription}
+        path={seoPath}
+        lang={lang}
+        ogImage={seoOgImage}
+        ogType={seoOgType}
+      />
+      {products.length > 0 && (
+        <JsonLd data={[breadcrumbsLd, listLd, ...productLdNodes]} />
+      )}
 
       <ParticleBackground theme={theme} />
 
@@ -142,10 +200,7 @@ export default function Sales() {
                     theme={theme}
                     t={t.store}
                     onAddToCart={addToCart}
-                    onOpenModal={(item) => {
-                      setDismissedCatalogProductId(null);
-                      setSelectedProduct(item);
-                    }}
+                    onOpenModal={handleCardClick}
                   />
                 </FadeInSection>
               ))}
@@ -165,12 +220,7 @@ export default function Sales() {
         product={visibleProduct}
         theme={theme}
         t={t.store}
-        onClose={() => {
-          if (!selectedProduct && catalogProductId) {
-            setDismissedCatalogProductId(catalogProductId);
-          }
-          setSelectedProduct(null);
-        }}
+        onClose={handleModalClose}
         onAddToCart={addToCart}
       />
     </div>

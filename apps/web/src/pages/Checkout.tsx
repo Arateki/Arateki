@@ -14,6 +14,10 @@ import { PaymentStep } from '../components/checkout/steps/PaymentStep';
 import { ConfirmationStep } from '../components/checkout/steps/ConfirmationStep';
 import { ProductModal } from '../components/sales/ProductModal';
 import { HorizontalLogo } from '../components/common/Logos';
+import { Seo } from '../components/common/Seo';
+import { JsonLd } from '../components/common/JsonLd';
+import { breadcrumbLd } from '../lib/structuredData';
+import { langPath } from '../lib/seo';
 import type { CheckoutFormData } from '../types/checkout';
 import type { Product } from '../types/product';
 
@@ -37,8 +41,8 @@ export default function Checkout() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    if (items.length === 0 && !orderId) navigate('/sales');
-  }, [items, orderId, navigate]);
+    if (items.length === 0 && !orderId) navigate(langPath(lang, '/sales'));
+  }, [items, orderId, navigate, lang]);
 
   const selectedShipping = SHIPPING_OPTIONS.find(o => o.id === form.delivery.shippingMethod) ?? null;
 
@@ -58,6 +62,18 @@ export default function Checkout() {
     <div className={`min-h-screen font-['Montserrat'] transition-colors duration-500 ${
       isDark ? 'bg-[#111111] text-[#E8E8E8]' : 'bg-[#F5F5F5] text-[#1A1A1A]'
     }`}>
+      <Seo
+        title={t.seo.checkout.title}
+        description={t.seo.checkout.desc}
+        path={langPath(lang, '/checkout')}
+        lang={lang}
+        noindex
+      />
+      <JsonLd data={breadcrumbLd([
+        { name: 'Arateki', path: langPath(lang, '/') },
+        { name: t.nav.store, path: langPath(lang, '/sales') },
+        { name: t.seo.checkout.title, path: langPath(lang, '/checkout') },
+      ])} />
 
       {/* Minimal header */}
       <header className={`fixed w-full z-40 border-b ${
@@ -65,7 +81,7 @@ export default function Checkout() {
       } backdrop-blur-md`}>
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
           <Link
-            to="/sales"
+            to={langPath(lang, '/sales')}
             className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity text-[10px] uppercase tracking-widest font-medium"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -179,7 +195,7 @@ export default function Checkout() {
 
           {step === 3 && (
             <div className="max-w-lg mx-auto">
-              <ConfirmationStep orderId={orderId} email={form.contact.email} theme={theme} tCo={t.checkout} />
+              <ConfirmationStep orderId={orderId} email={form.contact.email} theme={theme} tCo={t.checkout} lang={lang} />
             </div>
           )}
         </div>

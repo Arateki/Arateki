@@ -10,7 +10,7 @@
     "dev": "pnpm --filter @arateki/web dev",
     "dev:web": "pnpm --filter @arateki/web dev",
     "dev:api": "pnpm --filter @arateki/api dev",
-    "build": "pnpm --recursive build",
+    "build": "pnpm --filter @arateki/api build && pnpm --filter @arateki/web build",
     "lint": "pnpm --recursive lint",
     "test": "pnpm --recursive test",
     "test:watch": "pnpm --filter @arateki/web test:watch",

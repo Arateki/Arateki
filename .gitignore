@@ -11,6 +11,7 @@ node_modules
 dist
 dist-front
 dist-ssr
+apps/web/public/og-image.png
 *.local
 .env
 .codex

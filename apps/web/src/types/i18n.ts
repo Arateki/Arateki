@@ -1,6 +1,11 @@
 import React from 'react';
 
 export type TranslationType = {
+  seo: {
+    home: { title: string; desc: string };
+    sales: { title: string; desc: string };
+    checkout: { title: string; desc: string };
+  };
   nav: { manifesto: string; product: string; network: string; waitlist: string; faq: string; contact: string; store: string };
   hero: { title: string; subtitle: string; desc: string };
   manifesto: {

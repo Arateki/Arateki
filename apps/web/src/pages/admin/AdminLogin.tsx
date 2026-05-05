@@ -4,6 +4,7 @@ import { useAuth } from '../../context/useAuth';
 import { useAppConfig } from '../../hooks/useAppConfig';
 import { authService } from '../../services/authService';
 import { AdminHeaderControls } from '../../components/admin/AdminHeaderControls';
+import { Seo } from '../../components/common/Seo';
 
 export default function AdminLogin() {
   const { theme, toggleTheme, lang, setLang, t } = useAppConfig();
@@ -32,6 +33,13 @@ export default function AdminLogin() {
 
   return (
     <div className={`min-h-screen flex items-center justify-center font-['Montserrat'] px-6 ${theme === 'dark' ? 'dark bg-[#111111] text-[#E8E8E8]' : 'bg-[#F5F5F5] text-[#1A1A1A]'}`}>
+      <Seo
+        title={`${t.admin.login.title} — Arateki`}
+        description="Arateki admin login."
+        path="/manage/login"
+        lang={lang}
+        noindex
+      />
       <div className="fixed right-6 top-4">
         <AdminHeaderControls theme={theme} toggleTheme={toggleTheme} lang={lang} setLang={setLang} t={t} />
       </div>

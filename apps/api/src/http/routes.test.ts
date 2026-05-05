@@ -122,7 +122,38 @@ describe('api routes', () => {
     expect(response.body).toContain('<g:availability>in stock</g:availability>');
     expect(response.body).toContain('<g:brand>Arateki</g:brand>');
     expect(response.body).toContain('<g:mpn>SENSOR-DHT22</g:mpn>');
-    expect(response.body).toContain('<link>https://arateki.test/sales?product=sensor-dht22</link>');
+    expect(response.body).toContain('<link>https://arateki.test/pt/sales/sensor-dht22</link>');
+  });
+
+  it('serves a SEO sitemap with multi-language URLs and hreflang alternates', async () => {
+    const response = await testApp.app.inject({
+      method: 'GET',
+      url: apiUrl('/sitemap.xml'),
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['content-type']).toContain('application/xml');
+    expect(response.headers['cache-control']).toContain('max-age=3600');
+    expect(response.body).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">');
+    // All 5 languages × Home
+    expect(response.body).toContain('<loc>https://arateki.test/pt</loc>');
+    expect(response.body).toContain('<loc>https://arateki.test/en</loc>');
+    expect(response.body).toContain('<loc>https://arateki.test/es</loc>');
+    expect(response.body).toContain('<loc>https://arateki.test/zh</loc>');
+    expect(response.body).toContain('<loc>https://arateki.test/ja</loc>');
+    // Sales × languages
+    expect(response.body).toContain('<loc>https://arateki.test/pt/sales</loc>');
+    expect(response.body).toContain('<loc>https://arateki.test/en/sales</loc>');
+    // Products × languages
+    expect(response.body).toContain('<loc>https://arateki.test/pt/sales/sensor-dht22</loc>');
+    expect(response.body).toContain('<loc>https://arateki.test/en/sales/sensor-dht22</loc>');
+    expect(response.body).toContain('<loc>https://arateki.test/ja/sales/esp32-wroom-32d</loc>');
+    // Hreflang alternates
+    expect(response.body).toContain('<xhtml:link rel="alternate" hreflang="pt-BR" href="https://arateki.test/pt"');
+    expect(response.body).toContain('<xhtml:link rel="alternate" hreflang="en" href="https://arateki.test/en/sales/sensor-dht22"');
+    expect(response.body).toContain('<xhtml:link rel="alternate" hreflang="x-default" href="https://arateki.test/sales/sensor-dht22"');
+    expect(response.body).toContain('<priority>1.0</priority>');
+    expect(response.body).toMatch(/<lastmod>\d{4}-\d{2}-\d{2}T/);
   });
 
   it('serves spreadsheet feeds for Meta, Google and Microsoft catalog imports', async () => {
@@ -138,12 +169,12 @@ describe('api routes', () => {
     expect(tsvResponse.statusCode).toBe(200);
     expect(tsvResponse.headers['content-type']).toContain('text/tab-separated-values');
     expect(tsvResponse.body.split('\n')[0]).toBe('id\ttitle\tdescription\tavailability\tcondition\tprice\tlink\timage_link\tbrand\tmpn\tgoogle_product_category\tproduct_type');
-    expect(tsvResponse.body).toContain('sensor-dht22\tDHT22 SENSOR\tDigital temperature and humidity sensor.\tin stock\tnew\t6.49 USD\thttps://arateki.test/sales?product=sensor-dht22');
+    expect(tsvResponse.body).toContain('sensor-dht22\tDHT22 SENSOR\tDigital temperature and humidity sensor.\tin stock\tnew\t6.49 USD\thttps://arateki.test/en/sales/sensor-dht22');
 
     expect(csvResponse.statusCode).toBe(200);
     expect(csvResponse.headers['content-type']).toContain('text/csv');
     expect(csvResponse.body.split('\n')[0]).toBe('id,title,description,availability,condition,price,link,image_link,brand,mpn,google_product_category,product_type');
-    expect(csvResponse.body).toContain('"sensor-dht22","DHT22 SENSOR","Digital temperature and humidity sensor.","in stock","new","6.49 USD","https://arateki.test/sales?product=sensor-dht22"');
+    expect(csvResponse.body).toContain('"sensor-dht22","DHT22 SENSOR","Digital temperature and humidity sensor.","in stock","new","6.49 USD","https://arateki.test/en/sales/sensor-dht22"');
   });
 
   it('returns an admin token on login', async () => {

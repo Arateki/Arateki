@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://arateki.com/pt</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://arateki.com/pt" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://arateki.com/en" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://arateki.com/es" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://arateki.com/zh" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://arateki.com/ja" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://arateki.com/" />
+  </url>
+  <url>
+    <loc>https://arateki.com/en</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://arateki.com/pt" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://arateki.com/en" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://arateki.com/es" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://arateki.com/zh" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://arateki.com/ja" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://arateki.com/" />
+  </url>
+  <url>
+    <loc>https://arateki.com/es</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://arateki.com/pt" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://arateki.com/en" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://arateki.com/es" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://arateki.com/zh" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://arateki.com/ja" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://arateki.com/" />
+  </url>
+  <url>
+    <loc>https://arateki.com/zh</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://arateki.com/pt" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://arateki.com/en" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://arateki.com/es" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://arateki.com/zh" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://arateki.com/ja" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://arateki.com/" />
+  </url>
+  <url>
+    <loc>https://arateki.com/ja</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://arateki.com/pt" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://arateki.com/en" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://arateki.com/es" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://arateki.com/zh" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://arateki.com/ja" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://arateki.com/" />
+  </url>
+  <url>
+    <loc>https://arateki.com/pt/sales</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://arateki.com/pt/sales" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://arateki.com/en/sales" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://arateki.com/es/sales" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://arateki.com/zh/sales" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://arateki.com/ja/sales" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://arateki.com/sales" />
+  </url>
+  <url>
+    <loc>https://arateki.com/en/sales</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://arateki.com/pt/sales" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://arateki.com/en/sales" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://arateki.com/es/sales" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://arateki.com/zh/sales" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://arateki.com/ja/sales" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://arateki.com/sales" />
+  </url>
+  <url>
+    <loc>https://arateki.com/es/sales</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://arateki.com/pt/sales" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://arateki.com/en/sales" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://arateki.com/es/sales" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://arateki.com/zh/sales" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://arateki.com/ja/sales" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://arateki.com/sales" />
+  </url>
+  <url>
+    <loc>https://arateki.com/zh/sales</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://arateki.com/pt/sales" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://arateki.com/en/sales" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://arateki.com/es/sales" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://arateki.com/zh/sales" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://arateki.com/ja/sales" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://arateki.com/sales" />
+  </url>
+  <url>
+    <loc>https://arateki.com/ja/sales</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://arateki.com/pt/sales" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://arateki.com/en/sales" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://arateki.com/es/sales" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://arateki.com/zh/sales" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://arateki.com/ja/sales" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://arateki.com/sales" />
+  </url>
+</urlset>

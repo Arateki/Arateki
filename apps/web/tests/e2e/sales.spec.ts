@@ -60,7 +60,34 @@ test.describe('Sales Page', () => {
     expect(names).toContain('SENSOR DHT22');
   });
 
-  test('should open product details from a catalog product link', async ({ page }) => {
+  test('should open product details from a canonical /sales/<slug> URL', async ({ page }) => {
+    await page.route('**/api/products*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          products: [
+            {
+              id: 'sensor-dht22',
+              name: 'SENSOR DHT22',
+              description: 'Mock desc',
+              priceCents: 3250,
+              currency: 'BRL',
+              imageUrl: '',
+              variants: [{ id: 'v2' }],
+            }
+          ],
+        }),
+      });
+    });
+
+    await page.goto('/sales/sensor-dht22');
+
+    await expect(page.getByRole('heading', { level: 2, name: 'SENSOR DHT22' })).toBeVisible();
+    await expect(page).toHaveURL(/\/sales\/sensor-dht22$/);
+  });
+
+  test('should redirect legacy ?product= query to canonical /sales/<slug>', async ({ page }) => {
     await page.route('**/api/products*', async (route) => {
       await route.fulfill({
         status: 200,
@@ -83,6 +110,7 @@ test.describe('Sales Page', () => {
 
     await page.goto('/sales?product=sensor-dht22');
 
+    await expect(page).toHaveURL(/\/sales\/sensor-dht22$/);
     await expect(page.getByRole('heading', { level: 2, name: 'SENSOR DHT22' })).toBeVisible();
   });
 
@@ -108,7 +136,7 @@ test.describe('Sales Page', () => {
 
     await page.getByRole('link', { name: 'SafraSense' }).click();
 
-    await expect(page).toHaveURL(/\/#safrasense$/);
+    await expect(page).toHaveURL(/#safrasense$/);
     await expect.poll(async () => page.evaluate(() => {
       const target = document.getElementById('safrasense');
       const headerHeight = document.querySelector('nav')?.getBoundingClientRect().height ?? 0;

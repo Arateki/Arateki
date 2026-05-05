@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Arateki — Open-source hardware. Privacy first.">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111111"/>
+      <stop offset="100%" stop-color="#1C1C1C"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#E0E0E0" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#111111" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="600" cy="270" r="420" fill="url(#halo)"/>
+
+  <g transform="translate(70, 70)">
+    <rect x="0" y="0" width="36" height="6" fill="#E8E8E8" opacity="0.85"/>
+    <text x="56" y="14" font-family="Helvetica, Arial, sans-serif" font-size="14" letter-spacing="6" fill="#E8E8E8" opacity="0.7">OPEN SOURCE HARDWARE</text>
+  </g>
+
+  <text x="70" y="320" font-family="Helvetica, Arial, sans-serif" font-size="148" font-weight="800" fill="#E8E8E8" letter-spacing="-4">ARATEKI</text>
+
+  <text x="70" y="400" font-family="Helvetica, Arial, sans-serif" font-size="38" font-weight="500" fill="#E8E8E8" opacity="0.85">Soluções confiáveis. Você define como usar.</text>
+
+  <g transform="translate(70, 450)">
+    <text font-family="Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#E8E8E8" opacity="0.6" letter-spacing="0.5">
+      <tspan x="0" y="0">Privacy-first IoT • Hidroponia inteligente • Direito ao reparo</tspan>
+    </text>
+  </g>
+
+  <g transform="translate(70, 530)">
+    <text font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#E8E8E8" letter-spacing="3" opacity="0.7">
+      <tspan x="0" y="0">SAFRASENSE</tspan>
+      <tspan x="180" y="0">•</tspan>
+      <tspan x="200" y="0">RAIZNET</tspan>
+      <tspan x="330" y="0">•</tspan>
+      <tspan x="350" y="0">ARATEKI.COM</tspan>
+    </text>
+  </g>
+
+  <g opacity="0.18" stroke="#E8E8E8" stroke-width="1" fill="none">
+    <line x1="950" y1="80" x2="1130" y2="80"/>
+    <line x1="950" y1="80" x2="950" y2="260"/>
+    <line x1="1130" y1="80" x2="1130" y2="260"/>
+    <line x1="950" y1="260" x2="1130" y2="260"/>
+    <circle cx="990" cy="120" r="6" fill="#E8E8E8"/>
+    <circle cx="1090" cy="120" r="6" fill="#E8E8E8"/>
+    <circle cx="990" cy="220" r="6" fill="#E8E8E8"/>
+    <circle cx="1090" cy="220" r="6" fill="#E8E8E8"/>
+    <line x1="990" y1="120" x2="1090" y2="220"/>
+    <line x1="1090" y1="120" x2="990" y2="220"/>
+  </g>
+</svg>

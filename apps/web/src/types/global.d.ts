@@ -1,5 +1,10 @@
 export {};
 
+declare module '*.ttf' {
+  const src: string;
+  export default src;
+}
+
 declare global {
   interface NavigatorUAData {
     readonly platform: string;
