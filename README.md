@@ -5,83 +5,78 @@
 </p>
 
 <p align="center">
-  <a href="./README.pt-br.md">🇧🇷 PT</a> | <b>🇺🇸 EN</b> | <a href="./README.es.md">🇪🇸 ES</a> | <a href="./README.ja.md">🇯🇵 JA</a> | <a href="./README.zh.md">🇨🇳 ZH</a>
+  <b>🇧🇷 PT</b> | <a href="./README.en.md">🇺🇸 EN</a> | <a href="./README.es.md">🇪🇸 ES</a> | <a href="./README.ja.md">🇯🇵 JA</a> | <a href="./README.zh.md">🇨🇳 ZH</a>
 </p>
 
 ---
 
-This repository contains the **Arateki Landing Page**, the primary entry point for the company. Its main purpose is to present our vision and centralize information, including the lead capture system for our initial products.
+Este repositório contém a **Landing Page da Arateki**, o ponto de entrada principal da empresa. Seu objetivo principal é apresentar nossa visão e centralizar informações, incluindo o sistema de captura de leads para nossos produtos iniciais.
 
-Arateki is a technology company dedicated to developing **open-source**, **privacy-focused**, and **ethically built** solutions. We believe in the right to repair and absolute control over your own data and infrastructure.
+A Arateki é uma empresa de tecnologia dedicada ao desenvolvimento de soluções **open-source**, focadas em **privacidade** e construídas de forma **ética**. Acreditamos no direito ao reparo e no controle absoluto sobre seus próprios dados e infraestrutura.
 
-## 🚀 Key Projects Mentioned
+## 🚀 Projetos Principais Mencionados
 
-- **SafraSense aqua**: A smart, solar-powered, autonomous sensor for hydroponic crops monitoring vital metrics like EC, pH, and temperature.
-- **Raiznet**: A decentralized ecosystem for local producers to share knowledge and sensor data securely.
+- **SafraSense aqua**: Um sensor inteligente, movido a energia solar e autônomo para cultivos hidropônicos, monitorando métricas vitais como EC, pH e temperatura.
+- **Raiznet**: Um ecossistema descentralizado para que produtores locais compartilhem conhecimento e dados de sensores de forma segura.
 
-## 🛠 Frontend Tech Stack
+## 🛠 Stack Tecnológica Frontend
 
-The following technologies were used exclusively to build this web application:
+As seguintes tecnologias foram utilizadas exclusivamente para a construção desta aplicação web:
 
 - **Frontend**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool**: [Vite 8](https://vitejs.dev/)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
-- **Testing**: [Vitest](https://vitest.dev/) (Unit) & [Playwright](https://playwright.dev/) (E2E & Visual Regression)
-- **Quality**: [ESLint](https://eslint.org/) & [Husky](https://typicode.github.io/husky/) (Git Hooks)
+- **Ferramenta de Build**: [Vite 8](https://vitejs.dev/)
+- **Estilização**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Testes**: [Vitest](https://vitest.dev/) (Unidade) & [Playwright](https://playwright.dev/) (E2E & Regressão Visual)
+- **Qualidade**: [ESLint](https://eslint.org/) & [Husky](https://typicode.github.io/husky/) (Git Hooks)
 
-## 📁 Repository Layout
+## 📁 Estrutura do Repositório
 
-- `apps/web`: current React/Vite frontend.
-- `apps/api`: Fastify API with JWT authentication and MongoDB persistence.
+- `apps/web`: frontend React/Vite atual.
+- `apps/api`: API Fastify com autenticação JWT e persistência em MongoDB.
 
-## 📦 Getting Started
+## 📦 Começando
 
-### Prerequisites
-- Node.js (Latest LTS recommended)
+### Pré-requisitos
+- Node.js (LTS recomendado)
 - pnpm
 
-### Installation
+### Instalação
 ```bash
-# Clone the repository
+# Clone o repositório
 git clone https://github.com/Arateki/arateki-landing.git
 
-# Install dependencies
+# Instale as dependências
 pnpm install
 
-# Setup environment variables
-cp apps/web/.env.example apps/web/.env # Ensure VITE_GOOGLE_SCRIPT_URL is set
-cp .env.example .env # Fill JWT_SECRET and ADMIN_PASSWORD before using Docker Compose
+# Configure as variáveis de ambiente
+cp apps/web/.env.example apps/web/.env # Garanta que VITE_GOOGLE_SCRIPT_URL esteja preenchido
 ```
 
-### Local Configuration
-
-`docker-compose.yml` reads API secrets from the root `.env`. Copy `.env.example` to `.env`, set a strong `JWT_SECRET`, and set an `ADMIN_PASSWORD` with at least 12 characters. `CORS_ORIGIN` can stay empty for same-origin deployments or contain comma-separated frontend origins.
-
-### Running Development Server
+### Rodando o Servidor de Desenvolvimento
 ```bash
 pnpm dev
 ```
 
-### Running API Server
+### Rodando a API
 ```bash
 docker compose up -d mongodb
 pnpm dev:api
 ```
 
-## 🧪 Testing & Quality
+## 🧪 Testes e Qualidade
 
-We follow high engineering standards to ensure reliability.
+Seguimos altos padrões de engenharia para garantir confiabilidade.
 
-- **Unit Tests**: `pnpm test`
-- **E2E & Visual Regression**: `pnpm test:e2e`
-- **Coverage Report**: `pnpm test:coverage`
-- **Run All**: `pnpm test:all`
+- **Testes de Unidade**: `pnpm test`
+- **E2E e Regressão Visual**: `pnpm test:e2e`
+- **Relatório de Cobertura**: `pnpm test:coverage`
+- **Rodar Todos**: `pnpm test:all`
 
-**Pre-commit Hook**: Husky is configured to automatically run Lint and Unit Tests before every commit to prevent broken code from reaching the repository.
+**Pre-commit Hook**: O Husky está configurado para rodar automaticamente o Lint e os Testes de Unidade antes de cada commit, impedindo que código quebrado chegue ao repositório.
 
-## 🛡 License
+## 🛡 Licença
 
-This project is licensed under the [MIT License](./LICENSE).
+Este projeto está licenciado sob a [Licença MIT](./LICENSE).
 
 ---
-<p align="center">Built by Arateki</p>
+<p align="center">Construído pela Arateki</p>

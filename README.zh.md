@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="./README.pt-br.md">🇧🇷 PT</a> | <a href="./README.md">🇺🇸 EN</a> | <a href="./README.es.md">🇪🇸 ES</a> | <a href="./README.ja.md">🇯🇵 JA</a> | <b>🇨🇳 ZH</b>
+  <a href="./README.md">🇧🇷 PT</a> | <a href="./README.en.md">🇺🇸 EN</a> | <a href="./README.es.md">🇪🇸 ES</a> | <a href="./README.ja.md">🇯🇵 JA</a> | <b>🇨🇳 ZH</b>
 </p>
 
 ---
