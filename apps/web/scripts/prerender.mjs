@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { chromium } from '@playwright/test';
-import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { preview as vitePreview } from 'vite';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, '..');
@@ -55,37 +55,13 @@ function buildRoutes(productIds = []) {
 }
 
 async function startPreviewServer() {
-  return new Promise((resolve, reject) => {
-    const child = spawn(
-      'pnpm',
-      ['exec', 'vite', 'preview', '--port', String(PORT), '--strictPort'],
-      {
-        cwd: projectRoot,
-        stdio: ['ignore', 'pipe', 'pipe'],
-      },
-    );
-
-    let resolved = false;
-    let output = '';
-    const onData = (chunk) => {
-      const line = chunk.toString();
-      output += line;
-      if (!resolved && (line.includes('Local:') || line.includes(`localhost:${PORT}`))) {
-        resolved = true;
-        resolve(child);
-      }
-    };
-
-    child.stdout.on('data', onData);
-    child.stderr.on('data', onData);
-    child.on('error', reject);
-    child.on('exit', (code) => {
-      if (!resolved) reject(new Error(`vite preview exited with code ${code}\n${output}`));
-    });
-
-    setTimeout(() => {
-      if (!resolved) reject(new Error(`Preview server failed to start within 15s\n${output}`));
-    }, 15000);
+  return vitePreview({
+    root: projectRoot,
+    preview: {
+      port: PORT,
+      strictPort: true,
+      host: '127.0.0.1',
+    },
   });
 }
 
@@ -176,8 +152,8 @@ async function main() {
   } finally {
     await context.close().catch(() => {});
     await browser.close().catch(() => {});
-    server.kill('SIGKILL');
-    setTimeout(() => process.exit(0), 1000).unref();
+    await new Promise((resolve) => server.httpServer?.close(() => resolve()) ?? resolve());
+    setTimeout(() => process.exit(0), 500).unref();
   }
 }
 
