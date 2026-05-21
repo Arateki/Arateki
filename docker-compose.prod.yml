@@ -1,0 +1,40 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: arateki-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: arateki
+    volumes:
+      - arateki-mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: arateki-api
+    restart: unless-stopped
+    ports:
+      - "3333:3333"
+    environment:
+      - NODE_ENV=production
+      - PORT=3333
+      - HOST=0.0.0.0
+      - MONGODB_URI=mongodb://mongodb:27017/arateki
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-2h}
+      - ADMIN_LOGIN=${ADMIN_LOGIN:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
+      - CORS_ORIGIN=${CORS_ORIGIN:-}
+      - PUBLIC_SITE_URL=${PUBLIC_SITE_URL:-https://arateki.com}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+volumes:
+  arateki-mongodb-data:

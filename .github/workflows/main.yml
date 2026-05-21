@@ -5,18 +5,12 @@ on:
     branches: [ "main" ]
 
 jobs:
+  # ==========================================
+  # JOB 1: COMPILAÇÃO NO SERVIDOR DO GITHUB
+  # ==========================================
   build:
-    strategy:
-      matrix:
-        include:
-          - runner: archlinux
-            front_path: /opt/home-server/websites/arateki/dist-front
-          - runner: ec2-t3-nano
-            front_path: /var/www/arateki/dist-front
-
-    runs-on: [self-hosted, "${{ matrix.runner }}"]
+    runs-on: ubuntu-latest
     environment: production
-    
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
@@ -39,7 +33,8 @@ jobs:
     - name: Build API
       run: pnpm --filter @arateki/api build
 
-    - name: Deploy API and Database
+    - name: Start API for Prerender
+      # Inicia temporariamente a API apontando para o arquivo de produção
       run: |
         echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
         echo "JWT_EXPIRES_IN=12h" >> .env
@@ -47,7 +42,7 @@ jobs:
         echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
         echo "CORS_ORIGIN=https://arateki.com" >> .env
         echo "PUBLIC_SITE_URL=https://arateki.com" >> .env
-        docker compose up -d --build mongodb api
+        docker compose -f docker-compose.prod.yml up -d --build mongodb api
 
     - name: Wait for API
       run: |
@@ -101,10 +96,56 @@ jobs:
         }
         NODE
 
+    - name: Upload Frontend Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-dist
+        path: apps/web/dist/
+        retention-days: 1
+
+
+  # ==========================================
+  # JOB 2: DEPLOY NAS MÁQUINAS
+  # ==========================================
+  deploy:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: archlinux
+            front_path: /opt/home-server/websites/arateki/dist-front
+          - runner: ec2-t3-nano
+            front_path: /var/www/arateki/dist-front
+
+    runs-on: [self-hosted, "${{ matrix.runner }}"]
+    environment: production
+    
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Download Frontend Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-dist
+        path: dist-front-downloaded
+
     - name: Deploy Frontend
       run: |
         mkdir -p ${{ matrix.front_path }}
-        rsync -a --delete apps/web/dist/ ${{ matrix.front_path }}/
+        rsync -a --delete dist-front-downloaded/ ${{ matrix.front_path }}/
+
+    - name: Deploy API and Database
+      # Sobe a infraestrutura lendo o arquivo de produção
+      run: |
+        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
+        echo "JWT_EXPIRES_IN=12h" >> .env
+        echo "ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }}" >> .env
+        echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+        echo "CORS_ORIGIN=https://arateki.com" >> .env
+        echo "PUBLIC_SITE_URL=https://arateki.com" >> .env
+        docker compose -f docker-compose.prod.yml up -d --build mongodb api
 
     - name: Cleanup Docker images
       run: |
