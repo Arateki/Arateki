@@ -6,8 +6,17 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
+    strategy:
+      matrix:
+        include:
+          - runner: archlinux
+            front_path: /opt/home-server/websites/arateki/dist-front
+          - runner: ec2-t3-nano
+            front_path: /var/www/arateki/dist-front
+
+    runs-on: [self-hosted, "${{ matrix.runner }}"]
     environment: production
+    
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
@@ -94,8 +103,8 @@ jobs:
 
     - name: Deploy Frontend
       run: |
-        mkdir -p /opt/home-server/websites/arateki/dist-front
-        rsync -a --delete apps/web/dist/ /opt/home-server/websites/arateki/dist-front/
+        mkdir -p ${{ matrix.front_path }}
+        rsync -a --delete apps/web/dist/ ${{ matrix.front_path }}/
 
     - name: Cleanup Docker images
       run: |
