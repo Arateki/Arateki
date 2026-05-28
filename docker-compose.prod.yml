@@ -14,9 +14,7 @@ services:
       retries: 5
 
   api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
+    image: arateki-api:latest
     container_name: arateki-api
     restart: unless-stopped
     ports:
