@@ -38,8 +38,36 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
 
-    - name: Ensure Playwright browser for prerender
-      run: pnpm --filter @arateki/web exec playwright install chromium
+    - name: Resolve browser for prerender
+      id: prerender-browser
+      shell: bash
+      run: |
+        for candidate in google-chrome-stable google-chrome chromium chromium-browser; do
+          if command -v "$candidate" >/dev/null 2>&1; then
+            browser_path="$(command -v "$candidate")"
+            echo "Using system browser at $browser_path"
+            echo "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=$browser_path" >> "$GITHUB_ENV"
+            echo "use-bundled=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+        done
+
+        echo "No system Chrome/Chromium found; falling back to Playwright download."
+        echo "use-bundled=true" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Playwright headless browser
+      if: ${{ steps.prerender-browser.outputs.use-bundled == 'true' }}
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-headless-shell-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: |
+          playwright-headless-shell-${{ runner.os }}-
+
+    - name: Ensure Playwright headless browser for prerender
+      if: ${{ steps.prerender-browser.outputs.use-bundled == 'true' }}
+      timeout-minutes: 8
+      run: pnpm --filter @arateki/web exec playwright install --with-deps --only-shell chromium
 
     - name: Build API
       run: pnpm --filter @arateki/api build

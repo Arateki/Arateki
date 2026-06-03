@@ -14,6 +14,17 @@ const pngPath = join(projectRoot, 'public', 'og-image.png');
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+function chromiumLaunchOptions() {
+  const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+  const channel = process.env.PLAYWRIGHT_CHROMIUM_CHANNEL;
+
+  return {
+    headless: true,
+    ...(executablePath ? { executablePath } : {}),
+    ...(!executablePath && channel ? { channel } : {}),
+  };
+}
+
 const fontByWeight = {
   300: TextToSVG.loadSync(join(fontsDir, 'Montserrat-Light.ttf')),
   400: TextToSVG.loadSync(join(fontsDir, 'Montserrat-Regular.ttf')),
@@ -120,7 +131,7 @@ async function resolveTextsToSvg(svgString) {
 
 async function renderToPng(resolvedSvg) {
   const tmpUrl = `data:image/svg+xml;base64,${Buffer.from(resolvedSvg).toString('base64')}`;
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch(chromiumLaunchOptions());
   try {
     const page = await browser.newPage({
       viewport: { width: 1200, height: 630 },

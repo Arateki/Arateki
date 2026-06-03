@@ -17,6 +17,17 @@ const SUPPORTED_LANGS = ['pt', 'en', 'es', 'zh', 'ja'];
 const DEFAULT_ROOT_LANG = 'pt';
 const PUBLIC_PATHS = ['', '/sales'];
 
+function chromiumLaunchOptions() {
+  const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+  const channel = process.env.PLAYWRIGHT_CHROMIUM_CHANNEL;
+
+  return {
+    headless: true,
+    ...(executablePath ? { executablePath } : {}),
+    ...(!executablePath && channel ? { channel } : {}),
+  };
+}
+
 async function findAvailablePort() {
   return new Promise((resolve, reject) => {
     const server = createServer();
@@ -118,7 +129,7 @@ async function main() {
   const server = await startPreviewServer();
   console.log(`[prerender] Preview running on ${BASE}`);
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch(chromiumLaunchOptions());
   const context = await browser.newContext();
 
   try {
