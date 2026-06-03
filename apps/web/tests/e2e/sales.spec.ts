@@ -127,15 +127,22 @@ test.describe('Sales Page', () => {
       if (!description || !image) throw new Error('Modal content was not rendered');
 
       return {
+        modalWidth: Math.round(modal.getBoundingClientRect().width),
         modalHeight: Math.round(modal.getBoundingClientRect().height),
+        viewportWidth: window.innerWidth,
         viewportHeight: window.innerHeight,
         descriptionScrolls: description.scrollHeight > description.clientHeight,
+        descriptionClass: description.className,
         imageFit: window.getComputedStyle(image).objectFit,
       };
     });
 
+    if (metrics.viewportWidth >= 900) {
+      expect(metrics.modalWidth).toBeGreaterThan(900);
+    }
     expect(metrics.modalHeight).toBeLessThanOrEqual(Math.ceil(metrics.viewportHeight * 0.9));
     expect(metrics.descriptionScrolls).toBe(true);
+    expect(metrics.descriptionClass).toContain('product-modal-description-scroll');
     expect(metrics.imageFit).toBe('contain');
   });
 

@@ -36,7 +36,7 @@ export const ProductModal = ({ product, theme, t, onClose, onAddToCart, showAddT
       onClick={onClose}
     >
       <div
-        className={`relative flex h-[min(88vh,720px)] w-full max-w-2xl flex-col overflow-hidden rounded-lg shadow-2xl animate-scaleIn md:h-[min(82vh,560px)] ${
+        className={`relative flex h-[min(88vh,720px)] w-full max-w-2xl flex-col overflow-hidden rounded-lg shadow-2xl animate-scaleIn md:h-[min(86vh,720px)] md:max-w-[1120px] ${
           isDark ? 'bg-[#1A1A1A] border border-[#2A2A2A]' : 'bg-white border border-[#E0E0E0]'
         }`}
         role="dialog"
@@ -54,32 +54,32 @@ export const ProductModal = ({ product, theme, t, onClose, onAddToCart, showAddT
         </button>
 
         <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-          <div className={`h-[42%] flex-none overflow-hidden md:h-full md:w-1/2 ${
+          <div className={`h-[42%] flex-none overflow-hidden md:h-full md:w-[54%] ${
             isDark ? 'bg-[#111111]' : 'bg-[#F5F5F5]'
           }`}>
-            <img src={product.image} alt={product.name} className="h-full w-full object-contain p-4 md:p-6" />
+            <img src={product.image} alt={product.name} className="h-full w-full object-contain p-4 md:p-8" />
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col p-6 md:w-1/2 md:p-8">
-            <span className="text-[10px] uppercase tracking-widest opacity-50 font-medium mb-3">
+          <div className="flex min-h-0 flex-1 flex-col p-6 md:w-[46%] md:p-6 lg:p-8">
+            <span className="text-[10px] uppercase tracking-widest opacity-50 font-medium mb-2">
               {product.category}
             </span>
-            <h2 id="product-modal-title" className="text-xl md:text-2xl font-black uppercase tracking-tight mb-4 leading-tight">
+            <h2 id="product-modal-title" className="text-xl md:text-2xl font-black uppercase tracking-tight mb-3 leading-tight">
               {product.name}
             </h2>
-            <p className={`min-h-0 flex-1 overflow-y-auto pr-2 text-sm leading-relaxed ${isDark ? 'opacity-70' : 'opacity-60'} ${showAddToCart ? 'mb-6 md:mb-8' : 'mb-4'}`}>
+            <p className={`product-modal-description-scroll min-h-0 flex-1 overflow-y-auto pr-3 text-sm leading-relaxed ${isDark ? 'opacity-70' : 'opacity-60'} ${showAddToCart ? 'mb-5' : 'mb-4'}`}>
               {product.description}
             </p>
 
-            <div className={`flex-none pt-6 border-t ${isDark ? 'border-[#2A2A2A]' : 'border-[#F0F0F0]'}`}>
-              <div className={`flex items-center justify-between ${showAddToCart ? 'mb-5' : ''}`}>
+            <div className={`flex-none pt-4 border-t ${isDark ? 'border-[#2A2A2A]' : 'border-[#F0F0F0]'}`}>
+              <div className={`flex items-center justify-between ${showAddToCart ? 'mb-4' : ''}`}>
                 <span className="text-[10px] uppercase tracking-widest opacity-50 font-medium">{t.priceLabel}</span>
                 <span className="text-2xl font-black">
                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: product.currency }).format(product.price)}
                 </span>
               </div>
               {isOutOfStock && (
-                <div className={`mb-5 rounded-sm border px-4 py-3 text-center text-[11px] uppercase tracking-[0.25em] font-black ${
+                <div className={`mb-4 rounded-sm border px-4 py-3 text-center text-[11px] uppercase tracking-[0.25em] font-black ${
                   isDark
                     ? 'border-red-400/40 bg-red-400/10 text-red-200'
                     : 'border-red-700/30 bg-red-700/10 text-red-800'
@@ -97,7 +97,7 @@ export const ProductModal = ({ product, theme, t, onClose, onAddToCart, showAddT
                       onClose();
                     }
                   }}
-                  className={`w-full flex items-center justify-center gap-2.5 py-3.5 rounded-sm text-[11px] uppercase tracking-[0.25em] font-bold transition-all active:scale-[0.98] ${
+                  className={`w-full flex items-center justify-center gap-2.5 py-3 rounded-sm text-[11px] uppercase tracking-[0.25em] font-bold transition-all active:scale-[0.98] ${
                     isOutOfStock
                       ? isDark
                         ? 'bg-[#2A2A2A] text-[#E8E8E8]/60 cursor-not-allowed'

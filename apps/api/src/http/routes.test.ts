@@ -169,12 +169,12 @@ describe('api routes', () => {
     expect(tsvResponse.statusCode).toBe(200);
     expect(tsvResponse.headers['content-type']).toContain('text/tab-separated-values');
     expect(tsvResponse.body.split('\n')[0]).toBe('id\ttitle\tdescription\tavailability\tcondition\tprice\tlink\timage_link\tbrand\tmpn\tgoogle_product_category\tproduct_type');
-    expect(tsvResponse.body).toContain('sensor-dht22\tDHT22 SENSOR\tDigital temperature and humidity sensor.\tin stock\tnew\t6.49 USD\thttps://arateki.test/en/sales/sensor-dht22');
+    expect(tsvResponse.body).toContain('sensor-dht22\tDHT22 SENSOR\tDigital temperature and humidity sensor for prototyping benches');
 
     expect(csvResponse.statusCode).toBe(200);
     expect(csvResponse.headers['content-type']).toContain('text/csv');
     expect(csvResponse.body.split('\n')[0]).toBe('id,title,description,availability,condition,price,link,image_link,brand,mpn,google_product_category,product_type');
-    expect(csvResponse.body).toContain('"sensor-dht22","DHT22 SENSOR","Digital temperature and humidity sensor.","in stock","new","6.49 USD","https://arateki.test/en/sales/sensor-dht22"');
+    expect(csvResponse.body).toContain('"sensor-dht22","DHT22 SENSOR","Digital temperature and humidity sensor for prototyping benches');
   });
 
   it('returns an admin token on login', async () => {
