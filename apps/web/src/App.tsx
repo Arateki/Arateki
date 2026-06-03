@@ -28,11 +28,13 @@ function ScrollToHash() {
     if (!location.hash) return;
 
     const id = decodeURIComponent(location.hash.slice(1));
-    const scrollToTarget = (behavior: ScrollBehavior) => {
+    const scrollToTarget = (behavior: ScrollBehavior, tolerance = 0) => {
       const target = document.getElementById(id);
       if (!target) return;
 
       const headerHeight = document.querySelector('nav')?.getBoundingClientRect().height ?? 0;
+      if (Math.abs(target.getBoundingClientRect().top - headerHeight) <= tolerance) return;
+
       const top = target.getBoundingClientRect().top + window.scrollY - headerHeight;
       window.scrollTo({ top, behavior });
     };
@@ -40,11 +42,11 @@ function ScrollToHash() {
     const frameId = window.requestAnimationFrame(() => {
       scrollToTarget('smooth');
     });
-    const settleId = window.setTimeout(() => scrollToTarget('auto'), 180);
+    const settleIds = [180, 650].map(delay => window.setTimeout(() => scrollToTarget('smooth', 2), delay));
 
     return () => {
       window.cancelAnimationFrame(frameId);
-      window.clearTimeout(settleId);
+      settleIds.forEach(id => window.clearTimeout(id));
     };
   }, [location.pathname, location.hash]);
 

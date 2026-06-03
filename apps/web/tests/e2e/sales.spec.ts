@@ -87,6 +87,58 @@ test.describe('Sales Page', () => {
     await expect(page).toHaveURL(/\/sales\/sensor-dht22$/);
   });
 
+  test('should keep product modal fixed and scroll long descriptions', async ({ page }) => {
+    const longDescription = Array.from(
+      { length: 90 },
+      (_, index) => `Long description segment ${index + 1}.`,
+    ).join(' ');
+    const wideImage = `data:image/svg+xml;utf8,${encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300"><rect width="1200" height="300" fill="#d8d2c4"/><circle cx="600" cy="150" r="110" fill="#1d1d1d"/></svg>',
+    )}`;
+
+    await page.route('**/api/products*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          products: [
+            {
+              id: 'long-desc-product',
+              name: 'LONG DESC PRODUCT',
+              description: longDescription,
+              priceCents: 4590,
+              currency: 'BRL',
+              imageUrl: wideImage,
+              variants: [{ id: 'v1', stock: 3 }],
+            },
+          ],
+        }),
+      });
+    });
+
+    await page.goto('/sales/long-desc-product');
+
+    const dialog = page.getByRole('dialog', { name: 'LONG DESC PRODUCT' });
+    await expect(dialog).toBeVisible();
+
+    const metrics = await dialog.evaluate((modal) => {
+      const description = modal.querySelector('p');
+      const image = modal.querySelector('img');
+      if (!description || !image) throw new Error('Modal content was not rendered');
+
+      return {
+        modalHeight: Math.round(modal.getBoundingClientRect().height),
+        viewportHeight: window.innerHeight,
+        descriptionScrolls: description.scrollHeight > description.clientHeight,
+        imageFit: window.getComputedStyle(image).objectFit,
+      };
+    });
+
+    expect(metrics.modalHeight).toBeLessThanOrEqual(Math.ceil(metrics.viewportHeight * 0.9));
+    expect(metrics.descriptionScrolls).toBe(true);
+    expect(metrics.imageFit).toBe('contain');
+  });
+
   test('should redirect legacy ?product= query to canonical /sales/<slug>', async ({ page }) => {
     await page.route('**/api/products*', async (route) => {
       await route.fulfill({
