@@ -15,18 +15,18 @@ export const ProductCard = ({ product, theme, t, onAddToCart, onOpenModal }: Pro
 
   return (
     <div
-      className={`group h-full flex flex-col rounded-lg overflow-hidden transition-all duration-300 border cursor-pointer ${
+      className={`group flex aspect-[1/2] flex-col rounded-lg overflow-hidden transition-all duration-300 border cursor-pointer ${
         theme === 'light'
           ? 'bg-white border-[#E0E0E0] hover:border-black/20'
           : 'bg-[#1C1C1C] border-[#2A2A2A] hover:border-white/20'
       }`}
       onClick={() => onOpenModal(product)}
     >
-      <div className="aspect-square overflow-hidden relative">
+      <div className="aspect-square flex-none overflow-hidden relative">
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-full object-cover scale-[0.96] transition-transform duration-500 group-hover:scale-100"
         />
         {isOutOfStock && (
           <div className={`absolute inset-x-0 bottom-0 px-2 py-1.5 text-center text-[9px] uppercase tracking-[0.16em] font-black ${
@@ -38,7 +38,7 @@ export const ProductCard = ({ product, theme, t, onAddToCart, onOpenModal }: Pro
           </div>
         )}
       </div>
-      <div className="p-2 md:p-4 flex flex-1 flex-col">
+      <div className="p-2 md:p-4 flex min-h-0 flex-1 flex-col overflow-hidden">
         <span className="text-[7px] md:text-[9px] uppercase tracking-widest opacity-50 mb-1 block truncate">
           {product.category}
         </span>
