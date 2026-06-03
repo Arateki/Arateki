@@ -36,9 +36,12 @@ export const ProductModal = ({ product, theme, t, onClose, onAddToCart, showAddT
       onClick={onClose}
     >
       <div
-        className={`relative w-full max-w-2xl rounded-lg overflow-hidden shadow-2xl animate-scaleIn ${
+        className={`relative flex h-[min(88vh,720px)] w-full max-w-2xl flex-col overflow-hidden rounded-lg shadow-2xl animate-scaleIn md:h-[min(82vh,560px)] ${
           isDark ? 'bg-[#1A1A1A] border border-[#2A2A2A]' : 'bg-white border border-[#E0E0E0]'
         }`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="product-modal-title"
         onClick={e => e.stopPropagation()}
       >
         <button
@@ -50,23 +53,25 @@ export const ProductModal = ({ product, theme, t, onClose, onAddToCart, showAddT
           <X className="w-4 h-4" />
         </button>
 
-        <div className="flex flex-col md:flex-row">
-          <div className="md:w-1/2 aspect-square md:aspect-auto md:h-auto overflow-hidden flex-shrink-0">
-            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+        <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+          <div className={`h-[42%] flex-none overflow-hidden md:h-full md:w-1/2 ${
+            isDark ? 'bg-[#111111]' : 'bg-[#F5F5F5]'
+          }`}>
+            <img src={product.image} alt={product.name} className="h-full w-full object-contain p-4 md:p-6" />
           </div>
 
-          <div className="md:w-1/2 flex flex-col p-8">
+          <div className="flex min-h-0 flex-1 flex-col p-6 md:w-1/2 md:p-8">
             <span className="text-[10px] uppercase tracking-widest opacity-50 font-medium mb-3">
               {product.category}
             </span>
-            <h2 className="text-2xl font-black uppercase tracking-tight mb-4 leading-tight">
+            <h2 id="product-modal-title" className="text-xl md:text-2xl font-black uppercase tracking-tight mb-4 leading-tight">
               {product.name}
             </h2>
-            <p className={`text-sm leading-relaxed flex-1 ${isDark ? 'opacity-70' : 'opacity-60'} ${showAddToCart ? 'mb-8' : 'mb-4'}`}>
+            <p className={`min-h-0 flex-1 overflow-y-auto pr-2 text-sm leading-relaxed ${isDark ? 'opacity-70' : 'opacity-60'} ${showAddToCart ? 'mb-6 md:mb-8' : 'mb-4'}`}>
               {product.description}
             </p>
 
-            <div className={`pt-6 border-t ${isDark ? 'border-[#2A2A2A]' : 'border-[#F0F0F0]'}`}>
+            <div className={`flex-none pt-6 border-t ${isDark ? 'border-[#2A2A2A]' : 'border-[#F0F0F0]'}`}>
               <div className={`flex items-center justify-between ${showAddToCart ? 'mb-5' : ''}`}>
                 <span className="text-[10px] uppercase tracking-widest opacity-50 font-medium">{t.priceLabel}</span>
                 <span className="text-2xl font-black">
