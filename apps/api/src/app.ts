@@ -3,7 +3,6 @@ import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import jwt from '@fastify/jwt';
 import rateLimit from '@fastify/rate-limit';
-import type { MongoClient } from 'mongodb';
 import { CreateOrderUseCase } from './application/create-order.js';
 import { GetOrderUseCase } from './application/get-order.js';
 import { ListOrdersUseCase } from './application/list-orders.js';
@@ -13,6 +12,7 @@ import type { OrderRepository } from './domain/order.js';
 import type { AuditLogRepository } from './domain/audit-log.js';
 import type { RevokedTokenRepository } from './domain/revoked-token.js';
 import type { UserRepository } from './domain/user.js';
+import type { TransactionRunner } from './domain/transaction.js';
 import { ChangePasswordUseCase } from './application/change-password.js';
 import { ListProductsUseCase } from './application/list-products.js';
 import { ListAdminProductsUseCase } from './application/list-admin-products.js';
@@ -31,7 +31,7 @@ export interface AppDependencies {
   auditLogRepository: AuditLogRepository;
   userRepository: UserRepository;
   revokedTokenRepository: RevokedTokenRepository;
-  mongoClient: MongoClient;
+  transactionRunner: TransactionRunner;
   jwtSecret: string;
   jwtExpiresIn: string;
   corsOrigin?: string[] | undefined;
@@ -99,7 +99,7 @@ export async function buildApp(dependencies: AppDependencies): Promise<FastifyIn
       createOrder: new CreateOrderUseCase(
         dependencies.orderRepository,
         dependencies.productRepository,
-        dependencies.mongoClient,
+        dependencies.transactionRunner,
       ),
       listOrders: new ListOrdersUseCase(dependencies.orderRepository),
       getOrder: new GetOrderUseCase(dependencies.orderRepository),

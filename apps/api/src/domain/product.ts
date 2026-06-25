@@ -1,5 +1,3 @@
-import type { ClientSession } from 'mongodb';
-
 export type Currency = 'BRL' | 'USD';
 export type ProductLocale = 'pt' | 'en' | 'es' | 'zh' | 'ja';
 
@@ -85,12 +83,12 @@ export interface ProductVariantView {
 export interface ProductRepository {
   listActive(): Promise<Product[]>;
   listAll(): Promise<Product[]>;
-  findActiveById(id: string, session?: ClientSession): Promise<Product | null>;
-  findById(id: string, session?: ClientSession): Promise<Product | null>;
+  findActiveById(id: string): Promise<Product | null>;
+  findById(id: string): Promise<Product | null>;
   create(input: ProductInput): Promise<Product>;
   update(id: string, input: ProductInput): Promise<Product | null>;
   seedIfEmpty(products: Product[]): Promise<void>;
-  decrementStock(productId: string, variantId: string, quantity: number, session?: ClientSession): Promise<void>;
+  decrementStock(productId: string, variantId: string, quantity: number): Promise<void>;
 }
 
 export function toProductView(product: Product, options: ProductListOptions): ProductView {
