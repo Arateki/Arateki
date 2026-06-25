@@ -1,5 +1,6 @@
 # Stage 1: Build & Dependencies
-FROM node:22-alpine AS builder
+# Node >= 23.4 expõe `node:sqlite` sem flag; usamos Node 26 para casar com o bare-metal.
+FROM node:26-alpine AS builder
 
 RUN npm install -g pnpm
 WORKDIR /app
@@ -15,7 +16,7 @@ COPY . .
 RUN pnpm --filter @arateki/api build
 
 # Stage 2: Runtime
-FROM node:22-alpine
+FROM node:26-alpine
 
 RUN npm install -g pnpm
 WORKDIR /app
@@ -26,6 +27,10 @@ COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
 
+# SQLite embutido (node:sqlite) — sem módulo nativo, sem toolchain.
+# O banco vive em /data, montado como volume nomeado pelo compose.
+ENV SQLITE_PATH=/data/arateki.db
+RUN mkdir -p /data
+
 EXPOSE 3333
-# Runs from the root using the workspace filter or direct path
 CMD ["node", "apps/api/dist/main.js"]
