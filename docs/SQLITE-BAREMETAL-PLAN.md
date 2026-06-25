@@ -6,7 +6,7 @@
 
 **Architecture:** A arquitetura hexagonal já isola persistência em `infrastructure/`. Adicionamos repositórios SQLite (esquema por coluna JSON, espelhando os documentos Mongo), um port de transação neutro que remove os vazamentos de MongoDB do domínio, e trocamos o wiring no `main.ts`/`test-app.ts`. Os Mongo repos são removidos ao final.
 
-**Tech Stack:** TypeScript (strict, sem `any`), Fastify 5, `better-sqlite3` (driver síncrono embutido), Vitest. Node 24.
+**Tech Stack:** TypeScript (strict, sem `any`), Fastify 5, `node:sqlite` (SQLite nativo do Node, síncrono), Vitest. Node ≥ 22.5 (dev/CI/prod em Node 26).
 
 **Spec de referência:** [`SQLITE-BAREMETAL-SPEC.md`](./SQLITE-BAREMETAL-SPEC.md)
 
@@ -19,6 +19,17 @@
 - Premissa de dados: **base limpa** — sem migração de dados do Mongo.
 - Todo agregado é persistido como `doc` JSON + colunas extraídas só para índice.
 - Após cada task, a suíte da task deve passar; ao final da Task 8 a suíte **inteira** (`pnpm --filter @arateki/api test`) deve passar e `pnpm --filter @arateki/api build` compilar.
+
+## Errata — driver `node:sqlite` (substitui `better-sqlite3`)
+
+> `better-sqlite3` é módulo nativo; o pnpm 10 bloqueia seu build script e o Node 26 não tem prebuild (`node-gyp` ausente). Trocado pelo **`node:sqlite`** — SQLite embutido no Node, estável no Node ≥ 22.5, sem binding nem build. Aprovado pelo usuário (a t3.nano também rodará Node 26).
+>
+> **Aplicar a TODAS as tasks** (os blocos de código abaixo ainda citam `better-sqlite3`):
+> - `import Database from 'better-sqlite3'` → `import { DatabaseSync } from 'node:sqlite'`; tipo `Database.Database` → `DatabaseSync`.
+> - PRAGMAs: `db.pragma('x = y')` → `db.exec('PRAGMA x = y')`.
+> - **`db.transaction(fn)` não existe.** No `seedIfEmpty` (Task 2): trocar por `this.db.exec('BEGIN'); try { for (const item of items) this.insert(item); this.db.exec('COMMIT'); } catch (e) { this.db.exec('ROLLBACK'); throw e; }`.
+> - Sem deps `better-sqlite3`/`@types/better-sqlite3`; sem `onlyBuiltDependencies` no `pnpm-workspace.yaml`. Task 1 já implementada com `node:sqlite` (ver `apps/api/src/infrastructure/sqlite/sqlite.ts`).
+> - Task 10 (Docker): `node:sqlite` dispensa toolchain — remover `apk add python3 make g++` e o teste `require('better-sqlite3')`.
 
 ---
 

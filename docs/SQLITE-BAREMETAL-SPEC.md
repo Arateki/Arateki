@@ -62,9 +62,9 @@ A arquitetura hexagonal atual já isola o banco em `infrastructure/`. A mudança
 ### 5.1 Camada de persistência (SQLite)
 
 - Novo diretório `apps/api/src/infrastructure/sqlite/`:
-  - `sqlite.ts` — abre a conexão (`better-sqlite3`), aplica PRAGMAs, cria o schema (`CREATE TABLE IF NOT EXISTS`) e expõe o handle + um `TransactionRunner`.
+  - `sqlite.ts` — abre a conexão (`node:sqlite`), aplica PRAGMAs, cria o schema (`CREATE TABLE IF NOT EXISTS`) e expõe o handle + um `TransactionRunner`.
   - `sqlite-order-repository.ts`, `sqlite-product-repository.ts`, `sqlite-user-repository.ts`, `sqlite-audit-log-repository.ts`, `sqlite-revoked-token-repository.ts` — implementam as **mesmas interfaces** já definidas em `domain/*` (`OrderRepository`, `ProductRepository`, etc.).
-- **Driver:** `better-sqlite3` (síncrono, maduro, prebuilds para Linux x64 — compatível com a `t3.nano`). Alternativa registrada: `node:sqlite` (nativo do Node 24, ainda experimental) — preterida pela maturidade.
+- **Driver:** `node:sqlite` (SQLite embutido no Node, síncrono, estável no Node ≥ 22.5 — sem binding nativo nem build script). Escolhido após `better-sqlite3` (módulo nativo) ser bloqueado pelo pnpm 10 + ausência de prebuild no Node 26. Requer Node ≥ 22.5 no dev/CI/produção (a t3.nano rodará Node 26).
 - As interfaces de repositório permanecem `async` (retornando `Promise.resolve(...)` sobre chamadas síncronas), de forma que **os use-cases não mudam** (exceto o de transação, §5.4).
 
 ### 5.2 Schema (coluna JSON)
@@ -121,9 +121,9 @@ export interface TransactionRunner {
 
 - `CreateOrderUseCase` passa a depender de `TransactionRunner` em vez de `MongoClient`.
 - As assinaturas de repositório perdem o parâmetro `session?: ClientSession`.
-- Implementação SQLite: `run()` executa `BEGIN IMMEDIATE` → `work()` → `COMMIT` (ou `ROLLBACK` em erro). Como `better-sqlite3` é síncrono e single-connection, as operações de repositório dentro de `work()` são naturalmente atômicas.
+- Implementação SQLite: `run()` executa `BEGIN IMMEDIATE` → `work()` → `COMMIT` (ou `ROLLBACK` em erro). Como o `node:sqlite` é síncrono e single-connection, as operações de repositório dentro de `work()` são naturalmente atômicas.
 
-> **⚠️ Restrição documentada:** o corpo passado a `run()` só pode tocar repositórios SQLite — nenhuma chamada de rede/FS assíncrona externa dentro da transação. Com `BEGIN IMMEDIATE` + `busy_timeout`, isso é seguro para o caso de uso (apenas `create-order`). Alternativa de robustez máxima (caminho `create-order` totalmente síncrono via `db.transaction()`) fica registrada para o plano de implementação caso se queira eliminar o risco teórico de intercalação.
+> **⚠️ Restrição documentada:** o corpo passado a `run()` só pode tocar repositórios SQLite — nenhuma chamada de rede/FS assíncrona externa dentro da transação. Com `BEGIN IMMEDIATE` + `busy_timeout`, isso é seguro para o caso de uso (apenas `create-order`). Alternativa de robustez máxima (caminho `create-order` totalmente síncrono) fica registrada para o plano de implementação caso se queira eliminar o risco teórico de intercalação.
 
 ### 5.5 Composition root e configuração
 
@@ -161,7 +161,7 @@ Restart=on-failure
 ```
 
 - Node 24 instalado na máquina (runtime). O `dist/` + `node_modules` de produção são enviados pelo CI.
-- **Atenção `better-sqlite3` (módulo nativo):** o prebuild precisa casar com a versão de Node/arquitetura da máquina. Como o build do CI roda em `ubuntu-latest` x64 e a `t3.nano` é Linux x64, o prebuild é compatível; o plano valida isso (ou executa `npm rebuild` no destino).
+- **`node:sqlite` (sem binding nativo):** nada a compilar no dev/CI/destino — basta Node ≥ 22.5 instalado. Elimina a preocupação de prebuild/arquitetura que um módulo nativo (ex.: `better-sqlite3`) traria.
 
 ### 6.3 nginx
 
@@ -215,8 +215,8 @@ Modelo de menor privilégio (equivalente ou superior em segurança ao runner res
 
 | Risco | Mitigação |
 |---|---|
-| Conflito sync/async na transação (`better-sqlite3` síncrono vs use-case async) | Port com `BEGIN IMMEDIATE` + `busy_timeout`; restrição documentada (§5.4); alternativa síncrona registrada |
-| Módulo nativo `better-sqlite3` incompatível no destino | Build e runtime ambos Linux x64; validar prebuild ou `npm rebuild` no deploy |
+| Conflito sync/async na transação (`node:sqlite` síncrono vs use-case async) | Runner serializa transações (uma por vez) com `BEGIN IMMEDIATE` + `busy_timeout`; restrição documentada (§5.4) |
+| Node < 22.5 no destino (sem `node:sqlite`) | Instalar Node ≥ 22.5 (idealmente 26) na t3.nano; documentado no `deploy/README.md` |
 | `revoked_tokens` sem TTL | Limpeza no boot + job periódico (§9) |
 | Concorrência de escrita (single-writer) | WAL + `busy_timeout`; volume da loja é baixo |
 | Reintroduzir MongoDB no futuro | Interfaces de domínio preservadas; bastaria um driver alternativo atrás de `DB_DRIVER` |
