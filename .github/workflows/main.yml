@@ -72,21 +72,18 @@ jobs:
     - name: Build API
       run: pnpm --filter @arateki/api build
 
-    - name: Build API Docker image
-      timeout-minutes: 15
-      run: docker build -f apps/api/Dockerfile -t arateki-api:${{ github.sha }} -t arateki-api:latest .
-
-    - name: Start API for Prerender
-      # Inicia temporariamente a API apontando para o arquivo de produção
-      timeout-minutes: 12
+    - name: Start API (SQLite) for Prerender
+      # node:sqlite é embutido no Node >= 23.4 (runner usa Node 24.x); sem MongoDB, sem Docker.
+      timeout-minutes: 5
       run: |
-        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
-        echo "JWT_EXPIRES_IN=12h" >> .env
-        echo "ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }}" >> .env
-        echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
-        echo "CORS_ORIGIN=https://arateki.com" >> .env
-        echo "PUBLIC_SITE_URL=https://arateki.com" >> .env
-        docker compose -f docker-compose.prod.yml up -d mongodb api
+        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > apps/api/.env.prerender
+        echo "JWT_EXPIRES_IN=12h" >> apps/api/.env.prerender
+        echo "ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }}" >> apps/api/.env.prerender
+        echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> apps/api/.env.prerender
+        echo "SQLITE_PATH=/tmp/prerender.db" >> apps/api/.env.prerender
+        echo "PUBLIC_SITE_URL=https://arateki.com" >> apps/api/.env.prerender
+        node --env-file=apps/api/.env.prerender apps/api/dist/main.js > /tmp/api.log 2>&1 &
+        echo $! > /tmp/api.pid
 
     - name: Wait for API
       run: |
@@ -143,8 +140,15 @@ jobs:
     - name: Show prerender API logs on failure
       if: ${{ failure() }}
       run: |
-        docker compose -f docker-compose.prod.yml ps
-        docker compose -f docker-compose.prod.yml logs --tail=200 mongodb api
+        echo "--- API log ---"
+        cat /tmp/api.log || true
+
+    - name: Stop prerender API
+      if: ${{ always() }}
+      run: |
+        if [ -f /tmp/api.pid ]; then
+          kill "$(cat /tmp/api.pid)" 2>/dev/null || true
+        fi
 
     - name: Upload Frontend Artifact
       uses: actions/upload-artifact@v4
@@ -153,20 +157,25 @@ jobs:
         path: apps/web/dist/
         retention-days: 1
 
-    - name: Save API Docker image
-      timeout-minutes: 5
-      run: docker save arateki-api:${{ github.sha }} arateki-api:latest | gzip > arateki-api-image.tar.gz
+    - name: Package API runtime
+      run: |
+        mkdir -p api-bundle/apps/api
+        cp -r apps/api/dist api-bundle/apps/api/dist
+        cp apps/api/package.json api-bundle/apps/api/package.json
+        cp pnpm-lock.yaml pnpm-workspace.yaml package.json api-bundle/
+        cp -r deploy api-bundle/deploy
+        tar czf api-bundle.tar.gz -C api-bundle .
 
-    - name: Upload API Image Artifact
+    - name: Upload API bundle
       uses: actions/upload-artifact@v4
       with:
-        name: api-image
-        path: arateki-api-image.tar.gz
+        name: api-bundle
+        path: api-bundle.tar.gz
         retention-days: 1
 
 
   # ==========================================
-  # JOB 2: DEPLOY NO SERVIDOR PRINCIPAL
+  # JOB 2: DEPLOY NO SERVIDOR PRINCIPAL (Docker, SQLite)
   # ==========================================
   deploy-archlinux:
     needs: build
@@ -186,25 +195,17 @@ jobs:
         name: frontend-dist
         path: dist-front-downloaded
 
-    - name: Download API Image Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: api-image
-        path: api-image
-
-    - name: Load API Docker image
-      timeout-minutes: 5
-      run: |
-        gzip -dc api-image/arateki-api-image.tar.gz | docker load
-        docker image inspect arateki-api:latest
+    - name: Build API Docker image (SQLite)
+      timeout-minutes: 15
+      run: docker build -f apps/api/Dockerfile -t arateki-api:latest .
 
     - name: Deploy Frontend
       run: |
         mkdir -p "$FRONT_PATH"
         rsync -a --delete dist-front-downloaded/ "$FRONT_PATH"/
 
-    - name: Deploy API and Database
-      # Sobe a infraestrutura lendo o arquivo de produção
+    - name: Deploy API
+      # Serviço único com volume SQLite persistente (sem MongoDB).
       timeout-minutes: 12
       run: |
         echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
@@ -213,13 +214,13 @@ jobs:
         echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
         echo "CORS_ORIGIN=https://arateki.com" >> .env
         echo "PUBLIC_SITE_URL=https://arateki.com" >> .env
-        docker compose -f docker-compose.prod.yml up -d mongodb api
+        docker compose -f docker-compose.prod.yml up -d api
 
     - name: Show Docker status on failure
       if: ${{ failure() }}
       run: |
         docker compose -f docker-compose.prod.yml ps
-        docker compose -f docker-compose.prod.yml logs --tail=200 mongodb api
+        docker compose -f docker-compose.prod.yml logs --tail=200 api
 
     - name: Cleanup Docker images
       run: |
@@ -227,61 +228,44 @@ jobs:
 
 
   # ==========================================
-  # JOB 3: DEPLOY MANUAL NA EC2 T3 NANO
+  # JOB 3: DEPLOY MANUAL NA EC2 T3 NANO (bare-metal, SSH-push)
   # ==========================================
   deploy-ec2-t3-nano:
     needs: build
     if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'ec2-t3-nano' || github.event.inputs.target == 'both') }}
-    runs-on: [self-hosted, ec2-t3-nano]
+    runs-on: ubuntu-latest
     environment: production
-    env:
-      FRONT_PATH: /var/www/arateki/dist-front
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
-
     - name: Download Frontend Artifact
       uses: actions/download-artifact@v4
       with:
         name: frontend-dist
-        path: dist-front-downloaded
+        path: dist-front
 
-    - name: Download API Image Artifact
+    - name: Download API bundle
       uses: actions/download-artifact@v4
       with:
-        name: api-image
-        path: api-image
+        name: api-bundle
+        path: api-bundle
 
-    - name: Load API Docker image
-      timeout-minutes: 5
+    - name: Configure SSH
       run: |
-        gzip -dc api-image/arateki-api-image.tar.gz | docker load
-        docker image inspect arateki-api:latest
+        install -m 700 -d ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Deploy Frontend
-      run: |
-        mkdir -p "$FRONT_PATH"
-        rsync -a --delete dist-front-downloaded/ "$FRONT_PATH"/
+    - name: Deploy frontend
+      run: rsync -az --delete -e "ssh -i ~/.ssh/id_ed25519" dist-front/ deploy@${{ secrets.EC2_HOST }}:/var/www/arateki/dist-front/
 
-    - name: Deploy API and Database
-      # Sobe a infraestrutura lendo o arquivo de produção
-      timeout-minutes: 12
+    - name: Deploy API bundle
       run: |
-        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
-        echo "JWT_EXPIRES_IN=12h" >> .env
-        echo "ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }}" >> .env
-        echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
-        echo "CORS_ORIGIN=https://arateki.com" >> .env
-        echo "PUBLIC_SITE_URL=https://arateki.com" >> .env
-        docker compose -f docker-compose.prod.yml up -d mongodb api
-
-    - name: Show Docker status on failure
-      if: ${{ failure() }}
-      run: |
-        docker compose -f docker-compose.prod.yml ps
-        docker compose -f docker-compose.prod.yml logs --tail=200 mongodb api
-
-    - name: Cleanup Docker images
-      run: |
-        docker image prune -f
+        rsync -az -e "ssh -i ~/.ssh/id_ed25519" api-bundle/api-bundle.tar.gz deploy@${{ secrets.EC2_HOST }}:/tmp/api-bundle.tar.gz
+        ssh -i ~/.ssh/id_ed25519 deploy@${{ secrets.EC2_HOST }} '
+          set -e
+          sudo rm -rf /opt/arateki/api && sudo mkdir -p /opt/arateki/api
+          sudo tar xzf /tmp/api-bundle.tar.gz -C /opt/arateki
+          cd /opt/arateki && sudo corepack pnpm install --prod --filter @arateki/api --frozen-lockfile
+          sudo systemctl restart arateki-api
+        '
