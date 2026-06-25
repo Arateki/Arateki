@@ -1,25 +1,24 @@
 import { describe, expect, it } from 'vitest';
-import type { BootstrapAdminInput, User, UserRepository } from '../domain/user.js';
+import { InMemoryUserRepository, makeUser } from '../test/in-memory-repositories.js';
 import { BootstrapAdminUseCase } from './bootstrap-admin.js';
 
 describe('BootstrapAdminUseCase', () => {
   it('does nothing when an admin already exists', async () => {
-    const repository = new InMemoryUserRepository(true);
+    const repository = new InMemoryUserRepository([makeUser({ role: 'admin' })]);
     const useCase = new BootstrapAdminUseCase(repository);
 
     await expect(useCase.execute()).resolves.toBeNull();
-    expect(repository.createdAdmin).toBeNull();
+    expect(repository.users).toHaveLength(1);
   });
 
   it('requires credentials when there is no admin', async () => {
-    const repository = new InMemoryUserRepository(false);
-    const useCase = new BootstrapAdminUseCase(repository);
+    const useCase = new BootstrapAdminUseCase(new InMemoryUserRepository());
 
     await expect(useCase.execute()).rejects.toThrow('ADMIN_LOGIN and ADMIN_PASSWORD');
   });
 
   it('creates the first admin with a strong enough password', async () => {
-    const repository = new InMemoryUserRepository(false);
+    const repository = new InMemoryUserRepository();
     const useCase = new BootstrapAdminUseCase(repository);
 
     await expect(useCase.execute({
@@ -29,11 +28,11 @@ describe('BootstrapAdminUseCase', () => {
       login: 'admin',
       role: 'admin',
     });
+    expect(await repository.hasAdmin()).toBe(true);
   });
 
   it('rejects weak initial passwords', async () => {
-    const repository = new InMemoryUserRepository(false);
-    const useCase = new BootstrapAdminUseCase(repository);
+    const useCase = new BootstrapAdminUseCase(new InMemoryUserRepository());
 
     await expect(useCase.execute({
       login: 'admin',
@@ -41,44 +40,3 @@ describe('BootstrapAdminUseCase', () => {
     })).rejects.toThrow('at least 12 characters');
   });
 });
-
-class InMemoryUserRepository implements UserRepository {
-  createdAdmin: User | null = null;
-
-  constructor(private readonly adminExists: boolean) {}
-
-  findByLogin(): Promise<User | null> {
-    return Promise.resolve(null);
-  }
-
-  findById(): Promise<User | null> {
-    return Promise.resolve(null);
-  }
-
-  hasAdmin(): Promise<boolean> {
-    return Promise.resolve(this.adminExists);
-  }
-
-  ensureAdmin(input: BootstrapAdminInput): Promise<User> {
-    const now = new Date();
-    this.createdAdmin = {
-      id: 'admin-id',
-      login: input.login,
-      passwordHash: 'hash',
-      role: 'admin',
-      tokenVersion: 0,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    return Promise.resolve(this.createdAdmin);
-  }
-
-  updatePassword(): Promise<User | null> {
-    return Promise.resolve(this.createdAdmin);
-  }
-
-  ensureIndexes(): Promise<void> {
-    return Promise.resolve();
-  }
-}

@@ -30,10 +30,6 @@ export class SqliteOrderRepository implements OrderRepository {
     this.db.prepare(`UPDATE orders SET doc = ?, status = ? WHERE id = ?`).run(JSON.stringify(updated), status, id);
     return true;
   }
-
-  async ensureIndexes(): Promise<void> {
-    // índices criados no schema; método mantido por compatibilidade da interface
-  }
 }
 
 function rowToOrder(row: OrderRow): Order {

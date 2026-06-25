@@ -16,7 +16,7 @@ it('revoke is idempotent and isRevoked detects it', async () => {
 it('purgeExpired removes only expired tokens', async () => {
   await repo.revoke({ id: 'old', expiresAt: new Date('2020-01-01'), createdAt: new Date() });
   await repo.revoke({ id: 'fresh', expiresAt: new Date(Date.now() + 60_000), createdAt: new Date() });
-  expect(repo.purgeExpired()).toBe(1);
+  expect(await repo.purgeExpired()).toBe(1);
   expect(await repo.isRevoked('old')).toBe(false);
   expect(await repo.isRevoked('fresh')).toBe(true);
 });

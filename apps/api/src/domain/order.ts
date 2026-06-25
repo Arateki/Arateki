@@ -57,5 +57,4 @@ export interface OrderRepository {
   findById(id: string): Promise<Order | null>;
   listAll(): Promise<Order[]>;
   updateStatus(id: string, status: OrderStatus): Promise<boolean>;
-  ensureIndexes(): Promise<void>;
 }

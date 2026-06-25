@@ -15,11 +15,7 @@ export class SqliteRevokedTokenRepository implements RevokedTokenRepository {
     return row !== undefined;
   }
 
-  async ensureIndexes(): Promise<void> {
-    // índice criado no schema; método mantido por compatibilidade da interface
-  }
-
-  purgeExpired(now: Date = new Date()): number {
+  async purgeExpired(now: Date = new Date()): Promise<number> {
     const result = this.db.prepare(`DELETE FROM revoked_tokens WHERE expires_at < ?`).run(now.toISOString());
     return Number(result.changes);
   }

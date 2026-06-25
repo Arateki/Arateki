@@ -21,7 +21,7 @@ const revokedTokenRepository = new SqliteRevokedTokenRepository(sqlite.db);
 const transactionRunner = new SqliteTransactionRunner(sqlite.db);
 
 await productRepository.seedIfEmpty(defaultProducts);
-revokedTokenRepository.purgeExpired();
+await revokedTokenRepository.purgeExpired();
 await new BootstrapAdminUseCase(userRepository).execute({
   login: env.adminLogin,
   password: env.adminPassword,

@@ -58,10 +58,6 @@ export class SqliteUserRepository implements UserRepository {
     this.db.prepare(`UPDATE users SET doc = ? WHERE id = ?`).run(JSON.stringify(updated), id);
     return updated;
   }
-
-  async ensureIndexes(): Promise<void> {
-    // login UNIQUE garantido pelo schema; método mantido por compatibilidade da interface
-  }
 }
 
 function rowToUser(row: UserRow): User {
