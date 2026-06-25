@@ -1,42 +1,33 @@
-import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../app.js';
 import { defaultProducts } from '../config/default-products.js';
-import { createMongoConnection, type MongoConnection } from '../infrastructure/mongo.js';
-import { MongoOrderRepository } from '../infrastructure/mongo-order-repository.js';
-import { MongoProductRepository } from '../infrastructure/mongo-product-repository.js';
-import { MongoAuditLogRepository } from '../infrastructure/mongo-audit-log-repository.js';
-import { MongoRevokedTokenRepository } from '../infrastructure/mongo-revoked-token-repository.js';
-import { MongoUserRepository } from '../infrastructure/mongo-user-repository.js';
+import { openDatabase, type SqliteConnection } from '../infrastructure/sqlite/sqlite.js';
+import { SqliteOrderRepository } from '../infrastructure/sqlite/sqlite-order-repository.js';
+import { SqliteProductRepository } from '../infrastructure/sqlite/sqlite-product-repository.js';
+import { SqliteAuditLogRepository } from '../infrastructure/sqlite/sqlite-audit-log-repository.js';
+import { SqliteRevokedTokenRepository } from '../infrastructure/sqlite/sqlite-revoked-token-repository.js';
+import { SqliteUserRepository } from '../infrastructure/sqlite/sqlite-user-repository.js';
+import { SqliteTransactionRunner } from '../infrastructure/sqlite/sqlite-transaction-runner.js';
 
 export interface TestApp {
   app: FastifyInstance;
-  mongo: MongoConnection;
-  mongoServer: MongoMemoryReplSet;
+  sqlite: SqliteConnection;
   jwtSecret: string;
   adminUserId: string;
   close(): Promise<void>;
 }
 
 export async function createTestApp(): Promise<TestApp> {
-  const mongoServer = await MongoMemoryReplSet.create({
-    replSet: { count: 1, storageEngine: 'wiredTiger' }
-  });
-  
-  const mongo = await createMongoConnection(mongoServer.getUri());
-  const productRepository = new MongoProductRepository(mongo.db);
-  const orderRepository = new MongoOrderRepository(mongo.db);
-  const auditLogRepository = new MongoAuditLogRepository(mongo.db);
-  const userRepository = new MongoUserRepository(mongo.db);
-  const revokedTokenRepository = new MongoRevokedTokenRepository(mongo.db);
+  const sqlite = openDatabase(':memory:');
+  const productRepository = new SqliteProductRepository(sqlite.db);
+  const orderRepository = new SqliteOrderRepository(sqlite.db);
+  const auditLogRepository = new SqliteAuditLogRepository(sqlite.db);
+  const userRepository = new SqliteUserRepository(sqlite.db);
+  const revokedTokenRepository = new SqliteRevokedTokenRepository(sqlite.db);
+  const transactionRunner = new SqliteTransactionRunner(sqlite.db);
   const jwtSecret = 'test-secret';
 
   await productRepository.seedIfEmpty(defaultProducts);
-  await orderRepository.ensureIndexes();
-  await auditLogRepository.ensureIndexes();
-  await userRepository.ensureIndexes();
-  await revokedTokenRepository.ensureIndexes();
-
   const admin = await userRepository.ensureAdmin({
     login: 'admin',
     password: 'admin-password',
@@ -48,7 +39,7 @@ export async function createTestApp(): Promise<TestApp> {
     auditLogRepository,
     userRepository,
     revokedTokenRepository,
-    mongoClient: mongo.client,
+    transactionRunner,
     jwtSecret,
     jwtExpiresIn: '1h',
     publicSiteUrl: 'https://arateki.test',
@@ -58,14 +49,12 @@ export async function createTestApp(): Promise<TestApp> {
 
   return {
     app,
-    mongo,
-    mongoServer,
+    sqlite,
     jwtSecret,
     adminUserId: admin.id,
     close: async () => {
       await app.close();
-      await mongo.close();
-      await mongoServer.stop();
+      sqlite.close();
     },
   };
 }

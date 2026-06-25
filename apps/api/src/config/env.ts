@@ -2,7 +2,7 @@ export interface Env {
   nodeEnv: 'development' | 'test' | 'production';
   port: number;
   host: string;
-  mongodbUri: string;
+  sqlitePath: string;
   jwtSecret: string;
   adminLogin?: string | undefined;
   adminPassword?: string | undefined;
@@ -25,7 +25,7 @@ export function loadEnv(): Env {
     nodeEnv,
     port: Number(readEnv('PORT', '3333')),
     host: readEnv('HOST', '0.0.0.0'),
-    mongodbUri: readEnv('MONGODB_URI', 'mongodb://localhost:27017/arateki'),
+    sqlitePath: readEnv('SQLITE_PATH', nodeEnv === 'test' ? ':memory:' : '/var/lib/arateki/arateki.db'),
     jwtSecret,
     adminLogin: process.env.ADMIN_LOGIN ?? (nodeEnv === 'production' ? undefined : 'admin'),
     adminPassword: process.env.ADMIN_PASSWORD ?? (nodeEnv === 'production' ? undefined : 'admin-password'),

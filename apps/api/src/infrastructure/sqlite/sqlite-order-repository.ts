@@ -19,7 +19,7 @@ export class SqliteOrderRepository implements OrderRepository {
   }
 
   async listAll(): Promise<Order[]> {
-    const rows = this.db.prepare(`SELECT doc FROM orders ORDER BY created_at DESC`).all() as OrderRow[];
+    const rows = this.db.prepare(`SELECT doc FROM orders ORDER BY created_at DESC`).all() as unknown as OrderRow[];
     return rows.map(rowToOrder);
   }
 

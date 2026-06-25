@@ -10,14 +10,14 @@ export class SqliteProductRepository implements ProductRepository {
   async listActive(): Promise<Product[]> {
     const rows = this.db
       .prepare(`SELECT doc FROM products WHERE active = 1 ORDER BY json_extract(doc, '$.name.en') ASC`)
-      .all() as ProductRow[];
+      .all() as unknown as ProductRow[];
     return rows.map(rowToProduct);
   }
 
   async listAll(): Promise<Product[]> {
     const rows = this.db
       .prepare(`SELECT doc FROM products ORDER BY json_extract(doc, '$.name.en') ASC`)
-      .all() as ProductRow[];
+      .all() as unknown as ProductRow[];
     return rows.map(rowToProduct);
   }
 
