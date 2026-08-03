@@ -1,69 +1,65 @@
-# Deploy bare-metal — Arateki API (SQLite)
+# Deploy bare-metal — Arateki API (Rust + SQLite)
 
-Procedimento de instalação da API em uma `t3.nano` (Ubuntu) rodando direto no host
-via `systemd`, sem Docker e sem MongoDB. O banco é um arquivo SQLite
-(`/var/lib/arateki/arateki.db`), servido pelo `node:sqlite` embutido no Node ≥ 22.5
-(produção em Node 26).
+API em **binário estático Rust** (`apps/api-rs`) na `t3.nano`, via `systemd`, sem Docker e sem Node em runtime. O banco é um arquivo SQLite (`/var/lib/arateki/arateki.db`).
+
+O home-server ainda pode rodar a API Node em Docker (`docker-compose.prod.yml`); o caminho de produção na T3 é o binário.
 
 ## 1. Pré-requisitos no host
 
 ```bash
-# Node 26 (via nodesource ou nvm) e pnpm via corepack
-node --version            # >= 22.5 (alvo: 26)
-corepack enable
-
-# SQLite CLI (apenas para o script de backup)
-sudo apt-get update && sudo apt-get install -y sqlite3
+# Sem Node obrigatório. Só o CLI do sqlite para backup opcional:
+sudo pacman -S --noconfirm sqlite   # Arch
+# ou: sudo apt-get install -y sqlite3
 ```
 
 ## 2. Usuário e diretórios
 
 ```bash
-sudo useradd --system --create-home --shell /usr/sbin/nologin arateki
-sudo mkdir -p /var/lib/arateki /opt/arateki/api /etc/arateki /var/www/arateki/dist-front
+sudo useradd --system --create-home --shell /usr/sbin/nologin arateki || true
+sudo mkdir -p /var/lib/arateki /opt/arateki/bin /etc/arateki /var/www/arateki/dist-front
 sudo chown -R arateki:arateki /var/lib/arateki /opt/arateki
 ```
 
-`/var/lib/arateki` guarda o `.db` (mais os arquivos WAL/SHM). É o único caminho com
-escrita liberada pela unit (`ReadWritePaths`).
+`/var/lib/arateki` guarda o `.db` (+ WAL/SHM). É o único path de escrita na unit (`ReadWritePaths`).
 
 ## 3. Variáveis de ambiente
 
-Copie `apps/api/.env.example` para `/etc/arateki/api.env` e ajuste:
+Crie `/etc/arateki/api.env`:
 
 ```ini
-NODE_ENV=production
 PORT=3333
 HOST=127.0.0.1
 SQLITE_PATH=/var/lib/arateki/arateki.db
 JWT_SECRET=<gerar-um-segredo-forte>
 JWT_EXPIRES_IN=2h
 ADMIN_LOGIN=admin
-ADMIN_PASSWORD=<senha-inicial-do-admin>
+ADMIN_PASSWORD=<senha-inicial-do-admin-min-12-chars>
 PUBLIC_SITE_URL=https://arateki.com
-CORS_ORIGIN=https://arateki.com,https://www.arateki.com
 ```
-
-`HOST=127.0.0.1` mantém a API acessível só pelo nginx (proxy reverso). O bootstrap do
-admin roda no boot da API; troque a senha pelo endpoint `PATCH /users/password` depois.
 
 ```bash
 sudo chown arateki:arateki /etc/arateki/api.env
 sudo chmod 600 /etc/arateki/api.env
 ```
 
-## 4. Bundle da aplicação
+`HOST=127.0.0.1` mantém a API só atrás do nginx. O bootstrap do admin roda no start se ainda não houver admin.
 
-O CI publica `api-bundle.tar.gz` (ver `.github/workflows/main.yml`). Manualmente:
+## 4. Binário
 
-```bash
-sudo tar xzf api-bundle.tar.gz -C /opt/arateki
-cd /opt/arateki
-sudo -u arateki corepack pnpm install --prod --filter @arateki/api --frozen-lockfile
+O CI (job `build`) produz `x86_64-unknown-linux-musl` estático e o job `deploy-ec2-t3-nano` instala em:
+
+```text
+/opt/arateki/bin/arateki-api
 ```
 
-O runtime é só `dist/` + dependências de produção (Fastify etc.). `node:sqlite` é nativo
-do Node — não há módulo nativo para compilar.
+Manual:
+
+```bash
+# no runner ou máquina de build:
+cd apps/api-rs
+cargo build --release --target x86_64-unknown-linux-musl
+sudo install -m 755 target/x86_64-unknown-linux-musl/release/arateki-api /opt/arateki/bin/arateki-api
+```
 
 ## 5. systemd
 
@@ -78,37 +74,35 @@ journalctl -u arateki-api -f
 ## 6. nginx
 
 ```bash
-sudo cp deploy/nginx-arateki.conf /etc/nginx/sites-available/arateki.conf
-sudo ln -sf /etc/nginx/sites-available/arateki.conf /etc/nginx/sites-enabled/arateki.conf
-sudo nginx -t && sudo systemctl reload nginx
+sudo cp deploy/nginx-arateki.conf /etc/nginx/…  # ajuste ao layout do host
+# front: root /var/www/arateki/dist-front;
+# /api/  → proxy_pass http://127.0.0.1:3333;
 ```
 
-O frontend estático vai para `/var/www/arateki/dist-front` (o CI faz `rsync`). TLS via
-`certbot --nginx` é recomendado fora do escopo deste arquivo.
+## 7. Deploy user (CI SSH)
 
-## 7. Backup diário
+Usuário `deploy` com chave dedicada e sudoers mínimo, por exemplo:
+
+```text
+deploy ALL=(root) NOPASSWD: /usr/bin/install, /usr/bin/cp, /usr/bin/systemctl, /usr/bin/mkdir, /bin/mkdir
+```
+
+Secrets no environment `production`: `EC2_SSH_KEY`, `EC2_HOST` (e JWT/ADMIN já usados no build).
+
+Disparo: **Actions → Deploy Arateki → Run workflow → `ec2-t3-nano`** (ou `both`).
+
+## 8. Backup
 
 ```bash
-sudo cp deploy/backup-arateki.sh /usr/local/bin/backup-arateki.sh
-sudo chmod +x /usr/local/bin/backup-arateki.sh
-
-# cron diário às 03:00 (usa .backup do SQLite — consistente mesmo com a API no ar)
-echo '0 3 * * * arateki /usr/local/bin/backup-arateki.sh' | sudo tee /etc/cron.d/arateki-backup
+sudo -u arateki deploy/backup-arateki.sh
 ```
 
-`sqlite3 .backup` faz cópia consistente sob WAL sem parar a API. A retenção mantém os
-últimos 14 arquivos em `/var/backups/arateki`.
+## Testes locais do binário
 
-## 8. sudoers do deploy SSH-push (CI)
-
-O usuário `deploy` (usado pelo job `deploy-ec2-t3-nano`) precisa de regras restritas em
-`/etc/sudoers.d/arateki-deploy`:
-
+```bash
+cd apps/api-rs
+cargo test
+JWT_SECRET=dev ADMIN_PASSWORD=admin-password SQLITE_PATH=:memory: PORT=3333 \
+  cargo run --release
+curl -s http://127.0.0.1:3333/api/health
 ```
-deploy ALL=(root) NOPASSWD: /bin/rm -rf /opt/arateki/api, \
-  /bin/mkdir -p /opt/arateki/api, \
-  /bin/tar xzf /tmp/api-bundle.tar.gz -C /opt/arateki, \
-  /usr/bin/systemctl restart arateki-api
-```
-
-Ajuste os caminhos dos binários conforme a distro (`which rm tar mkdir systemctl`).

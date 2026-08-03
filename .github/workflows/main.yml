@@ -17,7 +17,7 @@ on:
 
 jobs:
   # ==========================================
-  # JOB 1: COMPILAÇÃO NO SERVIDOR DO GITHUB
+  # BUILD: Rust API (musl) + web prerender
   # ==========================================
   build:
     runs-on: ubuntu-latest
@@ -25,6 +25,40 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
+
+    - name: Setup Rust (stable + musl)
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: x86_64-unknown-linux-musl
+
+    - name: Cache cargo
+      uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: apps/api-rs -> target
+        shared-key: arateki-api-rs
+
+    - name: Install musl toolchain
+      run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+    - name: Test Rust API
+      working-directory: apps/api-rs
+      run: cargo test
+
+    - name: Build static API binary (musl)
+      working-directory: apps/api-rs
+      env:
+        CC_x86_64_unknown_linux_musl: musl-gcc
+        CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER: musl-gcc
+      run: cargo build --release --target x86_64-unknown-linux-musl
+
+    - name: Stage binary artifact
+      run: |
+        mkdir -p api-dist
+        cp apps/api-rs/target/x86_64-unknown-linux-musl/release/arateki-api api-dist/arateki-api
+        chmod +x api-dist/arateki-api
+        cp -r deploy api-dist/deploy
+        file api-dist/arateki-api
+        ls -lh api-dist/arateki-api
 
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
@@ -69,20 +103,18 @@ jobs:
       timeout-minutes: 8
       run: pnpm --filter @arateki/web exec playwright install --with-deps --only-shell chromium
 
-    - name: Build API
-      run: pnpm --filter @arateki/api build
-
-    - name: Start API (SQLite) for Prerender
-      # node:sqlite é embutido no Node >= 23.4 (runner usa Node 24.x); sem MongoDB, sem Docker.
+    - name: Start Rust API for prerender
       timeout-minutes: 5
       run: |
-        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > apps/api/.env.prerender
-        echo "JWT_EXPIRES_IN=12h" >> apps/api/.env.prerender
-        echo "ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }}" >> apps/api/.env.prerender
-        echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> apps/api/.env.prerender
-        echo "SQLITE_PATH=/tmp/prerender.db" >> apps/api/.env.prerender
-        echo "PUBLIC_SITE_URL=https://arateki.com" >> apps/api/.env.prerender
-        node --env-file=apps/api/.env.prerender apps/api/dist/main.js > /tmp/api.log 2>&1 &
+        export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+        export JWT_EXPIRES_IN=12h
+        export ADMIN_LOGIN="${{ secrets.ADMIN_LOGIN }}"
+        export ADMIN_PASSWORD="${{ secrets.ADMIN_PASSWORD }}"
+        export SQLITE_PATH=/tmp/prerender.db
+        export PUBLIC_SITE_URL=https://arateki.com
+        export HOST=127.0.0.1
+        export PORT=3333
+        ./api-dist/arateki-api > /tmp/api.log 2>&1 &
         echo $! > /tmp/api.pid
 
     - name: Wait for API
@@ -94,6 +126,7 @@ jobs:
           sleep 2
         done
         echo "API did not become healthy in time"
+        cat /tmp/api.log || true
         exit 1
 
     - name: Build frontend with prerender
@@ -157,25 +190,16 @@ jobs:
         path: apps/web/dist/
         retention-days: 1
 
-    - name: Package API runtime
-      run: |
-        mkdir -p api-bundle/apps/api
-        cp -r apps/api/dist api-bundle/apps/api/dist
-        cp apps/api/package.json api-bundle/apps/api/package.json
-        cp pnpm-lock.yaml pnpm-workspace.yaml package.json api-bundle/
-        cp -r deploy api-bundle/deploy
-        tar czf api-bundle.tar.gz -C api-bundle .
-
-    - name: Upload API bundle
+    - name: Upload API binary
       uses: actions/upload-artifact@v4
       with:
-        name: api-bundle
-        path: api-bundle.tar.gz
+        name: api-binary
+        path: api-dist/
         retention-days: 1
 
 
   # ==========================================
-  # JOB 2: DEPLOY NO SERVIDOR PRINCIPAL (Docker, SQLite)
+  # DEPLOY home-server (Docker Node API + front) — still available
   # ==========================================
   deploy-archlinux:
     needs: build
@@ -195,7 +219,8 @@ jobs:
         name: frontend-dist
         path: dist-front-downloaded
 
-    - name: Build API Docker image (SQLite)
+    - name: Build API Docker image (Node+SQLite fallback)
+      # Home still runs Node image until bare-metal Rust is adopted there.
       timeout-minutes: 15
       run: docker build -f apps/api/Dockerfile -t arateki-api:latest .
 
@@ -205,7 +230,6 @@ jobs:
         rsync -a --delete dist-front-downloaded/ "$FRONT_PATH"/
 
     - name: Deploy API
-      # Serviço único com volume SQLite persistente (sem MongoDB).
       timeout-minutes: 12
       run: |
         echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
@@ -228,7 +252,7 @@ jobs:
 
 
   # ==========================================
-  # JOB 3: DEPLOY MANUAL NA EC2 T3 NANO (bare-metal, SSH-push)
+  # DEPLOY EC2 t3.nano — Rust static binary via SSH
   # ==========================================
   deploy-ec2-t3-nano:
     needs: build
@@ -243,11 +267,11 @@ jobs:
         name: frontend-dist
         path: dist-front
 
-    - name: Download API bundle
+    - name: Download API binary
       uses: actions/download-artifact@v4
       with:
-        name: api-bundle
-        path: api-bundle
+        name: api-binary
+        path: api-dist
 
     - name: Configure SSH
       run: |
@@ -259,13 +283,23 @@ jobs:
     - name: Deploy frontend
       run: rsync -az --delete -e "ssh -i ~/.ssh/id_ed25519" dist-front/ deploy@${{ secrets.EC2_HOST }}:/var/www/arateki/dist-front/
 
-    - name: Deploy API bundle
+    - name: Deploy Rust API binary
       run: |
-        rsync -az -e "ssh -i ~/.ssh/id_ed25519" api-bundle/api-bundle.tar.gz deploy@${{ secrets.EC2_HOST }}:/tmp/api-bundle.tar.gz
+        chmod +x api-dist/arateki-api
+        rsync -az -e "ssh -i ~/.ssh/id_ed25519" \
+          api-dist/arateki-api \
+          deploy@${{ secrets.EC2_HOST }}:/tmp/arateki-api
+        rsync -az -e "ssh -i ~/.ssh/id_ed25519" \
+          api-dist/deploy/ \
+          deploy@${{ secrets.EC2_HOST }}:/tmp/arateki-deploy/
         ssh -i ~/.ssh/id_ed25519 deploy@${{ secrets.EC2_HOST }} '
           set -e
-          sudo rm -rf /opt/arateki/api && sudo mkdir -p /opt/arateki/api
-          sudo tar xzf /tmp/api-bundle.tar.gz -C /opt/arateki
-          cd /opt/arateki && sudo corepack pnpm install --prod --filter @arateki/api --frozen-lockfile
+          sudo install -d -m 755 /opt/arateki/bin
+          sudo install -m 755 /tmp/arateki-api /opt/arateki/bin/arateki-api
+          if [ -f /tmp/arateki-deploy/arateki-api.service ]; then
+            sudo cp /tmp/arateki-deploy/arateki-api.service /etc/systemd/system/arateki-api.service
+            sudo systemctl daemon-reload
+          fi
           sudo systemctl restart arateki-api
+          sudo systemctl is-active arateki-api
         '

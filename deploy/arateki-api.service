@@ -1,12 +1,12 @@
 [Unit]
-Description=Arateki API (SQLite, bare-metal)
+Description=Arateki API (Rust + SQLite, bare-metal)
 After=network.target
 
 [Service]
 Type=simple
 User=arateki
-WorkingDirectory=/opt/arateki/api
-ExecStart=/usr/bin/node dist/main.js
+WorkingDirectory=/opt/arateki
+ExecStart=/opt/arateki/bin/arateki-api
 EnvironmentFile=/etc/arateki/api.env
 Restart=on-failure
 RestartSec=2
