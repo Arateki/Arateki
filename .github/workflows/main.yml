@@ -235,34 +235,38 @@ jobs:
 
     - name: Deploy Rust API (user-space binary)
       timeout-minutes: 5
+      env:
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        ADMIN_LOGIN: ${{ secrets.ADMIN_LOGIN }}
+        ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
       run: |
         set -euo pipefail
         chmod +x api-dist/arateki-api
         mkdir -p "$API_ROOT/bin" "$API_DATA"
         install -m 755 api-dist/arateki-api "$API_BIN"
 
-        if [ ! -f "$API_ENV" ]; then
-          umask 077
-          {
-            echo "PORT=3333"
-            echo "HOST=127.0.0.1"
-            echo "SQLITE_PATH=$API_DATA/arateki.db"
-            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}"
-            echo "JWT_EXPIRES_IN=12h"
-            echo "ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }}"
-            echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}"
-            echo "PUBLIC_SITE_URL=https://arateki.com"
-          } > "$API_ENV"
-          chmod 600 "$API_ENV"
-        fi
+        # Persist env for ops (quoted values — never source blindly with set -u)
+        umask 077
+        cat > "$API_ENV" <<EOF
+        PORT=3333
+        HOST=127.0.0.1
+        SQLITE_PATH=$API_DATA/arateki.db
+        JWT_EXPIRES_IN=12h
+        PUBLIC_SITE_URL=https://arateki.com
+        EOF
+        # secrets on their own lines via printf (safe for special chars)
+        printf 'JWT_SECRET=%s\n' "$JWT_SECRET" >> "$API_ENV"
+        printf 'ADMIN_LOGIN=%s\n' "$ADMIN_LOGIN" >> "$API_ENV"
+        printf 'ADMIN_PASSWORD=%s\n' "$ADMIN_PASSWORD" >> "$API_ENV"
+        chmod 600 "$API_ENV"
+        # strip leading spaces from heredoc if any
+        sed -i 's/^[[:space:]]*//' "$API_ENV"
 
-        # stop legacy Node Docker container if present
         if command -v docker >/dev/null 2>&1; then
           docker stop arateki-api 2>/dev/null || true
           docker rm arateki-api 2>/dev/null || true
         fi
 
-        # restart process (static musl binary — no root/systemd required)
         if [ -f "$API_ROOT/arateki-api.pid" ]; then
           kill "$(cat "$API_ROOT/arateki-api.pid")" 2>/dev/null || true
           rm -f "$API_ROOT/arateki-api.pid"
@@ -270,11 +274,17 @@ jobs:
         pkill -f "$API_BIN" 2>/dev/null || true
         sleep 1
 
-        set -a
-        # shellcheck disable=SC1090
-        source "$API_ENV"
-        set +a
-        nohup "$API_BIN" >> "$API_LOG" 2>&1 &
+        # Pass env explicitly — do not `source` secrets (set -u + $ in values breaks)
+        nohup env \
+          PORT=3333 \
+          HOST=127.0.0.1 \
+          SQLITE_PATH="$API_DATA/arateki.db" \
+          JWT_SECRET="$JWT_SECRET" \
+          JWT_EXPIRES_IN=12h \
+          ADMIN_LOGIN="$ADMIN_LOGIN" \
+          ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+          PUBLIC_SITE_URL=https://arateki.com \
+          "$API_BIN" >> "$API_LOG" 2>&1 &
         echo $! > "$API_ROOT/arateki-api.pid"
         sleep 1
         curl -fsS http://127.0.0.1:3333/api/health
