@@ -207,9 +207,13 @@ jobs:
     runs-on: [self-hosted, archlinux]
     environment: production
     env:
+      # Home runner has no passwordless sudo — keep everything under home-server paths.
       FRONT_PATH: /opt/home-server/websites/arateki/dist-front
-      API_BIN: /opt/arateki/bin/arateki-api
-      API_ENV: /etc/arateki/api.env
+      API_ROOT: /opt/home-server/arateki
+      API_BIN: /opt/home-server/arateki/bin/arateki-api
+      API_ENV: /opt/home-server/arateki/api.env
+      API_DATA: /opt/home-server/arateki/data
+      API_LOG: /opt/home-server/arateki/api.log
 
     steps:
     - name: Download Frontend Artifact
@@ -229,49 +233,50 @@ jobs:
         mkdir -p "$FRONT_PATH"
         rsync -a --delete dist-front-downloaded/ "$FRONT_PATH"/
 
-    - name: Deploy Rust API (bare-metal)
+    - name: Deploy Rust API (user-space binary)
       timeout-minutes: 5
       run: |
         set -euo pipefail
         chmod +x api-dist/arateki-api
+        mkdir -p "$API_ROOT/bin" "$API_DATA"
+        install -m 755 api-dist/arateki-api "$API_BIN"
 
-        sudo install -d -m 755 /opt/arateki/bin /var/lib/arateki /etc/arateki
-        # ensure runtime user exists (idempotent)
-        if ! id arateki >/dev/null 2>&1; then
-          sudo useradd --system --home /var/lib/arateki --shell /usr/bin/nologin arateki || true
-        fi
-        sudo chown -R arateki:arateki /var/lib/arateki /opt/arateki
-
-        sudo install -m 755 api-dist/arateki-api "$API_BIN"
-        sudo cp api-dist/deploy/arateki-api.service /etc/systemd/system/arateki-api.service
-
-        # env file: create if missing (do not overwrite production secrets later)
         if [ ! -f "$API_ENV" ]; then
           umask 077
           {
             echo "PORT=3333"
             echo "HOST=127.0.0.1"
-            echo "SQLITE_PATH=/var/lib/arateki/arateki.db"
+            echo "SQLITE_PATH=$API_DATA/arateki.db"
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}"
             echo "JWT_EXPIRES_IN=12h"
             echo "ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }}"
             echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}"
             echo "PUBLIC_SITE_URL=https://arateki.com"
-          } | sudo tee "$API_ENV" >/dev/null
-          sudo chown arateki:arateki "$API_ENV"
-          sudo chmod 600 "$API_ENV"
+          } > "$API_ENV"
+          chmod 600 "$API_ENV"
         fi
 
-        # stop legacy Node Docker API if still running
+        # stop legacy Node Docker container if present
         if command -v docker >/dev/null 2>&1; then
           docker stop arateki-api 2>/dev/null || true
           docker rm arateki-api 2>/dev/null || true
         fi
 
-        sudo systemctl daemon-reload
-        sudo systemctl enable --now arateki-api
-        sudo systemctl restart arateki-api
-        sudo systemctl is-active arateki-api
+        # restart process (static musl binary — no root/systemd required)
+        if [ -f "$API_ROOT/arateki-api.pid" ]; then
+          kill "$(cat "$API_ROOT/arateki-api.pid")" 2>/dev/null || true
+          rm -f "$API_ROOT/arateki-api.pid"
+        fi
+        pkill -f "$API_BIN" 2>/dev/null || true
+        sleep 1
+
+        set -a
+        # shellcheck disable=SC1090
+        source "$API_ENV"
+        set +a
+        nohup "$API_BIN" >> "$API_LOG" 2>&1 &
+        echo $! > "$API_ROOT/arateki-api.pid"
+        sleep 1
         curl -fsS http://127.0.0.1:3333/api/health
 
 
