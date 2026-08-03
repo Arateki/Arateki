@@ -2,27 +2,26 @@ import { buildApp } from './app.js';
 import { BootstrapAdminUseCase } from './application/bootstrap-admin.js';
 import { defaultProducts } from './config/default-products.js';
 import { loadEnv } from './config/env.js';
-import { createMongoConnection } from './infrastructure/mongo.js';
-import { MongoOrderRepository } from './infrastructure/mongo-order-repository.js';
-import { MongoProductRepository } from './infrastructure/mongo-product-repository.js';
-import { MongoAuditLogRepository } from './infrastructure/mongo-audit-log-repository.js';
-import { MongoRevokedTokenRepository } from './infrastructure/mongo-revoked-token-repository.js';
-import { MongoUserRepository } from './infrastructure/mongo-user-repository.js';
+import { openDatabase } from './infrastructure/sqlite/sqlite.js';
+import { SqliteOrderRepository } from './infrastructure/sqlite/sqlite-order-repository.js';
+import { SqliteProductRepository } from './infrastructure/sqlite/sqlite-product-repository.js';
+import { SqliteAuditLogRepository } from './infrastructure/sqlite/sqlite-audit-log-repository.js';
+import { SqliteRevokedTokenRepository } from './infrastructure/sqlite/sqlite-revoked-token-repository.js';
+import { SqliteUserRepository } from './infrastructure/sqlite/sqlite-user-repository.js';
+import { SqliteTransactionRunner } from './infrastructure/sqlite/sqlite-transaction-runner.js';
 
 const env = loadEnv();
-const mongo = await createMongoConnection(env.mongodbUri);
+const sqlite = openDatabase(env.sqlitePath);
 
-const productRepository = new MongoProductRepository(mongo.db);
-const orderRepository = new MongoOrderRepository(mongo.db);
-const auditLogRepository = new MongoAuditLogRepository(mongo.db);
-const userRepository = new MongoUserRepository(mongo.db);
-const revokedTokenRepository = new MongoRevokedTokenRepository(mongo.db);
+const productRepository = new SqliteProductRepository(sqlite.db);
+const orderRepository = new SqliteOrderRepository(sqlite.db);
+const auditLogRepository = new SqliteAuditLogRepository(sqlite.db);
+const userRepository = new SqliteUserRepository(sqlite.db);
+const revokedTokenRepository = new SqliteRevokedTokenRepository(sqlite.db);
+const transactionRunner = new SqliteTransactionRunner(sqlite.db);
 
 await productRepository.seedIfEmpty(defaultProducts);
-await orderRepository.ensureIndexes();
-await auditLogRepository.ensureIndexes();
-await userRepository.ensureIndexes();
-await revokedTokenRepository.ensureIndexes();
+await revokedTokenRepository.purgeExpired();
 await new BootstrapAdminUseCase(userRepository).execute({
   login: env.adminLogin,
   password: env.adminPassword,
@@ -34,7 +33,7 @@ const app = await buildApp({
   auditLogRepository,
   userRepository,
   revokedTokenRepository,
-  mongoClient: mongo.client,
+  transactionRunner,
   jwtSecret: env.jwtSecret,
   jwtExpiresIn: env.jwtExpiresIn,
   corsOrigin: env.corsOrigin,
@@ -43,7 +42,7 @@ const app = await buildApp({
 
 const shutdown = async () => {
   await app.close();
-  await mongo.close();
+  sqlite.close();
 };
 
 process.on('SIGINT', () => {

@@ -7,6 +7,15 @@ import { createTestApp } from '../test/test-app.js';
 describe('api routes', () => {
   let testApp: TestApp;
 
+  const findAuditLog = (action: string, entityId: string): Record<string, unknown> | null => {
+    const row = testApp.sqlite.db
+      .prepare(
+        `SELECT doc FROM audit_logs WHERE json_extract(doc, '$.action') = ? AND json_extract(doc, '$.entityId') = ? LIMIT 1`,
+      )
+      .get(action, entityId) as { doc: string } | undefined;
+    return row ? (JSON.parse(row.doc) as Record<string, unknown>) : null;
+  };
+
   beforeAll(async () => {
     testApp = await createTestApp();
   });
@@ -419,10 +428,7 @@ describe('api routes', () => {
 
     expect(loginResponse.statusCode).toBe(200);
 
-    const auditLog = await testApp.mongo.db.collection('audit_logs').findOne({
-      action: 'user.password.change',
-      entityId: testApp.adminUserId,
-    });
+    const auditLog = findAuditLog('user.password.change', testApp.adminUserId);
     expect(auditLog).toMatchObject({
       userId: testApp.adminUserId,
       action: 'user.password.change',
@@ -500,10 +506,7 @@ describe('api routes', () => {
       order: expect.objectContaining({ status: 'paid' }),
     });
 
-    const auditLog = await testApp.mongo.db.collection('audit_logs').findOne({
-      action: 'order.status.update',
-      entityId: order.id,
-    });
+    const auditLog = findAuditLog('order.status.update', order.id);
     expect(auditLog).toMatchObject({
       userId: testApp.adminUserId,
       action: 'order.status.update',
@@ -581,10 +584,7 @@ describe('api routes', () => {
     expect(updateResponse.statusCode).toBe(200);
     expect(updateResponse.json().product.name.pt).toBe('NOME ATUALIZADO');
 
-    const auditLog = await testApp.mongo.db.collection('audit_logs').findOne({
-      action: 'product.update',
-      entityId: targetProduct.id,
-    });
+    const auditLog = findAuditLog('product.update', targetProduct.id);
     expect(auditLog).toMatchObject({
       userId: testApp.adminUserId,
       action: 'product.update',

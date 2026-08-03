@@ -21,5 +21,4 @@ export interface UserRepository {
   hasAdmin(): Promise<boolean>;
   ensureAdmin(input: BootstrapAdminInput): Promise<User>;
   updatePassword(id: string, passwordHash: string): Promise<User | null>;
-  ensureIndexes(): Promise<void>;
 }

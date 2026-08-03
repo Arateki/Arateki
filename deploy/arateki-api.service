@@ -1,0 +1,20 @@
+[Unit]
+Description=Arateki API (SQLite, bare-metal)
+After=network.target
+
+[Service]
+Type=simple
+User=arateki
+WorkingDirectory=/opt/arateki/api
+ExecStart=/usr/bin/node dist/main.js
+EnvironmentFile=/etc/arateki/api.env
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/arateki
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

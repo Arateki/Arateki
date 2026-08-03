@@ -7,5 +7,9 @@ export interface RevokedToken {
 export interface RevokedTokenRepository {
   revoke(input: RevokedToken): Promise<void>;
   isRevoked(id: string): Promise<boolean>;
-  ensureIndexes(): Promise<void>;
+  /**
+   * Remove tokens já expirados (limpeza de TTL). Operação de domínio porque
+   * nem todo backend tem expiração nativa; retorna a contagem removida.
+   */
+  purgeExpired(now?: Date): Promise<number>;
 }

@@ -17,14 +17,12 @@
     "@fastify/jwt": "^10.0.0",
     "@fastify/rate-limit": "^10.3.0",
     "fastify": "^5.8.5",
-    "mongodb": "^7.2.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@types/node": "^24.12.2",
     "eslint": "^9.39.4",
-    "mongodb-memory-server": "^11.0.1",
     "tsx": "^4.21.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.1",
