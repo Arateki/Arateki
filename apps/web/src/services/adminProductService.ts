@@ -1,6 +1,26 @@
-import type { LocalizedText, ProductVariantInput } from '../../../api/src/domain/product';
+/** Frontend types mirroring the Rust API product JSON (camelCase). */
+export interface LocalizedText {
+  pt: string;
+  en: string;
+  es: string;
+  zh: string;
+  ja: string;
+}
 
-// We share types from the API if possible, or redefine them here for the frontend
+export interface ProductPrices {
+  brlCents: number;
+  usdCents: number;
+}
+
+export interface ProductVariantInput {
+  id?: string;
+  sku: string;
+  attributes: Record<string, string>;
+  prices: ProductPrices;
+  stock: number;
+  active?: boolean;
+}
+
 export interface RawProduct {
   id: string;
   name: LocalizedText;
