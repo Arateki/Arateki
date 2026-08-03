@@ -31,40 +31,29 @@ As seguintes tecnologias foram utilizadas exclusivamente para a construção des
 
 ## 📁 Estrutura do Repositório
 
-- `apps/web`: frontend React/Vite atual.
-- `apps/api`: API Fastify com autenticação JWT e persistência em **SQLite** (`node:sqlite`).
+- `apps/web`: frontend React/Vite.
+- `apps/api-rs`: API **Rust** + SQLite (binário estático; produção via systemd).
 
 ## 📦 Começando
 
 ### Pré-requisitos
-- Node.js (LTS recomendado)
-- pnpm
+- Node.js (LTS) + pnpm — frontend
+- Rust stable — API (`cargo`)
 
 ### Instalação
 ```bash
-# Clone o repositório
-git clone https://github.com/Arateki/arateki-landing.git
-
-# Instale as dependências
+git clone https://github.com/Arateki/Arateki.git
 pnpm install
-
-# Configure as variáveis de ambiente
-cp apps/web/.env.example apps/web/.env # Garanta que VITE_GOOGLE_SCRIPT_URL esteja preenchido
+cp apps/web/.env.example apps/web/.env
 ```
 
-### Rodando o Servidor de Desenvolvimento
+### Desenvolvimento
 ```bash
-pnpm dev
+pnpm dev          # web
+pnpm dev:api      # API Rust (cargo run)
 ```
 
-### Rodando a API
-```bash
-# SQLite embutido (default em dev: arquivo local / path em SQLITE_PATH)
-cp apps/api/.env.example apps/api/.env   # se ainda não tiver
-pnpm dev:api
-```
-
-Deploy bare-metal (systemd + nginx + t3.nano): ver `deploy/README.md` e `docs/SQLITE-BAREMETAL-SPEC.md`.
+Deploy bare-metal (systemd + nginx + t3.nano / home): `deploy/README.md`.
 
 ## 🧪 Testes e Qualidade
 

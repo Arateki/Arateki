@@ -1,7 +1,7 @@
 # Arateki — SPEC: Migração da API para Rust + SQLite
 
-- **Status:** Em implementação (`apps/api-rs`) — Node+SQLite já em `main` (PR #1)
-- **Data:** 2026-06-24 (início implementação 2026-08-03)
+- **Status:** **Concluído em produção** — `apps/api-rs` é a única API; Node `apps/api` removido (recuperável no git)
+- **Data:** 2026-06-24 (implementação 2026-08-03; cutover Node→Rust 2026-08-03)
 - **Alvo de deploy:** AWS EC2 `t3.nano` (512 MB RAM) em bare-metal, sem Docker
 - **Documento irmão:** [`SQLITE-BAREMETAL-SPEC.md`](./SQLITE-BAREMETAL-SPEC.md)
 - **Estratégia de testes:** portar cenários de `apps/api/src/http/routes.test.ts` para `cargo test` e só então fechar paridade de implementação

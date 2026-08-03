@@ -1,26 +1,8 @@
-services:
-  api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
-    container_name: arateki-api
-    restart: unless-stopped
-    ports:
-      - "3333:3333"
-    environment:
-      - NODE_ENV=production
-      - PORT=3333
-      - HOST=0.0.0.0
-      - SQLITE_PATH=/data/arateki.db
-      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-2h}
-      - ADMIN_LOGIN=${ADMIN_LOGIN:-admin}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
-      - CORS_ORIGIN=${CORS_ORIGIN:-}
-      - PUBLIC_SITE_URL=${PUBLIC_SITE_URL:-https://arateki.com}
-    volumes:
-      - arateki-sqlite-data:/data
+# Optional: local/dev helpers. Production API is the Rust binary (apps/api-rs)
+# via systemd — see deploy/README.md. This compose only builds the static web
+# image for one-off artifact export if needed.
 
+services:
   web:
     build:
       context: .
@@ -31,8 +13,3 @@ services:
     restart: "no"
     volumes:
       - ./dist-front:/output
-    depends_on:
-      - api
-
-volumes:
-  arateki-sqlite-data:

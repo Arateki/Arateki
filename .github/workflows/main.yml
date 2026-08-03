@@ -8,7 +8,7 @@ on:
       target:
         description: Deploy target
         required: true
-        default: archlinux
+        default: both
         type: choice
         options:
           - archlinux
@@ -199,7 +199,7 @@ jobs:
 
 
   # ==========================================
-  # DEPLOY home-server (Docker Node API + front) — still available
+  # DEPLOY home-server — Rust binary + front (local rsync)
   # ==========================================
   deploy-archlinux:
     needs: build
@@ -208,55 +208,79 @@ jobs:
     environment: production
     env:
       FRONT_PATH: /opt/home-server/websites/arateki/dist-front
+      API_BIN: /opt/arateki/bin/arateki-api
+      API_ENV: /etc/arateki/api.env
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
-
     - name: Download Frontend Artifact
       uses: actions/download-artifact@v4
       with:
         name: frontend-dist
         path: dist-front-downloaded
 
-    - name: Build API Docker image (Node+SQLite fallback)
-      # Home still runs Node image until bare-metal Rust is adopted there.
-      timeout-minutes: 15
-      run: docker build -f apps/api/Dockerfile -t arateki-api:latest .
+    - name: Download API binary
+      uses: actions/download-artifact@v4
+      with:
+        name: api-binary
+        path: api-dist
 
     - name: Deploy Frontend
       run: |
         mkdir -p "$FRONT_PATH"
         rsync -a --delete dist-front-downloaded/ "$FRONT_PATH"/
 
-    - name: Deploy API
-      timeout-minutes: 12
+    - name: Deploy Rust API (bare-metal)
+      timeout-minutes: 5
       run: |
-        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
-        echo "JWT_EXPIRES_IN=12h" >> .env
-        echo "ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }}" >> .env
-        echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
-        echo "CORS_ORIGIN=https://arateki.com" >> .env
-        echo "PUBLIC_SITE_URL=https://arateki.com" >> .env
-        docker compose -f docker-compose.prod.yml up -d api
+        set -euo pipefail
+        chmod +x api-dist/arateki-api
 
-    - name: Show Docker status on failure
-      if: ${{ failure() }}
-      run: |
-        docker compose -f docker-compose.prod.yml ps
-        docker compose -f docker-compose.prod.yml logs --tail=200 api
+        sudo install -d -m 755 /opt/arateki/bin /var/lib/arateki /etc/arateki
+        # ensure runtime user exists (idempotent)
+        if ! id arateki >/dev/null 2>&1; then
+          sudo useradd --system --home /var/lib/arateki --shell /usr/bin/nologin arateki || true
+        fi
+        sudo chown -R arateki:arateki /var/lib/arateki /opt/arateki
 
-    - name: Cleanup Docker images
-      run: |
-        docker image prune -f
+        sudo install -m 755 api-dist/arateki-api "$API_BIN"
+        sudo cp api-dist/deploy/arateki-api.service /etc/systemd/system/arateki-api.service
+
+        # env file: create if missing (do not overwrite production secrets later)
+        if [ ! -f "$API_ENV" ]; then
+          umask 077
+          {
+            echo "PORT=3333"
+            echo "HOST=127.0.0.1"
+            echo "SQLITE_PATH=/var/lib/arateki/arateki.db"
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}"
+            echo "JWT_EXPIRES_IN=12h"
+            echo "ADMIN_LOGIN=${{ secrets.ADMIN_LOGIN }}"
+            echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}"
+            echo "PUBLIC_SITE_URL=https://arateki.com"
+          } | sudo tee "$API_ENV" >/dev/null
+          sudo chown arateki:arateki "$API_ENV"
+          sudo chmod 600 "$API_ENV"
+        fi
+
+        # stop legacy Node Docker API if still running
+        if command -v docker >/dev/null 2>&1; then
+          docker stop arateki-api 2>/dev/null || true
+          docker rm arateki-api 2>/dev/null || true
+        fi
+
+        sudo systemctl daemon-reload
+        sudo systemctl enable --now arateki-api
+        sudo systemctl restart arateki-api
+        sudo systemctl is-active arateki-api
+        curl -fsS http://127.0.0.1:3333/api/health
 
 
   # ==========================================
-  # DEPLOY EC2 t3.nano — Rust static binary via SSH
+  # DEPLOY EC2 t3.nano — Rust binary via SSH
   # ==========================================
   deploy-ec2-t3-nano:
     needs: build
-    if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'ec2-t3-nano' || github.event.inputs.target == 'both') }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.target == 'ec2-t3-nano' || github.event.inputs.target == 'both')) }}
     runs-on: ubuntu-latest
     environment: production
 
