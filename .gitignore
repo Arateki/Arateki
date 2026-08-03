@@ -31,3 +31,6 @@ dist-ssr
 coverage
 playwright-report
 test-results
+
+# Rust
+apps/api-rs/target/
