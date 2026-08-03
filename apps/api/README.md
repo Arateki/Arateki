@@ -1,36 +1,37 @@
 # Arateki API
 
-TypeScript Fastify API for Arateki.
+TypeScript Fastify API for Arateki. Persistence is **SQLite** via Node's built-in `node:sqlite` (Node ≥ 22.5 / recommended 24+).
 
 ## Development
 
 ```bash
-docker compose up -d mongodb
+cp .env.example .env   # from apps/api/
 pnpm --filter @arateki/api dev
 ```
 
-The API reads configuration from environment variables. Start from `.env.example` when running outside Docker.
+No separate database process is required. Default `SQLITE_PATH` in test is `:memory:`; outside test the default is `/var/lib/arateki/arateki.db` (override with env).
 
-On startup, the API creates the first admin user when no admin exists in MongoDB. It uses `ADMIN_LOGIN` and `ADMIN_PASSWORD`, stores only a password hash, and never writes the plaintext password back to disk. After an admin exists, those bootstrap variables are no longer required for startup.
+On startup, the API creates the first admin when none exists, using `ADMIN_LOGIN` and `ADMIN_PASSWORD`. Only the password hash is stored. After an admin exists, those bootstrap variables are no longer required for startup.
+
+Optional Docker (single service + volume for the `.db`):
+
+```bash
+docker compose up -d api
+```
 
 ## Routes
 
-All API routes are served under `/api`. This matches the production reverse
-proxy and the frontend's default `VITE_API_URL`.
+All API routes are served under `/api` (matches production reverse proxy and `VITE_API_URL`).
 
-- `GET /api/health`: public health check.
-- `GET /api/products`: public product listing. Use `?country=BR` for BRL prices; other country values return USD prices. Use `?lang=pt|en|es|zh|ja` for localized product copy.
-- `POST /api/login`: public admin login with `{ "login": "...", "password": "..." }`. Returns a JWT when the credentials match the stored admin.
-- `POST /api/logout`: private token revocation for the current JWT.
-- `PATCH /api/users/password`: private password change for the current JWT user with `{ "currentPassword": "...", "newPassword": "..." }`.
-- `POST /api/products`: private product creation. Requires a JWT signed with `JWT_SECRET` and payload `{ "role": "admin" }`.
-- `POST /api/orders`: public order creation. Receives contact, address, and items with `productId`, `variantId`, and `quantity`; the API infers currency, product snapshots, prices, totals, and creates the order as `pending`.
+- `GET /api/health` — public health check
+- `GET /api/products` — public listing (`?country=BR` → BRL; otherwise USD; `?lang=pt|en|es|zh|ja`)
+- `POST /api/login` — admin login → `{ token }`
+- `GET /api/me`, `POST /api/refresh`, `POST /api/logout`, `PATCH /api/users/password` — auth lifecycle
+- `POST /api/products`, `PUT /api/products/:id`, `GET /api/admin/products`… — admin catalog
+- `POST /api/orders` — public order create; admin list/get/status
+- Feeds: `/api/feeds/google-shopping.xml`, `products.tsv`, `meta-catalog.csv`, `/api/sitemap.xml`
 
-JWTs include `sub` (user id), `role`, `tokenVersion`, `jti`, and `exp`. Logout stores the `jti` in `revokedTokens` until expiration. Password changes increment `users.tokenVersion`, which invalidates previous tokens for that user.
-
-Products are stored with localized `name`/`description` objects and `variants`. Each variant has `sku`, `attributes`, `stock`, `active`, and `prices: { brlCents, usdCents }`. The API response projects the selected `priceCents`, `currency`, `name`, and `description`; product-level `priceCents` is the lowest active variant price and product-level `stock` is the sum of active variant stock.
-
-Orders are stored with immutable item snapshots for the selected variant. The client cannot submit status, unit price, subtotal, total, currency, SKU, or product name; those values are inferred from the current product data during order creation.
+JWTs include `sub`, `role`, `tokenVersion`, `jti`, and `exp`. Logout revokes `jti`. Password changes bump `tokenVersion`.
 
 ## Tests
 
@@ -38,4 +39,9 @@ Orders are stored with immutable item snapshots for the selected variant. The cl
 pnpm --filter @arateki/api test
 ```
 
-Integrated tests use Fastify's `app.inject()` plus `mongodb-memory-server`; they do not require the Docker MongoDB service.
+Integration tests use Fastify `app.inject()` with SQLite `:memory:` (no external DB).
+
+## Deploy
+
+Bare-metal (systemd) and t3.nano SSH-push: `../../deploy/README.md`.
+Rust rewrite plan: `../../docs/RUST-MIGRATION-SPEC.md`.

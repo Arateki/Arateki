@@ -32,7 +32,7 @@ As seguintes tecnologias foram utilizadas exclusivamente para a construção des
 ## 📁 Estrutura do Repositório
 
 - `apps/web`: frontend React/Vite atual.
-- `apps/api`: API Fastify com autenticação JWT e persistência em MongoDB.
+- `apps/api`: API Fastify com autenticação JWT e persistência em **SQLite** (`node:sqlite`).
 
 ## 📦 Começando
 
@@ -59,9 +59,12 @@ pnpm dev
 
 ### Rodando a API
 ```bash
-docker compose up -d mongodb
+# SQLite embutido (default em dev: arquivo local / path em SQLITE_PATH)
+cp apps/api/.env.example apps/api/.env   # se ainda não tiver
 pnpm dev:api
 ```
+
+Deploy bare-metal (systemd + nginx + t3.nano): ver `deploy/README.md` e `docs/SQLITE-BAREMETAL-SPEC.md`.
 
 ## 🧪 Testes e Qualidade
 

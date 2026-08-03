@@ -32,7 +32,7 @@ The following technologies were used exclusively to build this web application:
 ## 📁 Repository Layout
 
 - `apps/web`: current React/Vite frontend.
-- `apps/api`: Fastify API with JWT authentication and MongoDB persistence.
+- `apps/api`: Fastify API with JWT authentication and **SQLite** persistence (`node:sqlite`).
 
 ## 📦 Getting Started
 
@@ -64,7 +64,7 @@ pnpm dev
 
 ### Running API Server
 ```bash
-docker compose up -d mongodb
+# Embedded SQLite (set SQLITE_PATH if needed; see apps/api/.env.example)
 pnpm dev:api
 ```
 
